@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | TS - Sensory Data</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/png" href="images/logo-2.png">
+
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="css/webpage_defaults.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    
+</head>
+<body>
+    <script src="script/navbar-sidebar.js"></script>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <!-- Sidebar Toggle (Logo) -->
+        <div id="sidebarToggle">
+            <i class="fa fa-bars" style="color: #417630; font-size: 2rem; cursor: pointer;"></i> 
+            <a href="#"><img src="images/logo-1.png" style="height: 36px"></a>
+        </div>
+        
+
+        <!-- Right Icon with Logout Dropdown -->
+        <div class="navbar-right" style="position: relative;">
+            <i class="fa fa-user-circle" style="font-size: 2rem; color:#417630; cursor:pointer;" id="userIcon"></i>
+            <div id="userDropdown">
+                <a href="#">Settings</a>
+                <a href="#">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="tabs">
+            <p>CORE</p>
+            <div class="sidebar-link-group">
+                <a href="#" class="sidebar-link sidebar-active"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
+            </div>
+            <p>SYSTEMS</p>
+            <div class="sidebar-link-group">
+                <a href="#" class="sidebar-link">
+                    <i class='bx  bx-timer'></i> Production Cycle
+                    <span class="fa fa-caret-down" style="margin-left:8px;"></span>
+                </a>
+                <div class="sidebar-submenu">
+                    <a href="production_cycle.html">CLF 750A</a>
+                    <a href="#">CLF 750B</a>
+                    <a href="#">CLF 750C</a>
+                </div>
+            </div>
+            <div class="sidebar-link-group">
+                <a href="#" class="sidebar-link">
+                    <i class='bx  bx-chart-network'></i>  Real-time Parameters
+                    <span class="fa fa-caret-down" style="margin-left:8px;"></span>
+                </a>
+                <div class="sidebar-submenu" style="display:none;">
+                    <a href="#">Motor Temperatures</a>
+                    <a href="#">Coolant Flow Rates</a>
+                </div>
+            </div>
+            <div class="sidebar-link-group">
+                <a href="#" class="sidebar-link">
+                    <i class='bx  bx-dumbbell'></i> Weight Data
+                    <span class="fa fa-caret-down" style="margin-left:8px;"></span>
+                </a>
+                <div class="sidebar-submenu" style="display:none;">
+                    <a href="#">Gross/Net Weights</a>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar-footer" class="sidebar-footer">
+            <span style="font-size: 0.75rem; color: #646464">Logged in as:</span>
+            <span>User123</span>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main-content">
+
+        <div class="header">
+            <div class="header-left">
+                <h3>Dashboard</h3>
+                <span>Technical Service Department - Sensory Data</span>
+            </div>
+            <div class="header-right">
+            </div>
+        </div>
+        
+        <!-- Active Machines -->
+        <div class="section">
+            <div class="content-header">
+                <h2 style="margin: 0;">Active Machines</h2>
+                <div class="section-controls">
+                    <input type="text" placeholder="Search machine...">
+                    <button type="button">
+                        <i class="fa fa-sort"></i> Sort
+                    </button>
+                </div>
+            </div>
+
+            <!-- Machine Cards -->
+            <div class="card-container">
+                
+                <div id="status-card" class="card machine-card active-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator active"></div>
+                        <h2 id="machine-name">CLF 750A</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">1L PEPSI #4135</p>
+                </div>
+                
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">ARB 50</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">SUM 260C</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">SUM 650</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">MIT 650D</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">SUM 260C</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">TOS 650A</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">CLF 750B</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">CLF 750C</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">TOS 850A</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">TOS 850B</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">TOS 850C</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">CLF 950A</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">CLF 950B</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+
+                <div id="status-card" class="card machine-card inactive-border">
+                    <div class="status-container">
+                        <div id="status-indicator" class="status-indicator inactive"></div>
+                        <h2 id="machine-name">MIT 1050B</h2>
+                    </div>
+                    <span class="current-product-label">Current Product:<br></span>
+                    <p class="current-product-value">---</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Cycle Times -->
+        <div class="section">
+            <div class="content-header">
+                <h2 style="margin: 0;">Average Cycle Times</h2>
+                <div class="section-controls">
+                    <div class="by_number">
+                        <label for="show-entries">Week</label>
+                        <select id="show-entries" onchange="updateTableDisplay()">
+                            <option value="1">1</option>
+                            <option value="2" selected>2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                        </select>
+                    </div>
+                    
+                    <div class="by_month">
+                        <label for="show-entries">Month</label>
+                        <select id="filter-month" onchange="updateTableDisplay()">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contents">
+
+                <!-- Machine Selection -->
+                <div class="machine-tabs">
+                    <label for="machine-select" style="display:none;">Select Machine:</label>
+                    <div id="machine-tab-list" class="machine-tab-list">
+                        <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
+                        <button class="machine-tab" data-machine="ARB50" onclick="selectMachineTab(this)">ARB50</button>
+                        <button class="machine-tab" data-machine="SUM 260C" onclick="selectMachineTab(this)">SUM 260C</button>
+                        <button class="machine-tab" data-machine="SUM 350" onclick="selectMachineTab(this)">SUM 350</button>
+                        <button class="machine-tab" data-machine="MIT 650D" onclick="selectMachineTab(this)">MIT 650D</button>
+                        <button class="machine-tab" data-machine="TOS 650A" onclick="selectMachineTab(this)">TOS 650A</button>
+                        <button class="machine-tab" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
+                        <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTab(this)">CLF 750B</button>
+                        <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTab(this)">CLF 750C</button>
+                        <button class="machine-tab" data-machine="TOS 850A" onclick="selectMachineTab(this)">TOS 850A</button>
+                        <button class="machine-tab" data-machine="TOS 850B" onclick="selectMachineTab(this)">TOS 850B</button>
+                        <button class="machine-tab" data-machine="TOS 850C" onclick="selectMachineTab(this)">TOS 850C</button>
+                        <button class="machine-tab" data-machine="CLF 950A" onclick="selectMachineTab(this)">CLF 950A</button>
+                        <button class="machine-tab" data-machine="CLF 950B" onclick="selectMachineTab(this)">CLF 950B</button>
+                        <button class="machine-tab" data-machine="MIT 1050B" onclick="selectMachineTab(this)">MIT 1050B</button>
+                    </div>
+                </div>
+                <script>
+                    function selectMachineTab(tab) {
+                        document.querySelectorAll('.machine-tab').forEach(b => b.classList.remove('active'));
+                        tab.classList.add('active');
+                        // Call your chart update logic here
+                        updateChart(tab.getAttribute('data-machine'));
+                    }
+                </script>
+
+                <script>
+                    function selectMachine(btn) {
+                        document.querySelectorAll('.machine-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        // Call your chart update logic here
+                        updateChart(btn.getAttribute('data-machine'));
+                    }
+                </script>
+
+                <!-- Cycle Times Graph -->
+                <div class="chart-container" style="width: -webkit-fill-available;">
+                    <div id="chart"></div>
+                    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+                    <script>
+                        // Use CSS variables for palette
+                        const rootStyles = getComputedStyle(document.documentElement);
+                        const palette = {
+                            green: rootStyles.getPropertyValue('--green').trim() || '#417630',
+                            darkGreen: rootStyles.getPropertyValue('--dark-green').trim() || '#23441e',
+                            orange: rootStyles.getPropertyValue('--orange').trim() || '#f59c2f',
+                            white: rootStyles.getPropertyValue('--white').trim() || '#d8d8d8',
+                            gray: rootStyles.getPropertyValue('--gray').trim() || '#1a1a1a',
+                            lightGray: rootStyles.getPropertyValue('--light-gray').trim() || '#646464',
+                            black: rootStyles.getPropertyValue('--black').trim() || '#101010'
+                        };
+                        var daysInMonth = 31;
+                        var selectedMonth = document.getElementById('month-select') ? parseInt(document.getElementById('month-select').value) : 0;
+                        var today = new Date();
+                        var year = today.getFullYear();
+                        var month = selectedMonth;
+                        var days = new Date(year, month + 1, 0).getDate();
+                        var dataPoints = [];
+                        for (var i = 1; i <= Math.max(7, days); i++) {
+                            dataPoints.push({
+                                x: i.toString(),
+                                y: Math.floor(Math.random() * 61) + 60,
+                                goals: [
+                                    {
+                                        name: 'Expected',
+                                        value: Math.floor(Math.random() * 61) + 60,
+                                        strokeHeight: 5,
+                                        strokeColor: palette.orange
+                                    }
+                                ]
+                            });
+                            if (i === 7) break; // Only show 7 days for now
+                        }
+
+                        var options = {
+                            series: [
+                                {
+                                    name: 'Actual',
+                                    data: dataPoints
+                                }
+                            ],
+                            chart: {
+                                height: 350,
+                                type: 'bar',
+                                toolbar: { show: false },
+                                background: palette.black
+                            },
+                            plotOptions: {
+                                bar: {
+                                    columnWidth: '60%',
+                                    borderRadius: 4,
+                                    colors: {
+                                        backgroundBarColors: [palette.lightGray],
+                                        backgroundBarOpacity: 0.2
+                                    }
+                                }
+                            },
+                            colors: [palette.green],
+                            dataLabels: {
+                                enabled: false
+                            },
+                            legend: {
+                                show: true,
+                                showForSingleSeries: true,
+                                customLegendItems: ['Actual Cycle Time', 'Expected Cycle Time'],
+                                markers: {
+                                    fillColors: [palette.green, palette.orange]
+                                },
+                                labels: {
+                                    colors: [palette.white]
+                                }
+                            },
+                            xaxis: {
+                                labels: {
+                                    style: {
+                                        colors: palette.white,
+                                        fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
+                                    }
+                                },
+                                axisBorder: {
+                                    color: palette.lightGray
+                                },
+                                axisTicks: {
+                                    color: palette.lightGray
+                                }
+                            },
+                            yaxis: {
+                                labels: {
+                                    style: {
+                                        colors: palette.white,
+                                        fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                theme: 'dark',
+                                style: {
+                                    fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
+                                }
+                            },
+                            grid: {
+                                borderColor: palette.lightGray,
+                                strokeDashArray: 4
+                            },
+                            states: {
+                                hover: {
+                                    filter: {
+                                        type: 'lighten',
+                                        value: 0.15
+                                    }
+                                },
+                                active: {
+                                    filter: {
+                                        type: 'darken',
+                                        value: 0.15
+                                    }
+                                }
+                            }
+                        };
+
+                        var chart = new ApexCharts(document.querySelector("#chart"), options);
+                        chart.render();
+                    </script>
+                    <style>
+                        /* ApexCharts custom tooltip and legend color overrides */
+                        .apexcharts-tooltip {
+                            background: var(--gray) !important;
+                            color: var(--white) !important;
+                            border: 1px solid var(--green) !important;
+                            font-family: var(--font-main), sans-serif !important;
+                        }
+                        .apexcharts-legend-text {
+                            color: var(--white) !important;
+                            font-family: var(--font-main), sans-serif !important;
+                        }
+                    </style>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
