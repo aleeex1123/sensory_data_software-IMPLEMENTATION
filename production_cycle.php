@@ -1,3 +1,15 @@
+<?php
+$conn = new mysqli("localhost", "root", "", "sensory_data");
+
+// Check for connection errors
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$sql = "SELECT * FROM production_cycle ORDER BY timestamp DESC";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,72 +114,107 @@
                 <h2 style="margin: 0;">Production Status</h2>
             </div>
 
+            <?php
+            // Fetch the latest row from the database for the cards
+            $latest_sql = "SELECT * FROM production_cycle ORDER BY timestamp DESC LIMIT 1";
+            $latest_result = $conn->query($latest_sql);
+            $latest = $latest_result->fetch_assoc();
+            ?>
+
             <!-- Production Cards -->
             <div class="card-container">
                 <!-- Status Card -->
-                <div id="status-card" class="card machine-card active-border">
+                <div id="status-card" class="card machine-card <?php echo ($latest['cycle_status'] == 1) ? 'active-border' : 'inactive-border'; ?>">
                     <div class="status-container">
-                        <div id="status-indicator" class="status-indicator active"></div>
-                        <h2 id="machine-status">Mold Closed</h2>
+                        <div id="status-indicator" class="status-indicator <?php echo ($latest['cycle_status'] == 1) ? 'active' : 'inactive'; ?>"></div>
+                        <h2 id="machine-status"><?php echo ($latest['cycle_status'] == 1) ? 'Mold Closed' : 'Mold Open'; ?></h2>
                     </div>
                     <p style="font-size: 0.75rem">Injection Status</p>
                 </div>
 
                 <!-- Temperature 1 Card -->
                 <div class="card temperature1-card">
-                    <h2 id="temp1-value">25°C</h2>
+                    <h2 id="temp1-value"><?php echo htmlspecialchars($latest['tempC_01']); ?>°C</h2>
                     <p style="font-size: 0.75rem">Motor Temperature 1</p>
                     <div class="chart-container">
-                        <!-- You can set the width/height here -->
                         <canvas id="chartTemp1"></canvas>
                     </div>
                 </div>
 
                 <!-- Temperature 2 Card -->
                 <div class="card temperature2-card">
-                    <h2 id="temp2-value">30°C</h2>
+                    <h2 id="temp2-value"><?php echo htmlspecialchars($latest['tempC_02']); ?>°C</h2>
                     <p style="font-size: 0.75rem">Motor Temperature 2</p>
                     <div class="chart-container">
-                        <!-- You can set the width/height here -->
                         <canvas id="chartTemp2"></canvas>
                     </div>
                 </div>
 
                 <!-- Product Card -->
                 <div class="card product-card">
-                    <h2 id="product-status">Product A</h2>
+                    <h2 id="product-status"><?php echo htmlspecialchars($latest['product']); ?></h2>
                     <p style="font-size: 0.75rem">Current Product</p>
                 </div>
             </div>
 
-            <!-- Static Chart.js Graphs -->
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
-                function createStaticChart(ctx, value, maxValue, color) {
-                    return new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            datasets: [{
-                                data: [value, maxValue - value],
-                                backgroundColor: [color, '#222'],
-                                borderWidth: 0
-                            }]
-                        },
-                        options: {
-                            responsive: false, // Set to false to use canvas width/height
-                            maintainAspectRatio: false,
-                            cutout: '60%',
-                            plugins: {
-                                tooltip: { enabled: false },
-                                legend: { display: false },
-                            }
-                        }
-                    });
+                let temp1Chart, temp2Chart;
+
+                function updateCharts(temp1, temp2) {
+                    temp1Chart.data.datasets[0].data = [temp1, 100 - temp1];
+                    temp2Chart.data.datasets[0].data = [temp2, 100 - temp2];
+                    temp1Chart.update();
+                    temp2Chart.update();
+                }
+
+                function fetchData() {
+                    fetch("fetch/fetch_production_status.php")
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById("temp1-value").textContent = data.tempC_01 + "°C";
+                            document.getElementById("temp2-value").textContent = data.tempC_02 + "°C";
+                            document.getElementById("product-status").textContent = data.product;
+
+                            // Update status
+                            document.getElementById("machine-status").textContent = data.cycle_status == 1 ? "Mold Closed" : "Mold Open";
+                            document.getElementById("status-indicator").className = "status-indicator " + (data.cycle_status == 1 ? "active" : "inactive");
+                            document.getElementById("status-card").className = "card machine-card " + (data.cycle_status == 1 ? "active-border" : "inactive-border");
+
+                            // Update charts
+                            updateCharts(data.tempC_01, data.tempC_02);
+                        });
                 }
 
                 document.addEventListener("DOMContentLoaded", function () {
-                    createStaticChart(document.getElementById("chartTemp1"), 25, 100, "#FFB347");
-                    createStaticChart(document.getElementById("chartTemp2"), 30, 100, "#FF6347");
+                    function createChart(ctx, value, maxValue, color) {
+                        return new Chart(ctx, {
+                            type: 'doughnut',
+                            data: {
+                                datasets: [{
+                                    data: [value, maxValue - value],
+                                    backgroundColor: [color, '#222'],
+                                    borderWidth: 0
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                cutout: '60%',
+                                plugins: {
+                                    tooltip: { enabled: false },
+                                    legend: { display: false },
+                                }
+                            }
+                        });
+                    }
+
+                    // Initialize Charts with PHP values
+                    temp1Chart = createChart(document.getElementById("chartTemp1"), <?php echo (int)$latest['tempC_01']; ?>, 100, "#FFB347");
+                    temp2Chart = createChart(document.getElementById("chartTemp2"), <?php echo (int)$latest['tempC_02']; ?>, 100, "#FF6347");
+
+                    // Fetch Data Every 1 Second
+                    setInterval(fetchData, 1000);
                 });
             </script>
         </div>
@@ -180,17 +227,17 @@
                 <div class="section-controls">
                     <div class="by_number">
                         <label for="show-entries">Show</label>
-                        <select id="show-entries" onchange="updateTableDisplay()">
+                        <select id="show-entries">
                             <option value="5">5</option>
                             <option value="10" selected>10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
                         </select>
                     </div>
-                    
                     <div class="by_month">
-                        <label for="show-entries">Filter by month</label>
-                        <select id="filter-month" onchange="updateTableDisplay()">
+                        <label for="filter-month">Filter by month</label>
+                        <select id="filter-month">
+                            <option value="0">All</option>
                             <option value="1">January</option>
                             <option value="2">February</option>
                             <option value="3">March</option>
@@ -206,86 +253,53 @@
                         </select>
                     </div>
                 </div>
-            </div>
+                </div>
 
-            <script>
-                // Optional: Add horizontal scroll hint for mobile
-                document.addEventListener("DOMContentLoaded", function() {
-                    const tableWrapper = document.querySelector('.table-responsive');
-                    if (tableWrapper) {
-                        tableWrapper.setAttribute('tabindex', '0');
-                    }
+                <div class="table-responsive">
+                    <table class="styled-table" id="sensorTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cycle Time (seconds)</th>
+                                <th>Recycle Time (seconds)</th>
+                                <th>Motor Temperature 1 (°C)</th>
+                                <th>Motor Temperature 2 (°C)</th>
+                                <th>Machine</th>
+                                <th>Product</th>
+                                <th>Timestamp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Table rows will be loaded here via AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <script>
+                function fetchTableData() {
+                    const showEntries = document.getElementById('show-entries').value;
+                    const filterMonth = document.getElementById('filter-month').value;
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', `fetch/fetch_production_cycle_table.php?show=${showEntries}&month=${filterMonth}`, true);
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            document.getElementById('table-body').innerHTML = xhr.responseText;
+                        }
+                    };
+                    xhr.send();
+                }
+
+                // Update table when controls change
+                document.getElementById('show-entries').addEventListener('change', fetchTableData);
+                document.getElementById('filter-month').addEventListener('change', fetchTableData);
+
+                // Set default month to current month
+                document.addEventListener("DOMContentLoaded", function () {
+                    let currentMonth = new Date().getMonth() + 1;
+                    document.getElementById("filter-month").value = currentMonth;
+                    fetchTableData();
                 });
-            </script>
-
-            <div class="table-responsive">
-                <table class="styled-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Cycle Time (seconds)</th>
-                            <th>Recycle Time (seconds)</th>
-                            <th>Temperature_01 (°C)</th>
-                            <th>Temperature_02 (°C)</th>
-                            <th>Machine</th>
-                            <th>Product</th>
-                            <th>Timestamp</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>101</td>
-                            <td>45</td>
-                            <td>10</td>
-                            <td>25</td>
-                            <td>30</td>
-                            <td>CLF 750A</td>
-                            <td>Product A</td>
-                            <td>2024-06-01 08:15:23</td>
-                        </tr>
-                        <tr>
-                            <td>100</td>
-                            <td>44</td>
-                            <td>11</td>
-                            <td>26</td>
-                            <td>31</td>
-                            <td>CLF 750A</td>
-                            <td>Product A</td>
-                            <td>2024-06-01 08:14:38</td>
-                        </tr>
-                        <tr>
-                            <td>99</td>
-                            <td>46</td>
-                            <td>12</td>
-                            <td>27</td>
-                            <td>32</td>
-                            <td>CLF 750A</td>
-                            <td>Product B</td>
-                            <td>2024-06-01 08:13:52</td>
-                        </tr>
-                        <tr>
-                            <td>98</td>
-                            <td>45</td>
-                            <td>10</td>
-                            <td>25</td>
-                            <td>30</td>
-                            <td>CLF 750A</td>
-                            <td>Product A</td>
-                            <td>2024-06-01 08:13:07</td>
-                        </tr>
-                        <tr>
-                            <td>97</td>
-                            <td>43</td>
-                            <td>13</td>
-                            <td>28</td>
-                            <td>33</td>
-                            <td>CLF 750A</td>
-                            <td>Product C</td>
-                            <td>2024-06-01 08:12:21</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                </script>
             
             <div class="table-download">
                 <a href="#" class="btn-download">Download PDF</a>
