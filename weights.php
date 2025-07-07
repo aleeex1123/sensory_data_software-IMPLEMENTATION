@@ -1,20 +1,8 @@
-<?php
-$conn = new mysqli("localhost", "root", "", "sensory_data");
-
-// Check for connection errors
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-$sql = "SELECT * FROM production_cycle ORDER BY timestamp DESC";
-$result = $conn->query($sql);
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Production Cycle | TS - Sensory Data </title>
+    <title>Weights | TS - Sensory Data</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="images/logo-2.png">
@@ -25,9 +13,8 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <link rel="stylesheet" href="css/webpage_defaults.css">
-    <link rel="stylesheet" href="css/production_cycle.css">
+    <link rel="stylesheet" href="css/weights.css">
     <link rel="stylesheet" href="css/table.css">
-    
 </head>
 <body>
     <script src="script/navbar-sidebar.js"></script>
@@ -60,12 +47,12 @@ $result = $conn->query($sql);
             </div>
             <p>SYSTEMS</p>
             <div class="sidebar-link-group">
-                <a href="#" class="sidebar-link sidebar-active">
+                <a href="#" class="sidebar-link">
                     <i class='bx  bx-timer'></i> Production Cycle
                     <span class="fa fa-caret-down" style="margin-left:8px;"></span>
                 </a>
                 <div class="sidebar-submenu">
-                    <a href="#">CLF 750A</a>
+                    <a href="production_cycle.php">CLF 750A</a>
                     <a href="#">CLF 750B</a>
                     <a href="#">CLF 750C</a>
                 </div>
@@ -81,12 +68,12 @@ $result = $conn->query($sql);
                 </div>
             </div>
             <div class="sidebar-link-group">
-                <a href="#" class="sidebar-link">
+                <a href="#" class="sidebar-link sidebar-active">
                     <i class='bx  bx-dumbbell'></i> Weight Data
                     <span class="fa fa-caret-down" style="margin-left:8px;"></span>
                 </a>
                 <div class="sidebar-submenu" style="display:none;">
-                    <a href="weights.php">Gross/Net Weights</a>
+                    <a href="#">Gross/Net Weights</a>
                 </div>
             </div>
         </div>
@@ -101,129 +88,61 @@ $result = $conn->query($sql);
 
         <div class="header">
             <div class="header-left">
-                <h3>Production Cycle</h3>
+                <h3>Gross/Net Weights</h3>
                 <span>Technical Service Department - Sensory Data</span>
             </div>
             <div class="header-right">
-                <h2>CLF 750A</h2>
             </div>
         </div>
-        
-        <!-- Production Status -->
+
+        <!-- Scale Controls -->
         <div class="section">
             <div class="content-header">
-                <h2 style="margin: 0;">Production Status</h2>
+                <h2>Weighing Scale Controls</h2>
             </div>
 
-            <?php
-            // Fetch the latest row from the database for the cards
-            $latest_sql = "SELECT * FROM production_cycle ORDER BY timestamp DESC LIMIT 1";
-            $latest_result = $conn->query($latest_sql);
-            $latest = $latest_result->fetch_assoc();
-            ?>
-
-            <!-- Production Cards -->
-            <div class="card-container">
-                <!-- Status Card -->
-                <div id="status-card" class="card machine-card <?php echo ($latest['cycle_status'] == 1) ? 'active-border' : 'inactive-border'; ?>">
-                    <div class="status-container">
-                        <div id="status-indicator" class="status-indicator <?php echo ($latest['cycle_status'] == 1) ? 'active' : 'inactive'; ?>"></div>
-                        <h2 id="machine-status"><?php echo ($latest['cycle_status'] == 1) ? 'Mold Closed' : 'Mold Open'; ?></h2>
-                    </div>
-                    <p style="font-size: 0.75rem">Injection Status</p>
-                </div>
-
-                <!-- Temperature 1 Card -->
-                <div class="card temperature1-card">
-                    <h2 id="temp1-value"><?php echo htmlspecialchars($latest['tempC_01']); ?>°C</h2>
-                    <p style="font-size: 0.75rem">Motor Temperature 1</p>
-                    <div class="chart-container">
-                        <canvas id="chartTemp1"></canvas>
+            <div class="scale-controls">
+                <div class="scale">
+                    <label class="label-on">WS-001</label>
+                    <div class="controls">
+                        <button class="btn btn-primary scale-on">Start Scale</button>
+                        <input type="text" class="input-field" placeholder="Enter Product Name">
                     </div>
                 </div>
 
-                <!-- Temperature 2 Card -->
-                <div class="card temperature2-card">
-                    <h2 id="temp2-value"><?php echo htmlspecialchars($latest['tempC_02']); ?>°C</h2>
-                    <p style="font-size: 0.75rem">Motor Temperature 2</p>
-                    <div class="chart-container">
-                        <canvas id="chartTemp2"></canvas>
+                
+                <div class="scale">
+                    <label class="label-off">WS-002</label>
+                    <div class="controls">
+                        <button class="btn btn-primary scale-off">Stop Scale</button>
+                        <input type="text" class="input-field" placeholder="Enter Product Name">
                     </div>
                 </div>
 
-                <!-- Product Card -->
-                <div class="card product-card">
-                    <h2 id="product-status"><?php echo htmlspecialchars($latest['product']); ?></h2>
-                    <p style="font-size: 0.75rem">Current Product</p>
+                
+                <div class="scale">
+                    <label class="label-off">WS-003</label>
+                    <div class="controls">
+                        <button class="btn btn-primary scale-off">Stop Scale</button>
+                        <input type="text" class="input-field" placeholder="Enter Product Name">
+                    </div>
+                </div>
+
+                
+                <div class="scale">
+                    <label class="label-off">WS-004</label>
+                    <div class="controls">
+                        <button class="btn btn-primary scale-off">Stop Scale</button>
+                        <input type="text" class="input-field" placeholder="Enter Product Name">
+                    </div>
                 </div>
             </div>
-
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script>
-                let temp1Chart, temp2Chart;
-
-                function updateCharts(temp1, temp2) {
-                    temp1Chart.data.datasets[0].data = [temp1, 100 - temp1];
-                    temp2Chart.data.datasets[0].data = [temp2, 100 - temp2];
-                    temp1Chart.update();
-                    temp2Chart.update();
-                }
-
-                function fetchData() {
-                    fetch("fetch/fetch_production_status.php")
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById("temp1-value").textContent = data.tempC_01 + "°C";
-                            document.getElementById("temp2-value").textContent = data.tempC_02 + "°C";
-                            document.getElementById("product-status").textContent = data.product;
-
-                            // Update status
-                            document.getElementById("machine-status").textContent = data.cycle_status == 1 ? "Mold Closed" : "Mold Open";
-                            document.getElementById("status-indicator").className = "status-indicator " + (data.cycle_status == 1 ? "active" : "inactive");
-                            document.getElementById("status-card").className = "card machine-card " + (data.cycle_status == 1 ? "active-border" : "inactive-border");
-
-                            // Update charts
-                            updateCharts(data.tempC_01, data.tempC_02);
-                        });
-                }
-
-                document.addEventListener("DOMContentLoaded", function () {
-                    function createChart(ctx, value, maxValue, color) {
-                        return new Chart(ctx, {
-                            type: 'doughnut',
-                            data: {
-                                datasets: [{
-                                    data: [value, maxValue - value],
-                                    backgroundColor: [color, '#222'],
-                                    borderWidth: 0
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                cutout: '60%',
-                                plugins: {
-                                    tooltip: { enabled: false },
-                                    legend: { display: false },
-                                }
-                            }
-                        });
-                    }
-
-                    // Initialize Charts with PHP values
-                    temp1Chart = createChart(document.getElementById("chartTemp1"), <?php echo (int)$latest['tempC_01']; ?>, 100, "#FFB347");
-                    temp2Chart = createChart(document.getElementById("chartTemp2"), <?php echo (int)$latest['tempC_02']; ?>, 100, "#FF6347");
-
-                    // Fetch Data Every 1 Second
-                    setInterval(fetchData, 1000);
-                });
-            </script>
         </div>
 
-        <!-- Status History -->
+        <!-- Weight Data -->
         <div class="section">
             <div class="content-header">
-                <h2>Status History</h2>
+                <h2>Gross/Net Weight Data</h2>
 
                 <div class="section-controls">
                     <div class="by_number">
@@ -261,12 +180,10 @@ $result = $conn->query($sql);
                         <thead>
                             <tr>
                                 <th>ID</th>
-                                <th>Cycle Time (seconds)</th>
-                                <th>Recycle Time (seconds)</th>
-                                <th>Motor Temperature 1 (°C)</th>
-                                <th>Motor Temperature 2 (°C)</th>
-                                <th>Machine</th>
                                 <th>Product</th>
+                                <th>Gross Weight (kg)</th>
+                                <th>Net Weight (kg)</th>
+                                <th>Difference</th>
                                 <th>Timestamp</th>
                             </tr>
                         </thead>
@@ -281,7 +198,7 @@ $result = $conn->query($sql);
                     const showEntries = document.getElementById('show-entries').value;
                     const filterMonth = document.getElementById('filter-month').value;
                     const xhr = new XMLHttpRequest();
-                    xhr.open('GET', `fetch/fetch_production_cycle_table.php?show=${showEntries}&month=${filterMonth}`, true);
+                    xhr.open('GET', `fetch/fetch_weights_table.php?show=${showEntries}&month=${filterMonth}`, true);
                     xhr.onload = function() {
                         if (xhr.status === 200) {
                             document.getElementById('table-body').innerHTML = xhr.responseText;
@@ -307,5 +224,6 @@ $result = $conn->query($sql);
                 <a href="#" class="btn-download">Download Excel</a>
             </div>
         </div>
+    </div>  
 </body>
 </html>
