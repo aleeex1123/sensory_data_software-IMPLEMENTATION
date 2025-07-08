@@ -59,7 +59,7 @@
     position: relative;
 }
 
-h2 {
+.card h2 {
     color: var(--white);
     margin: 0;
     font-size: 1rem;

@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+:root {
+    --black: rgb(16, 16, 16);
+    --gray: #272727;
+    --light-gray: #646464;
+    --white: rgb(216, 216, 216);
+    --green: #417630;
+    --dark-green: rgb(35, 68, 30);
+    --orange: #f59c2f;
+    --font-main: 'Montserrat', sans-serif;
+}
+
+/* Machine Selection */
+.machine-tabs {
+    margin-bottom: 0px;
+    overflow-x: scroll;
+    scrollbar-width: none;
+}
+.machine-tab-list {
+    display: flex;
+}
+.machine-tab {
+    background: var(--gray);
+    border: none;
+    outline: none;
+    padding: 2px 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.75rem;
+    color: var(--light-gray);
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-bottom 0.2s;
+}
+.machine-tab.active {
+    color: #417630;
+    border-top: 2px solid #417630;
+    font-weight: bold;
+    background: none;
+}
+.machine-tab:not(.active):hover {
+    color: var(--dark-green);
+    background: var(--white);
+}
+
+/* Card Styles */
+.card-container {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    overflow-x: scroll;
+    scrollbar-width: none;
+    gap: 18px;
+    margin-top: 18px;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--gray);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    width: -webkit-fill-available;
+    position: relative;
+    text-align: center;
+}
+
+.card p {
+    margin-top: 4px;
+}
+
+.card h2 {
+    color: var(--white);
+    margin: 0;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: bold;
+    text-align: center;
+}
+
+.temperature1-card {
+    border-left: 8px solid;
+    border-left-color: #FFB347;
+}
+
+.temperature2-card {
+    border-left: 8px solid;
+    border-left-color: #FF6347;
+}
+
+.card-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 18px;
+    width: -webkit-fill-available;
+}
+
+.remarks {
+    text-align: left;
+    font-family: inherit;
+    width: -webkit-fill-available;
+}
+
+.remarks h2 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--light-gray);
+}
+
+.remarks span {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--green);
+}
+
+.remarks p {
+    margin: 12px 0;
+    color: var(--white)
+}
+
+@media screen and (max-width: 768px) {
+    .card-container {
+        flex-wrap: wrap;
+        overflow-x: visible;
+    }
+    .card-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+    }
+    .card {
+        width: calc(50% - 9px);
+        min-width: 0;
+        box-sizing: border-box;
+        flex: 1 1 calc(50% - 9px);
+    }
+}

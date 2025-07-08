@@ -63,7 +63,7 @@
                     <span class="fa fa-caret-down" style="margin-left:8px;"></span>
                 </a>
                 <div class="sidebar-submenu" style="display:none;">
-                    <a href="#">Motor Temperatures</a>
+                    <a href="motor_temperatures.php">Motor Temperatures</a>
                     <a href="#">Coolant Flow Rates</a>
                 </div>
             </div>
@@ -288,13 +288,12 @@
                 <div class="machine-tabs">
                     <label for="machine-select" style="display:none;">Select Machine:</label>
                     <div id="machine-tab-list" class="machine-tab-list">
-                        <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
                         <button class="machine-tab" data-machine="ARB50" onclick="selectMachineTab(this)">ARB50</button>
                         <button class="machine-tab" data-machine="SUM 260C" onclick="selectMachineTab(this)">SUM 260C</button>
                         <button class="machine-tab" data-machine="SUM 350" onclick="selectMachineTab(this)">SUM 350</button>
                         <button class="machine-tab" data-machine="MIT 650D" onclick="selectMachineTab(this)">MIT 650D</button>
                         <button class="machine-tab" data-machine="TOS 650A" onclick="selectMachineTab(this)">TOS 650A</button>
-                        <button class="machine-tab" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
+                        <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
                         <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTab(this)">CLF 750B</button>
                         <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTab(this)">CLF 750C</button>
                         <button class="machine-tab" data-machine="TOS 850A" onclick="selectMachineTab(this)">TOS 850A</button>
@@ -312,9 +311,7 @@
                         // Call your chart update logic here
                         updateChart(tab.getAttribute('data-machine'));
                     }
-                </script>
-
-                <script>
+                    
                     function selectMachine(btn) {
                         document.querySelectorAll('.machine-btn').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');

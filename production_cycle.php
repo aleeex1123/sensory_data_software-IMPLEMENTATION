@@ -76,7 +76,7 @@ $result = $conn->query($sql);
                     <span class="fa fa-caret-down" style="margin-left:8px;"></span>
                 </a>
                 <div class="sidebar-submenu" style="display:none;">
-                    <a href="#">Motor Temperatures</a>
+                    <a href="motor_temperatures.php">Motor Temperatures</a>
                     <a href="#">Coolant Flow Rates</a>
                 </div>
             </div>
@@ -307,5 +307,6 @@ $result = $conn->query($sql);
                 <a href="#" class="btn-download">Download Excel</a>
             </div>
         </div>
+    </div>
 </body>
 </html>
