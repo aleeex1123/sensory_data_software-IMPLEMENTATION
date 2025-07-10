@@ -5,6 +5,7 @@
     --gray: #272727;
     --light-gray: #646464;
     --white: rgb(216, 216, 216);
+    --off-white: #adadad;
     --green: #417630;
     --dark-green: rgb(35, 68, 30);
     --orange: #f59c2f;
@@ -31,7 +32,14 @@
     font-family: var(--font-main);
     font-weight: bold;
     font-size: 1rem;
-    width: 80px;
+}
+
+.scale p {
+    text-align: left;
+    font-family: var(--font-main);
+    font-size: 0.75rem;
+    color: var(--off-white);
+    margin: 0;
 }
 
 .label-on {
@@ -47,7 +55,6 @@
     gap: 8px;
     align-content: center;
     min-width: 100%;
-    width: 240px;
 }
 
 .controls input {
@@ -56,12 +63,10 @@
     font-size: 0.75rem;
     background: var(--gray);
     border-radius: 4px;
-    width: 240px;
     border: none;
 }
 
 .controls button {
-    width: 120px;
     display: inline-block;
     padding: 10px 20px;
     color: white;
@@ -70,6 +75,14 @@
     border-radius: 5px;
     border: none;
     cursor: pointer;
+}
+
+.scale-info {
+    display: flex;
+    width: 142px;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 8px;
 }
 
 .scale-on {

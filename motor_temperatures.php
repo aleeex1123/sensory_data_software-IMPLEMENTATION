@@ -246,7 +246,7 @@ $result = $conn->query($sql);
         <!-- Temperature History -->
         <div class="section">
             <div class="content-header">
-                <h2>Status History</h2>
+                <h2>Temperature History</h2>
 
                 <div class="section-controls">
                     <div class="by_number">

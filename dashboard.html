@@ -109,7 +109,6 @@
 
             <!-- Machine Cards -->
             <div class="card-container">
-                
                 <div id="status-card" class="card machine-card active-border">
                     <div class="status-container">
                         <div id="status-indicator" class="status-indicator active"></div>
@@ -256,15 +255,16 @@
                         <label for="show-entries">Week</label>
                         <select id="show-entries" onchange="updateTableDisplay()">
                             <option value="1">1</option>
-                            <option value="2" selected>2</option>
+                            <option value="2">2</option>
                             <option value="3">3</option>
                             <option value="4">4</option>
+                            <option value="5">5</option>
                         </select>
                     </div>
-                    
+                
                     <div class="by_month">
-                        <label for="show-entries">Month</label>
-                        <select id="filter-month" onchange="updateTableDisplay()">
+                        <label for="filter-month">Month</label>
+                        <select id="filter-month" onchange="onMonthChange()">
                             <option value="1">January</option>
                             <option value="2">February</option>
                             <option value="3">March</option>
@@ -283,39 +283,36 @@
             </div>
 
             <div class="contents">
-
                 <!-- Machine Selection -->
                 <div class="machine-tabs">
                     <label for="machine-select" style="display:none;">Select Machine:</label>
                     <div id="machine-tab-list" class="machine-tab-list">
-                        <button class="machine-tab" data-machine="ARB50" onclick="selectMachineTab(this)">ARB50</button>
-                        <button class="machine-tab" data-machine="SUM 260C" onclick="selectMachineTab(this)">SUM 260C</button>
-                        <button class="machine-tab" data-machine="SUM 350" onclick="selectMachineTab(this)">SUM 350</button>
-                        <button class="machine-tab" data-machine="MIT 650D" onclick="selectMachineTab(this)">MIT 650D</button>
-                        <button class="machine-tab" data-machine="TOS 650A" onclick="selectMachineTab(this)">TOS 650A</button>
-                        <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
-                        <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTab(this)">CLF 750B</button>
-                        <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTab(this)">CLF 750C</button>
-                        <button class="machine-tab" data-machine="TOS 850A" onclick="selectMachineTab(this)">TOS 850A</button>
-                        <button class="machine-tab" data-machine="TOS 850B" onclick="selectMachineTab(this)">TOS 850B</button>
-                        <button class="machine-tab" data-machine="TOS 850C" onclick="selectMachineTab(this)">TOS 850C</button>
-                        <button class="machine-tab" data-machine="CLF 950A" onclick="selectMachineTab(this)">CLF 950A</button>
-                        <button class="machine-tab" data-machine="CLF 950B" onclick="selectMachineTab(this)">CLF 950B</button>
-                        <button class="machine-tab" data-machine="MIT 1050B" onclick="selectMachineTab(this)">MIT 1050B</button>
+                    <button class="machine-tab" data-machine="ARB50" onclick="selectMachineTab(this)">ARB50</button>
+                    <button class="machine-tab" data-machine="SUM 260C" onclick="selectMachineTab(this)">SUM 260C</button>
+                    <button class="machine-tab" data-machine="SUM 350" onclick="selectMachineTab(this)">SUM 350</button>
+                    <button class="machine-tab" data-machine="MIT 650D" onclick="selectMachineTab(this)">MIT 650D</button>
+                    <button class="machine-tab" data-machine="TOS 650A" onclick="selectMachineTab(this)">TOS 650A</button>
+                    <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
+                    <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTab(this)">CLF 750B</button>
+                    <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTab(this)">CLF 750C</button>
+                    <button class="machine-tab" data-machine="TOS 850A" onclick="selectMachineTab(this)">TOS 850A</button>
+                    <button class="machine-tab" data-machine="TOS 850B" onclick="selectMachineTab(this)">TOS 850B</button>
+                    <button class="machine-tab" data-machine="TOS 850C" onclick="selectMachineTab(this)">TOS 850C</button>
+                    <button class="machine-tab" data-machine="CLF 950A" onclick="selectMachineTab(this)">CLF 950A</button>
+                    <button class="machine-tab" data-machine="CLF 950B" onclick="selectMachineTab(this)">CLF 950B</button>
+                    <button class="machine-tab" data-machine="MIT 1050B" onclick="selectMachineTab(this)">MIT 1050B</button>
                     </div>
                 </div>
+
                 <script>
                     function selectMachineTab(tab) {
                         document.querySelectorAll('.machine-tab').forEach(b => b.classList.remove('active'));
                         tab.classList.add('active');
-                        // Call your chart update logic here
                         updateChart(tab.getAttribute('data-machine'));
                     }
-                    
                     function selectMachine(btn) {
                         document.querySelectorAll('.machine-btn').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
-                        // Call your chart update logic here
                         updateChart(btn.getAttribute('data-machine'));
                     }
                 </script>
@@ -325,7 +322,81 @@
                     <div id="chart"></div>
                     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
                     <script>
-                        // Use CSS variables for palette
+                        // Example data for 5 weeks, each week has 7 days
+                        // You can replace this with your real data source
+                        const allData = {
+                            "CLF 750A": {
+                            actual: [
+                                [112, 68, 88, 58, 60, 118, 58], // week 1
+                                [120, 70, 90, 60, 62, 110, 65], // week 2
+                                [115, 72, 85, 59, 61, 112, 60], // week 3
+                                [118, 74, 87, 61, 63, 115, 62], // week 4
+                                [119, 75, 89, 62, 64, 117, 63]  // week 5
+                            ],
+                            expected: [
+                                [120, 75, 100, 60, 60, 120, 60],
+                                [120, 75, 100, 60, 60, 120, 60],
+                                [120, 75, 100, 60, 60, 120, 60],
+                                [120, 75, 100, 60, 60, 120, 60],
+                                [120, 75, 100, 60, 60, 120, 60]
+                            ]
+                            },
+                            // Add other machines here if needed
+                        };
+
+                        // Set default month and week selection to current
+                        function setDefaultMonthAndWeek() {
+                            const now = new Date();
+                            const month = now.getMonth() + 1; // 1-based
+                            const day = now.getDate();
+                            // Set month select
+                            const monthSelect = document.getElementById('filter-month');
+                            monthSelect.value = month;
+                            // Calculate week number in month
+                            const week = Math.ceil((day + (new Date(now.getFullYear(), now.getMonth(), 1).getDay() || 7) - 1) / 7);
+                            const weekSelect = document.getElementById('show-entries');
+                            weekSelect.value = week;
+                        }
+
+                        // When month changes, set week to the current week of that month if it's this month, else week 1
+                        function onMonthChange() {
+                            const now = new Date();
+                            const selectedMonth = parseInt(document.getElementById('filter-month').value, 10);
+                            const weekSelect = document.getElementById('show-entries');
+                            if (selectedMonth === now.getMonth() + 1) {
+                            // Current month: set to current week
+                            const day = now.getDate();
+                            const week = Math.ceil((day + (new Date(now.getFullYear(), now.getMonth(), 1).getDay() || 7) - 1) / 7);
+                            weekSelect.value = week;
+                            } else {
+                            // Other month: default to week 1
+                            weekSelect.value = 1;
+                            }
+                            updateTableDisplay();
+                        }
+
+                        // Helper to get day labels for a week (e.g., Mon, Tue, ...)
+                        function getWeekDayLabels(week, month, year) {
+                            // Find the first day of the month
+                            const firstDay = new Date(year, month - 1, 1);
+                            // Find the first day of the requested week
+                            const firstWeekDay = new Date(firstDay);
+                            firstWeekDay.setDate(1 + (week - 1) * 7);
+                            let labels = [];
+                            for (let i = 0; i < 7; i++) {
+                            const d = new Date(firstWeekDay);
+                            d.setDate(firstWeekDay.getDate() + i);
+                            // Only show days that are in the current month
+                            if (d.getMonth() === month - 1) {
+                                labels.push(d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' }));
+                            } else {
+                                labels.push('');
+                            }
+                            }
+                            return labels;
+                        }
+
+                        // Chart palette
                         const rootStyles = getComputedStyle(document.documentElement);
                         const palette = {
                             green: rootStyles.getPropertyValue('--green').trim() || '#417630',
@@ -336,34 +407,40 @@
                             lightGray: rootStyles.getPropertyValue('--light-gray').trim() || '#646464',
                             black: rootStyles.getPropertyValue('--black').trim() || '#101010'
                         };
-                        var daysInMonth = 31;
-                        var selectedMonth = document.getElementById('month-select') ? parseInt(document.getElementById('month-select').value) : 0;
-                        var today = new Date();
-                        var year = today.getFullYear();
-                        var month = selectedMonth;
-                        var days = new Date(year, month + 1, 0).getDate();
-                        var dataPoints = [];
-                        for (var i = 1; i <= Math.max(7, days); i++) {
-                            dataPoints.push({
-                                x: i.toString(),
-                                y: Math.floor(Math.random() * 61) + 60,
-                                goals: [
-                                    {
-                                        name: 'Expected',
-                                        value: Math.floor(Math.random() * 61) + 60,
-                                        strokeHeight: 5,
-                                        strokeColor: palette.orange
-                                    }
-                                ]
-                            });
-                            if (i === 7) break; // Only show 7 days for now
-                        }
 
-                        var options = {
+                        // Chart instance
+                        let chart = null;
+
+                        // Update chart based on selected week/machine
+                        function updateChart(selectedMachine) {
+                            const week = parseInt(document.getElementById('show-entries').value, 10) - 1;
+                            const month = parseInt(document.getElementById('filter-month').value, 10);
+                            const year = new Date().getFullYear();
+                            const machine = selectedMachine || document.querySelector('.machine-tab.active').getAttribute('data-machine');
+                            const machineData = allData[machine] || allData["CLF 750A"];
+                            const actualValues = machineData.actual[week] || [];
+                            const expectedValues = machineData.expected[week] || [];
+                            const labels = getWeekDayLabels(week + 1, month, year);
+
+                            // Build dataPoints array for ApexCharts
+                            const dataPoints = actualValues.map((val, i) => ({
+                            x: labels[i] || (i + 1).toString(),
+                            y: val,
+                            goals: [
+                                {
+                                name: 'Expected',
+                                value: expectedValues[i],
+                                strokeHeight: 5,
+                                strokeColor: palette.orange
+                                }
+                            ]
+                            }));
+
+                            const options = {
                             series: [
                                 {
-                                    name: 'Actual',
-                                    data: dataPoints
+                                name: 'Actual',
+                                data: dataPoints
                                 }
                             ],
                             chart: {
@@ -374,12 +451,12 @@
                             },
                             plotOptions: {
                                 bar: {
-                                    columnWidth: '60%',
-                                    borderRadius: 4,
-                                    colors: {
-                                        backgroundBarColors: [palette.lightGray],
-                                        backgroundBarOpacity: 0.2
-                                    }
+                                columnWidth: '60%',
+                                borderRadius: 4,
+                                colors: {
+                                    backgroundBarColors: [palette.lightGray],
+                                    backgroundBarOpacity: 0.2
+                                }
                                 }
                             },
                             colors: [palette.green],
@@ -391,38 +468,38 @@
                                 showForSingleSeries: true,
                                 customLegendItems: ['Actual Cycle Time', 'Expected Cycle Time'],
                                 markers: {
-                                    fillColors: [palette.green, palette.orange]
+                                fillColors: [palette.green, palette.orange]
                                 },
                                 labels: {
-                                    colors: [palette.white]
+                                colors: [palette.white]
                                 }
                             },
                             xaxis: {
                                 labels: {
-                                    style: {
-                                        colors: palette.white,
-                                        fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
-                                    }
+                                style: {
+                                    colors: palette.white,
+                                    fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
+                                }
                                 },
                                 axisBorder: {
-                                    color: palette.lightGray
+                                color: palette.lightGray
                                 },
                                 axisTicks: {
-                                    color: palette.lightGray
+                                color: palette.lightGray
                                 }
                             },
                             yaxis: {
                                 labels: {
-                                    style: {
-                                        colors: palette.white,
-                                        fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
-                                    }
+                                style: {
+                                    colors: palette.white,
+                                    fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
+                                }
                                 }
                             },
                             tooltip: {
                                 theme: 'dark',
                                 style: {
-                                    fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
+                                fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
                                 }
                             },
                             grid: {
@@ -431,22 +508,38 @@
                             },
                             states: {
                                 hover: {
-                                    filter: {
-                                        type: 'lighten',
-                                        value: 0.15
-                                    }
+                                filter: {
+                                    type: 'lighten',
+                                    value: 0.15
+                                }
                                 },
                                 active: {
-                                    filter: {
-                                        type: 'darken',
-                                        value: 0.15
-                                    }
+                                filter: {
+                                    type: 'darken',
+                                    value: 0.15
+                                }
                                 }
                             }
-                        };
+                            };
 
-                        var chart = new ApexCharts(document.querySelector("#chart"), options);
-                        chart.render();
+                            if (chart) {
+                            chart.updateOptions(options, true, true);
+                            } else {
+                            chart = new ApexCharts(document.querySelector("#chart"), options);
+                            chart.render();
+                            }
+                        }
+
+                        // Dummy function for compatibility
+                        function updateTableDisplay() {
+                            updateChart();
+                        }
+
+                        // Set defaults on page load
+                        document.addEventListener('DOMContentLoaded', function() {
+                            setDefaultMonthAndWeek();
+                            updateChart();
+                        });
                     </script>
                     <style>
                         /* ApexCharts custom tooltip and legend color overrides */

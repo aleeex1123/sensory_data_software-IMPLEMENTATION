@@ -98,46 +98,75 @@
         <!-- Scale Controls -->
         <div class="section">
             <div class="content-header">
-                <h2>Weighing Scale Controls</h2>
+            <h2>Weighing Scale Controls</h2>
             </div>
 
-            <div class="scale-controls">
-                <div class="scale">
-                    <label class="label-on">WS-001</label>
-                    <div class="controls">
-                        <button class="btn btn-primary scale-on">Start Scale</button>
-                        <input type="text" class="input-field" placeholder="Enter Product Name">
-                    </div>
-                </div>
+            <?php
+            // Database connection (adjust credentials as needed)
+            $conn = new mysqli("localhost", "root", "", "sensory_data");
+            if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+            }
 
-                
-                <div class="scale">
-                    <label class="label-off">WS-002</label>
-                    <div class="controls">
-                        <button class="btn btn-primary scale-off">Stop Scale</button>
-                        <input type="text" class="input-field" placeholder="Enter Product Name">
-                    </div>
-                </div>
+            $sql = "SELECT scale_id, scale_status, current_product FROM weighing_scale_controls";
+            $result = $conn->query($sql);
 
-                
-                <div class="scale">
-                    <label class="label-off">WS-003</label>
-                    <div class="controls">
-                        <button class="btn btn-primary scale-off">Stop Scale</button>
-                        <input type="text" class="input-field" placeholder="Enter Product Name">
+            echo '<div class="scale-controls">';
+            if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $isActive = $row['scale_status'] == 1;
+                $labelClass = $isActive ? "label-on" : "label-off";
+                $statusText = $isActive ? "active" : "not active";
+                $btnClass = $isActive ? "scale-on" : "scale-off";
+                $btnText = $isActive ? "Stop Scale" : "Start Scale";
+                $productPlaceholder = htmlspecialchars($row['current_product'] ?: "Enter Product Name");
+                $inputDisabled = $isActive ? "disabled" : "";
+                $scaleId = htmlspecialchars($row['scale_id']);
+                $inputValue = htmlspecialchars($row['current_product']);
+                echo '
+                <div class="scale" data-scale-id="' . $scaleId . '">
+                    <div class="scale-info">
+                        <label class="' . $labelClass . '">' . $scaleId . '</label>
+                        <p>' . $statusText . '</p>
                     </div>
-                </div>
+                    <form method="post" action="to_database/update_scale_control.php" class="scale-form" style="display:inline;">
+                        <input type="hidden" name="scale_id" value="' . $scaleId . '">
+                        <input type="hidden" name="action" value="' . ($isActive ? 'stop' : 'start') . '">
+                        <div class="controls">
+                            <input type="text" class="input-field" name="product" placeholder="' . $productPlaceholder . '" value="' . $inputValue . '" ' . $inputDisabled . '>
+                            <button type="submit" class="btn btn-primary ' . $btnClass . '">' . $btnText . '</button>
+                        </div>
+                    </form>
+                </div>';
+            }
+            } else {
+            echo '<p>No scales found.</p>';
+            }
+            echo '</div>';
 
-                
-                <div class="scale">
-                    <label class="label-off">WS-004</label>
-                    <div class="controls">
-                        <button class="btn btn-primary scale-off">Stop Scale</button>
-                        <input type="text" class="input-field" placeholder="Enter Product Name">
-                    </div>
-                </div>
-            </div>
+            $conn->close();
+            ?>
         </div>
+        <script>
+        // Optional: Confirm before stopping a scale
+        document.querySelectorAll('.scale-form').forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+            var action = form.querySelector('input[name="action"]').value;
+            var scaleId = form.querySelector('input[name="scale_id"]').value;
+            var productInput = form.querySelector('input[name="product"]');
+            if (action === 'stop') {
+                if (!confirm('Are you sure you want to stop ' + scaleId + '?')) {
+                e.preventDefault();
+                }
+            } else if (action === 'start') {
+                if (productInput && !productInput.value.trim()) {
+                alert('Please enter a product name.');
+                e.preventDefault();
+                }
+            }
+            });
+        });
+        </script>
 
         <!-- Weight Data -->
         <div class="section">

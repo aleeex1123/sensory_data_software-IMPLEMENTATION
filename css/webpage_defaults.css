@@ -5,6 +5,7 @@
     --gray: #1a1a1a;
     --light-gray: #646464;
     --white: rgb(216, 216, 216);
+    --off-white: #adadad;
     --green: #417630;
     --dark-green: rgb(35, 68, 30);
     --orange: #f59c2f;
@@ -51,6 +52,7 @@ body {
     font-family: 'Montserrat', sans-serif;
     font-size: 1rem;
     font-weight: bold;
+    margin: 0;
 }
 
 .section-controls {
@@ -76,10 +78,14 @@ body {
     border: none;
     color: var(--white);
     cursor: pointer;
+    gap: 8px;
     font-size: 0.75rem;
     padding: 6px 10px;
     border-radius: 4px;
     transition: background-color 0.3s ease;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .section-controls select {
