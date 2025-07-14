@@ -6,6 +6,9 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Get $machine from URL (GET parameter)
+$machine = isset($_GET['machine']) ? $_GET['machine'] : null;
+
 $sql = "SELECT * FROM production_cycle ORDER BY timestamp DESC";
 $result = $conn->query($sql);
 ?>
@@ -56,7 +59,7 @@ $result = $conn->query($sql);
         <div class="tabs">
             <p>CORE</p>
             <div class="sidebar-link-group">
-                <a href="dashboard.html" class="sidebar-link"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
+                <a href="dashboard.php" class="sidebar-link"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
             </div>
             <p>SYSTEMS</p>
             <div class="sidebar-link-group">
@@ -65,9 +68,9 @@ $result = $conn->query($sql);
                     <span class="fa fa-caret-down" style="margin-left:8px;"></span>
                 </a>
                 <div class="sidebar-submenu">
-                    <a href="#">CLF 750A</a>
-                    <a href="#">CLF 750B</a>
-                    <a href="#">CLF 750C</a>
+                    <a href="production_cycle.php?machine=CLF750A" onclick="setMachineSession('CLF750A')">CLF 750A</a>
+                    <a href="production_cycle.php?machine=CLF750B" onclick="setMachineSession('CLF750B')">CLF 750B</a>
+                    <a href="production_cycle.php?machine=CLF750C" onclick="setMachineSession('CLF750C')">CLF 750C</a>
                 </div>
             </div>
             <div class="sidebar-link-group">
@@ -105,7 +108,7 @@ $result = $conn->query($sql);
                 <span>Technical Service Department - Sensory Data</span>
             </div>
             <div class="header-right">
-                <h2>CLF 750A</h2>
+                <h2><?php echo htmlspecialchars($machine ? $machine : 'No Machine Selected'); ?></h2>
             </div>
         </div>
         

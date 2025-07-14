@@ -54,7 +54,7 @@ if ($conn->connect_error) {
         <div class="tabs">
             <p>CORE</p>
             <div class="sidebar-link-group">
-                <a href="dashboard.html" class="sidebar-link"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
+                <a href="dashboard.php" class="sidebar-link"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
             </div>
             <p>SYSTEMS</p>
             <div class="sidebar-link-group">
@@ -63,9 +63,9 @@ if ($conn->connect_error) {
                     <span class="fa fa-caret-down" style="margin-left:8px;"></span>
                 </a>
                 <div class="sidebar-submenu">
-                    <a href="production_cycle.php">CLF 750A</a>
-                    <a href="#">CLF 750B</a>
-                    <a href="#">CLF 750C</a>
+                    <a href="production_cycle.php?machine=CLF750A" onclick="setMachineSession('CLF750A')">CLF 750A</a>
+                    <a href="production_cycle.php?machine=CLF750B" onclick="setMachineSession('CLF750B')">CLF 750B</a>
+                    <a href="production_cycle.php?machine=CLF750C" onclick="setMachineSession('CLF750C')">CLF 750C</a>
                 </div>
             </div>
             <div class="sidebar-link-group">
@@ -208,7 +208,7 @@ if ($conn->connect_error) {
                                 updateChart(chartTemp01, []);
                                 updateChart(chartTemp02, []);
 
-                                document.querySelector(".remarks span").innerText = "No data found.";
+                                document.querySelector(".remarks span").innerText = "No data found";
                                 document.querySelector(".remarks p").innerText = "No motor temperature data available for the selected machine.";
                                 document.querySelector(".remarks h2 + p").innerText = "Please check if the machine is active.";
                             }

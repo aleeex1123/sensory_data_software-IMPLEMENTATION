@@ -1,3 +1,9 @@
+<?php
+session_start();
+
+$conn = new mysqli("localhost", "root", "", "sensory_data");
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,10 +58,16 @@
                     <span class="fa fa-caret-down" style="margin-left:8px;"></span>
                 </a>
                 <div class="sidebar-submenu">
-                    <a href="production_cycle.php">CLF 750A</a>
-                    <a href="#">CLF 750B</a>
-                    <a href="#">CLF 750C</a>
+                    <a href="production_cycle.php?machine=CLF750A" onclick="setMachineSession('CLF750A')">CLF 750A</a>
+                    <a href="production_cycle.php?machine=CLF750B" onclick="setMachineSession('CLF750B')">CLF 750B</a>
+                    <a href="production_cycle.php?machine=CLF750C" onclick="setMachineSession('CLF750C')">CLF 750C</a>
                 </div>
+                <script>
+                    function setMachineSession(machine) {
+                        // Store selected machine in sessionStorage
+                        sessionStorage.setItem('selectedMachine', machine);
+                    }
+                </script>
             </div>
             <div class="sidebar-link-group">
                 <a href="#" class="sidebar-link">
