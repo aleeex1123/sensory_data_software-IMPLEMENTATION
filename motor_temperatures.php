@@ -5,9 +5,6 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-
-$sql = "SELECT * FROM realtime_parameters ORDER BY timestamp DESC";
-$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +24,7 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="css/webpage_defaults.css">
     <link rel="stylesheet" href="css/motor_temperatures.css">
     <link rel="stylesheet" href="css/table.css">
-    <!-- Add Chart.js CDN -->
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -115,29 +112,29 @@ $result = $conn->query($sql);
                 <h2 style="margin: 0;">Real-time Temperatures</h2>
             </div>
 
-            <!-- Machine Selection -->
+            <!-- Machine Selection (Realtime) -->
             <div class="machine-tabs">
-                <label for="machine-select" style="display:none;">Select Machine:</label>
-                <div id="machine-tab-list" class="machine-tab-list">
-                    <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
-                    <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTab(this)">CLF 750B</button>
-                    <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTab(this)">CLF 750C</button>
+                <label for="machine-select-realtime" style="display:none;">Select Machine:</label>
+                <div id="machine-tab-list-realtime" class="machine-tab-list">
+                    <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTabRealtime(this)">CLF 750A</button>
+                    <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTabRealtime(this)">CLF 750B</button>
+                    <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTabRealtime(this)">CLF 750C</button>
                 </div>
             </div>
 
             <script>
-                function selectMachineTab(tab) {
-                    document.querySelectorAll('.machine-tab').forEach(b => b.classList.remove('active'));
+                // Real-time section machine tab logic
+                function selectMachineTabRealtime(tab) {
+                    document.querySelectorAll('#machine-tab-list-realtime .machine-tab').forEach(b => b.classList.remove('active'));
                     tab.classList.add('active');
                     // Call your chart update logic here
-                    updateChart(tab.getAttribute('data-machine'));
+                    updateChartRealtime(tab.getAttribute('data-machine'));
                 }
-                
-                function selectMachine(btn) {
-                    document.querySelectorAll('.machine-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    // Call your chart update logic here
-                    updateChart(btn.getAttribute('data-machine'));
+
+                function updateChartRealtime(machine) {
+                    // You can implement machine-specific chart update logic here if needed
+                    // For now, just refetch data (or filter by machine if your backend supports it)
+                    fetchRealtimeData(machine);
                 }
             </script>
             
@@ -145,10 +142,10 @@ $result = $conn->query($sql);
             <div class="card-container">
                 <div class="card-row"> 
                     <?php
-                        // Fetch the latest row from the database
-                        $sql = "SELECT motor_tempC_01, motor_tempC_02 FROM motor_temperatures ORDER BY timestamp DESC LIMIT 1";
-                        $result = $conn->query($sql);
-                        $data = $result->fetch_assoc();
+                    // Fetch the latest row from the database
+                    $sql = "SELECT motor_tempC_01, motor_tempC_02 FROM motor_temperatures ORDER BY timestamp DESC LIMIT 1";
+                    $result = $conn->query($sql);
+                    $data = $result->fetch_assoc();
                     ?>
 
                     <div class="card temperature1-card">
@@ -166,7 +163,7 @@ $result = $conn->query($sql);
                         <div class="chart-container">
                             <canvas id="chartTemp02" width="150" height="60"></canvas>
                         </div>
-                    </div>
+                     </div>
                 </div>
 
                 <div class="remarks">
@@ -179,68 +176,105 @@ $result = $conn->query($sql);
             </div>
 
             <script>
-                document.addEventListener("DOMContentLoaded", function() {
-                    let chartTemp01, chartTemp02;
+                let chartTemp01, chartTemp02;
 
-                    function fetchRealtimeData() {
-                        fetch("fetch/fetch_motor_temp.php?type=realtime")
-                            .then(response => response.json())
-                            .then(data => {
-                                // Update text values
-                                document.getElementById("temp01-value").innerText = data.motor_tempC_01[0] + "°C";
-                                document.getElementById("temp02-value").innerText = data.motor_tempC_02[0] + "°C";
-
-                                // Update charts dynamically
-                                updateChart(chartTemp01, data.motor_tempC_01.reverse());
-                                updateChart(chartTemp02, data.motor_tempC_02.reverse());
-                            })
-                            .catch(error => console.error("Error fetching real-time data:", error));
+                function fetchRealtimeData(machine) {
+                    let url = "fetch/fetch_motor_temp.php?type=realtime";
+                    if (machine) {
+                        url += "&machine=" + encodeURIComponent(machine);
                     }
 
-                    function createChart(canvasId, color) {
-                        return new Chart(document.getElementById(canvasId), {
-                            type: "line",
-                            data: {
-                                labels: Array.from({length: 10}, (_, i) => i + 1),
-                                datasets: [{
-                                    data: [],
-                                    borderColor: color,
-                                    borderWidth: 2,
-                                    pointRadius: 2,
-                                    fill: false,
-                                    tension: 0.3
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                scales: {
-                                    x: { display: false },
-                                    y: { display: false }
-                                },
-                                plugins: { legend: { display: false } }
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            const temp01 = data.motor_tempC_01;
+                            const temp02 = data.motor_tempC_02;
+
+                            const hasData = Array.isArray(temp01) && temp01.length > 0 && Array.isArray(temp02) && temp02.length > 0;
+
+                            if (hasData) {
+                                document.getElementById("temp01-value").innerText = temp01[0] + "°C";
+                                document.getElementById("temp02-value").innerText = temp02[0] + "°C";
+                                updateChart(chartTemp01, temp01.slice().reverse());
+                                updateChart(chartTemp02, temp02.slice().reverse());
+
+                                document.querySelector(".remarks span").innerText = "Normal";
+                                document.querySelector(".remarks p").innerText =
+                                    "Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.";
+                                document.querySelector(".remarks h2 + p").innerText = "None";
+                            } else {
+                                document.getElementById("temp01-value").innerText = "--";
+                                document.getElementById("temp02-value").innerText = "--";
+                                updateChart(chartTemp01, []);
+                                updateChart(chartTemp02, []);
+
+                                document.querySelector(".remarks span").innerText = "No data found.";
+                                document.querySelector(".remarks p").innerText = "No motor temperature data available for the selected machine.";
+                                document.querySelector(".remarks h2 + p").innerText = "Please check if the machine is active.";
                             }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching real-time data:", error);
+                            document.getElementById("temp01-value").innerText = "--";
+                            document.getElementById("temp02-value").innerText = "--";
+                            updateChart(chartTemp01, []);
+                            updateChart(chartTemp02, []);
+
+                            document.querySelector(".remarks span").innerText = "Error";
+                            document.querySelector(".remarks p").innerText = "Unable to fetch real-time data.";
+                            document.querySelector(".remarks h2 + p").innerText = "Check network or server issues.";
                         });
-                    }
+                }
 
-                    function updateChart(chart, newData) {
-                        if (chart) {
-                            chart.data.datasets[0].data = newData;
-                            chart.update();
+                function createChart(canvasId, color) {
+                    return new Chart(document.getElementById(canvasId), {
+                        type: "line",
+                        data: {
+                            labels: Array.from({ length: 10 }, (_, i) => i + 1),
+                            datasets: [{
+                                data: [],
+                                borderColor: color,
+                                borderWidth: 2,
+                                pointRadius: 2,
+                                fill: false,
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: { display: false },
+                                y: { display: false }
+                            },
+                            plugins: { legend: { display: false } }
                         }
-                    }
+                    });
+                }
 
-                    // Initialize charts
+                function updateChart(chart, newData) {
+                    if (chart) {
+                        chart.data.datasets[0].data = newData;
+                        chart.update();
+                    }
+                }
+
+                document.addEventListener("DOMContentLoaded", function () {
                     chartTemp01 = createChart("chartTemp01", "#FFB347");
                     chartTemp02 = createChart("chartTemp02", "#FF6347");
 
-                    // Fetch initial data
-                    fetchRealtimeData();
+                    // Fetch initial data for default machine
+                    let defaultMachine = document.querySelector('#machine-tab-list-realtime .machine-tab.active').getAttribute('data-machine');
+                    fetchRealtimeData(defaultMachine);
 
-                    // Auto-update every 5 seconds
-                    setInterval(fetchRealtimeData, 5000);
+                    // Auto-update every 5 seconds for the selected machine
+                    setInterval(function () {
+                        let machine = document.querySelector('#machine-tab-list-realtime .machine-tab.active').getAttribute('data-machine');
+                        fetchRealtimeData(machine);
+                    }, 5000);
                 });
             </script>
+
         </div>
 
         <!-- Temperature History -->
@@ -258,6 +292,7 @@ $result = $conn->query($sql);
                             <option value="50">50</option>
                         </select>
                     </div>
+
                     <div class="by_month">
                         <label for="filter-month">Filter by month</label>
                         <select id="filter-month">
@@ -277,36 +312,48 @@ $result = $conn->query($sql);
                         </select>
                     </div>
                 </div>
-                </div>
+            </div>
 
-                <div class="table-responsive">
-                    <table class="styled-table" id="sensorTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Motor Temperature 1 (°C)</th>
-                                <th>Motor Temperature 1 (°F)</th>
-                                <th>Motor Temperature 2 (°C)</th>
-                                <th>Motor Temperature 2 (°F)</th>
-                                <th>Timestamp</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body">
-                            <!-- Table rows will be loaded here via AJAX -->
-                        </tbody>
-                    </table>
+            <!-- Machine Selection (History) -->
+            <div class="machine-tabs" style="margin-bottom: 18px;">
+                <label for="machine-select-history" style="display:none;">Select Machine:</label>
+                <div id="machine-tab-list-history" class="machine-tab-list">
+                    <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTabHistory(this)">CLF 750A</button>
+                    <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTabHistory(this)">CLF 750B</button>
+                    <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTabHistory(this)">CLF 750C</button>
                 </div>
+            </div>
 
-                <script>
+            <div class="table-responsive">
+                <table class="styled-table" id="sensorTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Motor Temperature 1 (°C)</th>
+                            <th>Motor Temperature 1 (°F)</th>
+                            <th>Motor Temperature 2 (°C)</th>
+                            <th>Motor Temperature 2 (°F)</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                    <!-- Table rows will be loaded here via AJAX -->
+                    </tbody>
+                </table>
+            </div>
+
+            <script>
                 function fetchTableData() {
                     const showEntries = document.getElementById('show-entries').value;
                     const filterMonth = document.getElementById('filter-month').value;
+                    const selectedMachine = document.querySelector('#machine-tab-list-history .machine-tab.active').getAttribute('data-machine');
+                    
                     const xhr = new XMLHttpRequest();
-                    xhr.open('GET', `fetch/fetch_motor_temp_table.php?show=${showEntries}&month=${filterMonth}`, true);
+                    xhr.open('GET', `fetch/fetch_motor_temp_table.php?show=${showEntries}&month=${filterMonth}&machine=${encodeURIComponent(selectedMachine)}`, true);
                     xhr.onload = function() {
-                        if (xhr.status === 200) {
-                            document.getElementById('table-body').innerHTML = xhr.responseText;
-                        }
+                    if (xhr.status === 200) {
+                        document.getElementById('table-body').innerHTML = xhr.responseText;
+                    }
                     };
                     xhr.send();
                 }
@@ -315,13 +362,29 @@ $result = $conn->query($sql);
                 document.getElementById('show-entries').addEventListener('change', fetchTableData);
                 document.getElementById('filter-month').addEventListener('change', fetchTableData);
 
+                // Handle machine tab switching for history section
+                function selectMachineTabHistory(tab) {
+                    document.querySelectorAll('#machine-tab-list-history .machine-tab').forEach(btn => btn.classList.remove('active'));
+                    tab.classList.add('active');
+                    fetchTableData(); // refresh table when machine changes
+                }
+
                 // Set default month to current month
                 document.addEventListener("DOMContentLoaded", function () {
+                    // Set default month to current
                     let currentMonth = new Date().getMonth() + 1;
                     document.getElementById("filter-month").value = currentMonth;
-                    fetchTableData();
+
+                    // Explicitly activate CLF 750A tab for history
+                    const defaultMachineTab = document.querySelector('#machine-tab-list-history .machine-tab[data-machine="CLF 750A"]');
+                    if (defaultMachineTab) {
+                    selectMachineTabHistory(defaultMachineTab); // this calls fetchTableData()
+                    } else {
+                    fetchTableData(); // fallback if something goes wrong
+                    }
                 });
-                </script>
+            </script>
+
             
             <div class="table-download">
                 <a href="#" class="btn-download">Download PDF</a>
@@ -329,6 +392,5 @@ $result = $conn->query($sql);
             </div>
         </div>
     </div>
-
 </body>
 </html>

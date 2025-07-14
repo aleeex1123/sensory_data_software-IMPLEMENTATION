@@ -1,27 +1,37 @@
 <?php
-header('Content-Type: application/json');
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "sensory_data";
 
-$conn = new mysqli("localhost", "root", "", "sensory_data");
+$conn = new mysqli($servername, $username, $password, $database);
+
 if ($conn->connect_error) {
-    die(json_encode(["error" => "Connection failed: " . $conn->connect_error]));
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Check request type
-$type = isset($_GET['type']) ? $_GET['type'] : 'cycle'; 
+$type = $_GET['type'] ?? '';
+$machine = $_GET['machine'] ?? '';
 
 if ($type === 'realtime') {
-    $sql = "SELECT motor_tempC_01, motor_tempC_02 FROM motor_temperatures ORDER BY timestamp DESC LIMIT 10";
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("SELECT motor_tempC_01, motor_tempC_02 FROM motor_temperatures WHERE machine = ? ORDER BY timestamp DESC LIMIT 10");
+    $stmt->bind_param("s", $machine);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    $data = ["motor_tempC_01" => [], "motor_tempC_02" => []];
+    $temp1 = [];
+    $temp2 = [];
 
     while ($row = $result->fetch_assoc()) {
-        $data["motor_tempC_01"][] = $row["motor_tempC_01"];
-        $data["motor_tempC_02"][] = $row["motor_tempC_02"];
+        $temp1[] = floatval($row['motor_tempC_01']);
+        $temp2[] = floatval($row['motor_tempC_02']);
     }
+
+    echo json_encode([
+        "motor_tempC_01" => $temp1,
+        "motor_tempC_02" => $temp2
+    ]);
+} else {
+    echo json_encode(["error" => "Invalid request"]);
 }
-
-$conn->close();
-echo json_encode($data);
 ?>
-
