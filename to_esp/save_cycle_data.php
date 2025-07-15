@@ -20,6 +20,17 @@ $temp2 = isset($_GET['temp2']) ? floatval($_GET['temp2']) : null;
 $tempF_01 = ($temp1 !== null) ? ($temp1 * 9 / 5) + 32 : null;
 $tempF_02 = ($temp2 !== null) ? ($temp2 * 9 / 5) + 32 : null;
 
+// Use machine name directly
+$machine = $_GET['machine'];
+$table_name = "production_cycle_" . str_replace(' ', '', strtolower($_GET['machine']));
+
+// Check if the table exists
+$tableCheck = $conn->query("SHOW TABLES LIKE '$table_name'");
+if ($tableCheck->num_rows == 0) {
+    echo json_encode(["error" => "Table $table_name does not exist"]);
+    exit;
+}
+
 $currentTime = date('Y-m-d H:i:s');
 
 // ✅ Create temporary variables for binding
@@ -29,7 +40,7 @@ $tempC2 = $temp2 ?? null;
 $tempF2 = $tempF_02 ?? null;
 
 // ✅ Update the latest row
-$query = "UPDATE production_cycle 
+$query = "UPDATE `$table_name` 
           SET tempC_01 = IFNULL(?, tempC_01), 
               tempF_01 = IFNULL(?, tempF_01), 
               tempC_02 = IFNULL(?, tempC_02), 

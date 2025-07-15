@@ -9,10 +9,28 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = "SELECT product FROM production_cycle ORDER BY id DESC LIMIT 1";
+// Check if 'machine' parameter is present
+if (!isset($_GET['machine']) || empty($_GET['machine'])) {
+    echo json_encode(["error" => "Missing machine parameter"]);
+    exit;
+}
+
+// Use machine name directly
+$machine = $_GET['machine'];
+$table_name = "production_cycle_" . str_replace(' ', '', strtolower($_GET['machine']));
+
+// Check if the table exists
+$tableCheck = $conn->query("SHOW TABLES LIKE '$table_name'");
+if ($tableCheck->num_rows == 0) {
+    echo json_encode(["error" => "Table $table_name does not exist"]);
+    exit;
+}
+
+// Fetch latest product from machine-specific table
+$sql = "SELECT product FROM `$table_name` ORDER BY id DESC LIMIT 1";
 $result = $conn->query($sql);
 
-if ($result->num_rows > 0) {
+if ($result && $result->num_rows > 0) {
     $row = $result->fetch_assoc();
     echo json_encode(["product" => $row['product']]);
 } else {

@@ -120,9 +120,21 @@ $result = $conn->query($sql);
 
             <?php
             // Fetch the latest row from the database for the cards
-            $latest_sql = "SELECT * FROM production_cycle ORDER BY timestamp DESC LIMIT 1";
-            $latest_result = $conn->query($latest_sql);
-            $latest = $latest_result->fetch_assoc();
+            $machine_safe = preg_replace('/[^a-z0-9_]/', '', strtolower($machine));
+            $latest = [
+                'cycle_status' => 0,
+                'tempC_01' => 0,
+                'tempC_02' => 0,
+                'product' => 'N/A'
+            ];
+            if ($machine_safe) {
+                $latest_sql = "SELECT * FROM production_cycle_" . $machine_safe . " ORDER BY timestamp DESC LIMIT 1";
+                $latest_result = $conn->query($latest_sql);
+                if ($latest_result && $latest_result->num_rows > 0) {
+                    $row = $latest_result->fetch_assoc();
+                    $latest = array_merge($latest, $row);
+                }
+            }
             ?>
 
             <!-- Production Cards -->
@@ -173,7 +185,7 @@ $result = $conn->query($sql);
                 }
 
                 function fetchData() {
-                    fetch("fetch/fetch_production_status.php")
+                    fetch("fetch/fetch_production_status.php?machine=<?php echo urlencode($machine); ?>")
                         .then(response => response.json())
                         .then(data => {
                             document.getElementById("temp1-value").textContent = data.tempC_01 + "°C";
@@ -257,38 +269,40 @@ $result = $conn->query($sql);
                         </select>
                     </div>
                 </div>
-                </div>
+            </div>
 
-                <div class="table-responsive">
-                    <table class="styled-table" id="sensorTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Cycle Time (seconds)</th>
-                                <th>Recycle Time (seconds)</th>
-                                <th>Motor Temperature 1 (°C)</th>
-                                <th>Motor Temperature 2 (°C)</th>
-                                <th>Machine</th>
-                                <th>Product</th>
-                                <th>Timestamp</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body">
-                            <!-- Table rows will be loaded here via AJAX -->
-                        </tbody>
-                    </table>
-                </div>
+            <div class="table-responsive">
+                <table class="styled-table" id="sensorTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cycle Time (seconds)</th>
+                            <th>Recycle Time (seconds)</th>
+                            <th>Motor Temperature 1 (°C)</th>
+                            <th>Motor Temperature 2 (°C)</th>
+                            <th>Product</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Table rows will be loaded here via AJAX -->
+                    </tbody>
+                </table>
+            </div>
 
-                <script>
+            <script>
+                // Pass PHP $machine_safe to JS
+                const machineSafe = "<?php echo $machine_safe; ?>";
+
                 function fetchTableData() {
                     const showEntries = document.getElementById('show-entries').value;
                     const filterMonth = document.getElementById('filter-month').value;
                     const xhr = new XMLHttpRequest();
-                    xhr.open('GET', `fetch/fetch_production_cycle_table.php?show=${showEntries}&month=${filterMonth}`, true);
+                    xhr.open('GET', `fetch/fetch_production_cycle_table.php?machine=${encodeURIComponent(machineSafe)}&show=${showEntries}&month=${filterMonth}`, true);
                     xhr.onload = function() {
-                        if (xhr.status === 200) {
-                            document.getElementById('table-body').innerHTML = xhr.responseText;
-                        }
+                    if (xhr.status === 200) {
+                        document.getElementById('table-body').innerHTML = xhr.responseText;
+                    }
                     };
                     xhr.send();
                 }
@@ -303,7 +317,7 @@ $result = $conn->query($sql);
                     document.getElementById("filter-month").value = currentMonth;
                     fetchTableData();
                 });
-                </script>
+            </script>
             
             <div class="table-download">
                 <a href="#" class="btn-download">Download PDF</a>
