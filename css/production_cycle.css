@@ -102,3 +102,56 @@ h2 {
     border-left: 10px solid;
     border-left-color: var(--green);
 }
+
+/* Time Cards */
+.time-cards {
+    display: flex;
+    overflow: scroll;
+    scrollbar-width: none;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.time-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--gray);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    height: auto;
+    min-width: 180px;
+    width: 360px;
+    text-align: left;
+    position: relative;
+}
+
+.time-card h3 {
+    font-family: inherit;
+    font-size: 0.8rem;
+    margin: 12px 0px 8px 0px;
+}
+
+.bar-container {
+    width: 100%;
+    background: var(--black);
+    border-radius: 4px;
+    height: 28px;
+    position: relative;
+}
+.bar {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    color: var(--white);
+    font-weight: bold;
+    padding-left: 10px;
+    transition: width 0.5s;
+    position: relative;
+}
+.bar-label {
+    font-size: 0.8rem;
+    align-self: center;
+}

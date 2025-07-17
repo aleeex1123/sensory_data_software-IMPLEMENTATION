@@ -99,6 +99,102 @@ $result = $conn->query($sql);
         </div>
     </div>
 
+    <!-- Side Table -->
+    <div class="side-table" id="sideTable">
+        <span class="side-table-toggle" id="sideTableToggle">&#x25C0;</span>
+        
+        <h2>Last Cycle History</h2>
+
+        <div class="table-container">
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>Machine Name</th>
+                        <th>Last Cycle Time (seconds)</th>
+                        <th>Last Processing Time (seconds)</th>
+                        <th>Last Recycle Time (seconds)</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CLF750A</td>
+                        <td>120</td>
+                        <td>60</td>
+                        <td>60 </td>
+                        <td>2024-06-01 12:00:00</td>
+                    </tr>
+                    <tr>
+                        <td>CLF750B</td>
+                        <td>110</td>
+                        <td>55 </td>
+                        <td>55 </td>
+                        <td>2024-06-01 12:05:00</td>
+                    </tr>
+                    <tr>
+                        <td>CLF750C</td>
+                        <td>130</td>
+                        <td>65</td>
+                        <td>65</td>
+                        <td>2024-06-01 12:10:00</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    fetch('fetch/fetch_production_cycle_last_entries.php')
+                        .then(res => res.json())
+                        .then(data => {
+                            const tbody = document.querySelector("#sideTable .styled-table tbody");
+                            tbody.innerHTML = "";
+
+                            if (Array.isArray(data)) {
+                                data.forEach(row => {
+                                    const tr = document.createElement("tr");
+                                    tr.innerHTML = `
+                                        <td>${row.machine}</td>
+                                        <td>${row.cycle_time}</td>
+                                        <td>${row.processing_time}</td>
+                                        <td>${row.recycle_time}</td>
+                                        <td>${row.timestamp}</td>
+                                    `;
+                                    tbody.appendChild(tr);
+                                });
+                            } else {
+                                tbody.innerHTML = `<tr><td colspan="5">No data found</td></tr>`;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching last cycles:', error);
+                            const tbody = document.querySelector("#sideTable .styled-table tbody");
+                            tbody.innerHTML = `<tr><td colspan="5">Error loading data</td></tr>`;
+                        });
+                });
+            </script>
+        </div>
+
+        <script>
+            // Toggle side table visibility
+            document.addEventListener("DOMContentLoaded", function () {
+                const sideTable = document.getElementById('sideTable');
+                const sideTableToggle = document.getElementById('sideTableToggle');
+                sideTableToggle.addEventListener('click', function () {
+                    sideTable.classList.toggle('collapsed');
+                });
+            });
+        </script>
+        <style>
+            .side-table.collapsed {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            .side-table {
+                transition: transform 0.3s;
+            }
+        </style>
+    </div>
+
     <!-- Main -->
     <div class="main-content">
 
@@ -111,7 +207,7 @@ $result = $conn->query($sql);
                 <h2><?php echo htmlspecialchars($machine ? $machine : 'No Machine Selected'); ?></h2>
             </div>
         </div>
-        
+
         <!-- Production Status -->
         <div class="section">
             <div class="content-header">
@@ -235,12 +331,21 @@ $result = $conn->query($sql);
             </script>
         </div>
 
-        <!-- Status History -->
+        <!-- Cycle History -->
         <div class="section">
             <div class="content-header">
-                <h2>Status History</h2>
+                <h2>Cycle History</h2>
 
                 <div class="section-controls">
+                    <div class="by_product">
+                        <label for="show-product">Product</label>
+                        <select id="show-product">
+                            <option value="" selected>All</option>
+                            <option value="Pepsi">Pepsi</option>
+                            <option value="Basket">Basket</option>
+                            <option value="Chair">Chair</option>
+                        </select>
+                    </div>
                     <div class="by_number">
                         <label for="show-entries">Show</label>
                         <select id="show-entries">
@@ -271,12 +376,57 @@ $result = $conn->query($sql);
                 </div>
             </div>
 
+            <div class="time-cards">
+                <?php
+                // Example: Fetch stats from DB (replace with your actual queries)
+                $stats = [
+                    'standard' => ['cycle' => 120, 'processing' => 60, 'recycle' => 60],
+                    'average' => ['cycle' => 0, 'processing' => 0, 'recycle' => 0],
+                    'minimum' => ['cycle' => 0, 'processing' => 0, 'recycle' => 0],
+                    'maximum' => ['cycle' => 0, 'processing' => 0, 'recycle' => 0],
+                ];
+                $maxValue = max(
+                    $stats['average']['cycle'], $stats['standard']['cycle'],
+                    $stats['minimum']['cycle'], $stats['maximum']['cycle'],
+                    $stats['average']['processing'], $stats['standard']['processing'],
+                    $stats['minimum']['processing'], $stats['maximum']['processing'],
+                    $stats['average']['recycle'], $stats['standard']['recycle'],
+                    $stats['minimum']['recycle'], $stats['maximum']['recycle']
+                );
+                foreach ($stats as $type => $values):
+                ?>
+
+                <div class="time-card <?php echo $type; ?>">
+                    <h2><?php echo ucfirst($type); ?></h2>
+                    <h3>Cycle Time (seconds)</h3>
+                    <div class="bar-container">
+                        <div class="bar" style="width:<?php echo ($values['cycle']/$maxValue)*100; ?>%;background:#417630;">
+                            <span class="bar-label"><?php echo $values['cycle']; ?></span>
+                        </div>
+                    </div>
+                    <h3>Processing Time (seconds)</h3>
+                    <div class="bar-container">
+                        <div class="bar" style="width:<?php echo ($values['processing']/$maxValue)*100; ?>%;background:#9b2b2b;">
+                            <span class="bar-label"><?php echo $values['processing']; ?></span>
+                        </div>
+                    </div>
+                    <h3>Recycle Time (seconds)</h3>
+                    <div class="bar-container">
+                        <div class="bar" style="width:<?php echo ($values['recycle']/$maxValue)*100; ?>%;background:#2a656f;">
+                            <span class="bar-label"><?php echo $values['recycle']; ?></span>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+
             <div class="table-responsive">
                 <table class="styled-table" id="sensorTable">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Cycle Time (seconds)</th>
+                            <th>Processing Time (seconds)</th>
                             <th>Recycle Time (seconds)</th>
                             <th>Motor Temperature 1 (°C)</th>
                             <th>Motor Temperature 2 (°C)</th>
@@ -297,19 +447,74 @@ $result = $conn->query($sql);
                 function fetchTableData() {
                     const showEntries = document.getElementById('show-entries').value;
                     const filterMonth = document.getElementById('filter-month').value;
+                    const selectedProduct = document.getElementById('show-product').value;
+
                     const xhr = new XMLHttpRequest();
-                    xhr.open('GET', `fetch/fetch_production_cycle_table.php?machine=${encodeURIComponent(machineSafe)}&show=${showEntries}&month=${filterMonth}`, true);
+                    xhr.open('GET', `fetch/fetch_production_cycle_table.php?machine=${encodeURIComponent(machineSafe)}&show=${showEntries}&month=${filterMonth}&product=${encodeURIComponent(selectedProduct)}`, true);
                     xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        document.getElementById('table-body').innerHTML = xhr.responseText;
-                    }
+                        if (xhr.status === 200) {
+                            document.getElementById('table-body').innerHTML = xhr.responseText;
+                        }
                     };
                     xhr.send();
                 }
 
+                function updateTimeCards(stats) {
+                    const max = Math.max(
+                        stats.average.cycle, stats.maximum.cycle,
+                        stats.average.processing, stats.maximum.processing,
+                        stats.average.recycle, stats.maximum.recycle,
+                        1 // avoid division by zero
+                    );
+
+                    ['average', 'minimum', 'maximum'].forEach(type => {
+                        const card = document.querySelector(`.time-card.${type}`);
+                        const val = stats[type];
+                        card.querySelectorAll('.bar')[0].style.width = (val.cycle / max * 100) + '%';
+                        card.querySelectorAll('.bar')[0].innerText = val.cycle;
+
+                        card.querySelectorAll('.bar')[1].style.width = (val.processing / max * 100) + '%';
+                        card.querySelectorAll('.bar')[1].innerText = val.processing;
+
+                        card.querySelectorAll('.bar')[2].style.width = (val.recycle / max * 100) + '%';
+                        card.querySelectorAll('.bar')[2].innerText = val.recycle;
+                    });
+                }
+
+                function fetchAll() {
+                    fetchTableData(); // update table
+
+                    const machine = "<?php echo $machine_safe; ?>";
+                    const show = document.getElementById('show-entries').value;
+                    const month = document.getElementById('filter-month').value;
+                    const product = document.getElementById('show-product').value;
+
+                    const url = `fetch/fetch_production_cycle_timecards.php?machine=${encodeURIComponent(machine)}&show=${show}&month=${month}&product=${encodeURIComponent(product)}`;
+
+                    fetch(url)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.error) return;
+                            updateTimeCards(data);
+                        });
+                }
+
+                // Initial load
+                document.addEventListener("DOMContentLoaded", function () {
+                    let currentMonth = new Date().getMonth() + 1;
+                    document.getElementById("filter-month").value = currentMonth;
+                    fetchAll();
+                });
+
+                // Trigger fetch on control changes
+                ['show-entries', 'filter-month', 'show-product'].forEach(id => {
+                    document.getElementById(id).addEventListener('change', fetchAll);
+                });
+
                 // Update table when controls change
                 document.getElementById('show-entries').addEventListener('change', fetchTableData);
                 document.getElementById('filter-month').addEventListener('change', fetchTableData);
+                document.getElementById('show-product').addEventListener('change', fetchTableData);
 
                 // Set default month to current month
                 document.addEventListener("DOMContentLoaded", function () {

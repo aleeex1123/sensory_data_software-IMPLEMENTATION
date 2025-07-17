@@ -1,3 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+:root {
+    --black: rgb(16, 16, 16);
+    --gray: #272727;
+    --light-gray: #646464;
+    --white: rgb(216, 216, 216);
+    --off-white: #adadad;
+    --green: #417630;
+    --dark-green: rgb(35, 68, 30);
+    --orange: #f59c2f;
+    --font-main: 'Montserrat', sans-serif;
+}
+
 .table-responsive {
     width: 100%;
     overflow-x: auto;
@@ -69,4 +83,64 @@
 
 .btn-download:hover {
     background-color: #365b25;
+}
+
+.side-table {
+    margin: 0;
+    position: fixed;
+    top: 3.5rem;
+    right: -640px;
+    width: 640px;
+    height: 100%;
+    background: var(--black);
+    padding: 20px;
+    z-index: 100;
+    border-left: solid 2px var(--green);
+    box-shadow: -2px 0 10px var(--dark-green);
+}
+
+.side-table-toggle {
+    background-color: var(--black);
+    border-radius: 8px 0 0px 8px;
+    border-top: solid 2px var(--green);
+    border-left: solid 2px var(--green);
+    border-bottom: solid 2px var(--green);
+    z-index: 101;
+    position: absolute;
+    top: calc(50% - 48px);
+    right: 639px;
+    padding: 12px 6px;
+    cursor: pointer;
+    color: var(--white);
+    transition: left 0.3s ease;
+    font-size: 1.25rem;
+
+}
+
+@media screen and (max-width: 720px) {
+    .side-table {
+        width: 90%;
+        right: -89.8%;
+    }
+
+    .side-table .table-container {
+        overflow-x: scroll;
+    }
+
+    .side-table-toggle {
+        right: 99.8%;
+    }
+}
+
+.side-table h2 {
+    color: var(--white);
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.side-table .styled-table {
+    width: 100%;
+    min-width: unset;
+    max-width: 100%;
+    box-sizing: border-box;
 }

@@ -94,7 +94,7 @@ body {
     pointer-events: none;
     transform: translateY(-10px);
     transition: opacity 0.25s, transform 0.25s;
-    z-index: 100;
+    z-index: 2000;
 }
 
 #userDropdown a {

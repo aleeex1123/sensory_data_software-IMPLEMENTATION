@@ -45,6 +45,7 @@ body {
     align-items: center;
     align-content: center;
     flex-direction: row;
+    flex-wrap: wrap
 }
 
 .content-header h2 {

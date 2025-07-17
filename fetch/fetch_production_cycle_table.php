@@ -14,12 +14,13 @@ if ($conn->connect_error) {
 $show = isset($_GET['show']) ? intval($_GET['show']) : 10;
 $month = isset($_GET['month']) ? intval($_GET['month']) : 0;
 $machine = isset($_GET['machine']) ? $_GET['machine'] : 'CLF 750A';
+$product = isset($_GET['product']) ? $_GET['product'] : '';
 
 // Sanitize and convert machine name to table name
 $machine_safe = preg_replace('/[^a-zA-Z0-9_]/', '_', $machine);
 $tableName = "production_cycle_" . $machine_safe;
 
-// Validate table existence (optional but recommended)
+// Validate table existence
 $checkTable = $conn->query("SHOW TABLES LIKE '$tableName'");
 if ($checkTable->num_rows == 0) {
     echo "<tr><td colspan='8'>Table for selected machine does not exist.</td></tr>";
@@ -27,24 +28,29 @@ if ($checkTable->num_rows == 0) {
 }
 
 // Build query
-$sql = "SELECT id, cycle_time, recycle_time, tempC_01, tempC_02, product, timestamp FROM `$tableName`";
+$sql = "SELECT id, cycle_time, processing_time, recycle_time, tempC_01, tempC_02, product, timestamp FROM `$tableName`";
 $where = [];
 $params = [];
 $types = "";
 
-// Month filter
+// Add filters
 if ($month > 0) {
     $where[] = "MONTH(timestamp) = ?";
     $params[] = $month;
     $types .= "i";
 }
-
+if (!empty($product)) {
+    $where[] = "product = ?";
+    $params[] = $product;
+    $types .= "s";
+}
 if (!empty($where)) {
     $sql .= " WHERE " . implode(" AND ", $where);
 }
 
+// Finalize query
 $sql .= " ORDER BY timestamp DESC LIMIT ?";
-$params[] = $show;
+$params[] = $show + 1;
 $types .= "i";
 
 // Prepare and execute
@@ -57,15 +63,17 @@ $stmt->bind_param($types, ...$params);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// Display data
+// Display results
 if ($result->num_rows > 1) {
     while ($row = $result->fetch_assoc()) {
-        if (floatval($row['cycle_time']) == 0 && floatval($row['recycle_time']) == 0) {
+        // Skip if both times are zero
+        if (floatval($row['processing_time']) == 0 && floatval($row['recycle_time']) == 0) {
             continue;
         }
         echo "<tr>";
         echo "<td>".htmlspecialchars($row['id'])."</td>";
         echo "<td>".htmlspecialchars($row['cycle_time'])."</td>";
+        echo "<td>".htmlspecialchars($row['processing_time'])."</td>";
         echo "<td>".htmlspecialchars($row['recycle_time'])."</td>";
         echo "<td>".htmlspecialchars($row['tempC_01'])."</td>";
         echo "<td>".htmlspecialchars($row['tempC_02'])."</td>";
