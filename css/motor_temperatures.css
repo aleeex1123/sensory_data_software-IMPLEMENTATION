@@ -91,6 +91,11 @@
     border-left-color: #FF6347;
 }
 
+.chart-container canvas {
+    width: 0;
+    height: 180px;
+}
+
 .card-row {
     display: flex;
     flex-wrap: wrap;
@@ -100,6 +105,7 @@
 }
 
 .remarks {
+    margin-top: 18px;
     text-align: left;
     font-family: inherit;
     width: -webkit-fill-available;
@@ -134,7 +140,6 @@
         gap: 18px;
     }
     .card {
-        width: calc(50% - 9px);
         min-width: 0;
         box-sizing: border-box;
         flex: 1 1 calc(50% - 9px);

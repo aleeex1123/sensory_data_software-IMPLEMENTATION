@@ -16,7 +16,7 @@ if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
     $machine = strtolower(preg_replace('/\s+/', '', $_GET['machine']));
     $targetTable = "production_cycle_" . $conn->real_escape_string($machine);
 
-    // Fetch the last row from main table
+    // Fetch the last row from the machine-specific table
     $lastRowQuery = "SELECT * FROM `$targetTable` ORDER BY id DESC LIMIT 1";
     $lastRowResult = $conn->query($lastRowQuery);
 
@@ -67,11 +67,10 @@ if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
                 $recycle_time = 0;
                 $cycle_time = $processing_time;
             }
-            
+
             $stmt1 = $conn->prepare("UPDATE `$targetTable` 
                                      SET cycle_status = 0, processing_time = ?, cycle_time = ?, timestamp = NOW()
                                      WHERE id = ?");
-
             $stmt1->bind_param("iii", $processing_time, $cycle_time, $lastId);
             $stmt1->execute();
             $stmt1->close();
@@ -80,16 +79,26 @@ if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
             $stmt2 = $conn->prepare("INSERT INTO `$targetTable` 
                                      (product, cycle_status, cycle_time, processing_time, recycle_time, timestamp) 
                                      VALUES (?, 0, 0, 0, 0, NOW())");
-                                     
             $stmt2->bind_param("s", $lastProduct);
             $stmt2->execute();
             $stmt2->close();
-            
+
             echo "Cycle ENDED and new row created.";
+
+        } elseif ($cycle_status == 2) {
+            // Alert/idle state
+            $stmt_alert = $conn->prepare("UPDATE `$targetTable` 
+                                          SET cycle_status = 2, timestamp = NOW()
+                                          WHERE id = ?");
+            $stmt_alert->bind_param("i", $lastId);
+            $stmt_alert->execute();
+            $stmt_alert->close();
+
+            echo "Cycle ALERT (status 2) recorded.";
         }
 
     } else {
-        echo "No rows found in " + `$targetTable` + " table.";
+        echo "No rows found in $targetTable table.";
     }
 
 } else {

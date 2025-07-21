@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Weights | TS - Sensory Data</title>
+    <title>Weights | Sensory Data</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="images/logo-2.png">
@@ -89,7 +89,7 @@
         <div class="header">
             <div class="header-left">
                 <h3>Gross/Net Weights</h3>
-                <span>Technical Service Department - Sensory Data</span>
+                <span>Production Department - Sensory Data</span>
             </div>
             <div class="header-right">
             </div>

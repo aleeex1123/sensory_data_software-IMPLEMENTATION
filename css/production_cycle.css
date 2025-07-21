@@ -29,9 +29,20 @@
 
 .inactive { background-color: red; }
 .active { background-color: green; }
+.inactive-dim { background-color: var(--light-gray); }
 
 .inactive-border {border-left: 10px solid; border-left-color: red;}
 .active-border {border-left: 10px solid; border-left-color: green;}
+
+/* Dot (indicator) styles */
+.status-indicator.inactive-gray {
+    background-color: var(--light-gray);
+}
+
+/* Card border for inactive state */
+.card.machine-card.inactive-gray-border {
+    border-left: 10px solid var(--light-gray);
+}
 
 @keyframes pulse {
     0% { transform: scale(1); opacity: 1; }

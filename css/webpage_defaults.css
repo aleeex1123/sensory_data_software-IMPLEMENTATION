@@ -36,6 +36,32 @@ body {
     margin: 20px 0px;
 }
 
+.paired-section {
+    margin-top: -20px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.paired-section .section {
+    flex: 1;
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .paired-section {
+        flex-direction: column;
+    }
+    .paired-section .left{
+        margin-bottom: -20px;
+    }
+    .paired-section .right{
+        margin-bottom: 0px;
+    }
+}
+
 .content-header {
     gap: 18px;
     color: var(--white);

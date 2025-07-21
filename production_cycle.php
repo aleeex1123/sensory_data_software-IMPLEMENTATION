@@ -17,7 +17,7 @@ $result = $conn->query($sql);
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Production Cycle | TS - Sensory Data </title>
+    <title>Production Cycle | Sensory Data </title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/png" href="images/logo-2.png">
@@ -99,7 +99,7 @@ $result = $conn->query($sql);
         </div>
     </div>
 
-    <!-- Side Table -->
+    <!-- Side Table
     <div class="side-table" id="sideTable">
         <span class="side-table-toggle" id="sideTableToggle">&#x25C0;</span>
         
@@ -193,7 +193,7 @@ $result = $conn->query($sql);
                 transition: transform 0.3s;
             }
         </style>
-    </div>
+    </div> -->
 
     <!-- Main -->
     <div class="main-content">
@@ -201,7 +201,7 @@ $result = $conn->query($sql);
         <div class="header">
             <div class="header-left">
                 <h3>Production Cycle</h3>
-                <span>Technical Service Department - Sensory Data</span>
+                <span>Production Department - Sensory Data</span>
             </div>
             <div class="header-right">
                 <h2><?php echo htmlspecialchars($machine ? $machine : 'No Machine Selected'); ?></h2>
@@ -236,10 +236,25 @@ $result = $conn->query($sql);
             <!-- Production Cards -->
             <div class="card-container">
                 <!-- Status Card -->
-                <div id="status-card" class="card machine-card <?php echo ($latest['cycle_status'] == 1) ? 'active-border' : 'inactive-border'; ?>">
+                <?php
+                $borderClass = 'inactive-border';
+                if ($latest['cycle_status'] == 1) $borderClass = 'active-border';
+                elseif ($latest['cycle_status'] == 2) $borderClass = 'inactive-gray-border';
+                ?>
+                <div id="status-card" class="card machine-card <?php echo $borderClass; ?>">
                     <div class="status-container">
-                        <div id="status-indicator" class="status-indicator <?php echo ($latest['cycle_status'] == 1) ? 'active' : 'inactive'; ?>"></div>
-                        <h2 id="machine-status"><?php echo ($latest['cycle_status'] == 1) ? 'Mold Closed' : 'Mold Open'; ?></h2>
+                        <?php
+                        $dotClass = 'inactive';
+                        if ($latest['cycle_status'] == 1) $dotClass = 'active';
+                        elseif ($latest['cycle_status'] == 2) $dotClass = 'inactive-gray';
+                        ?>
+                        <div id="status-indicator" class="status-indicator <?php echo $dotClass; ?>"></div>
+                        <?php
+                        $statusText = "Mold Open";
+                        if ($latest['cycle_status'] == 1) $statusText = "Mold Closed";
+                        elseif ($latest['cycle_status'] == 2) $statusText = "Machine Inactive";
+                        ?>
+                        <h2 id="machine-status"><?php echo $statusText; ?></h2>
                     </div>
                     <p style="font-size: 0.75rem">Injection Status</p>
                 </div>
@@ -289,9 +304,23 @@ $result = $conn->query($sql);
                             document.getElementById("product-status").textContent = data.product;
 
                             // Update status
-                            document.getElementById("machine-status").textContent = data.cycle_status == 1 ? "Mold Closed" : "Mold Open";
-                            document.getElementById("status-indicator").className = "status-indicator " + (data.cycle_status == 1 ? "active" : "inactive");
-                            document.getElementById("status-card").className = "card machine-card " + (data.cycle_status == 1 ? "active-border" : "inactive-border");
+                            let statusText = "Mold Open";
+                            let dotClass = "inactive";
+                            let borderClass = "inactive-border";
+
+                            if (data.cycle_status == 1) {
+                                statusText = "Mold Closed";
+                                dotClass = "active";
+                                borderClass = "active-border";
+                            } else if (data.cycle_status == 2) {
+                                statusText = "Machine Inactive";
+                                dotClass = "inactive-gray";
+                                borderClass = "inactive-gray-border";
+                            }
+
+                            document.getElementById("machine-status").textContent = statusText;
+                            document.getElementById("status-indicator").className = "status-indicator " + dotClass;
+                            document.getElementById("status-card").className = "card machine-card " + borderClass;
 
                             // Update charts
                             updateCharts(data.tempC_01, data.tempC_02);

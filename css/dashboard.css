@@ -27,11 +27,13 @@
     animation: pulse 1.5s infinite;
 }
 
-.inactive { background-color: red; }
+.inactive { background-color: var(--light-gray);}
 .active { background-color: green; }
+.open { background-color: red; }
 
-.inactive-border {border-left: 10px solid; border-left-color: red;}
+.inactive-border {border-left: 10px solid; border-left-color: var(--light-gray);}
 .active-border {border-left: 10px solid; border-left-color: green;}
+.active-border-open {border-left: 10px solid; border-left-color: red;}
 
 @keyframes pulse {
     0% { transform: scale(1); opacity: 1; }
@@ -42,7 +44,8 @@
 .card-container {
     display: flex;
     overflow-x: scroll;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray) var(--black);
     gap: 18px;
 }
 
@@ -111,4 +114,16 @@
 .machine-tab:not(.active):hover {
     color: var(--dark-green);
     background: var(--white);
+}
+
+/* Last Cycle Data */
+.table-container {
+    overflow-x: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray) var(--black);
+}
+
+.styled-table td:nth-child(5),
+.styled-table th:nth-child(5) {
+    border-right: 2px solid var(--black);
 }
