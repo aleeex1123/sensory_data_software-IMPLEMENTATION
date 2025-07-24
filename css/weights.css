@@ -75,11 +75,12 @@
     border-radius: 5px;
     border: none;
     cursor: pointer;
+    width: 100px;
 }
 
 .scale-info {
     display: flex;
-    width: 142px;
+    width: 220px;
     align-items: baseline;
     gap: 8px;
     margin-bottom: 8px;

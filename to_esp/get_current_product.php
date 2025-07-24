@@ -16,7 +16,8 @@ if (!isset($_GET['machine']) || empty($_GET['machine'])) {
 }
 
 // Use machine name directly
-$machine = $_GET['machine'];
+$machine = urldecode($_GET['machine']);
+
 $table_name = "production_cycle_" . str_replace(' ', '', strtolower($_GET['machine']));
 
 // Check if the table exists

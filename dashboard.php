@@ -329,19 +329,19 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                                                 <td>${row.processing_time}</td>
                                                 <td>${row.recycle_time}</td>
                                                 <td>${row.timestamp}</td>
-                                                <td>0.00</td>
-                                                <td>0.00</td>
+                                                <td>${parseFloat(row.gross_weight).toFixed(2)}</td>
+                                                <td>${parseFloat(row.net_weight).toFixed(2)}</td>
                                             `;
                                             tbody.appendChild(tr);
                                         });
                                     } else {
-                                        tbody.innerHTML = `<tr><td colspan="5">No data found</td></tr>`;
+                                        tbody.innerHTML = `<tr><td colspan="7">No data found</td></tr>`;
                                     }
                                 })
                                 .catch(error => {
                                     console.error('Error fetching last cycles:', error);
                                     const tbody = document.querySelector(".styled-table tbody");
-                                    tbody.innerHTML = `<tr><td colspan="5">Error loading data</td></tr>`;
+                                    tbody.innerHTML = `<tr><td colspan="7">Error loading data</td></tr>`;
                                 });
                         });
                     </script>

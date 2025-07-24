@@ -98,55 +98,84 @@
         <!-- Scale Controls -->
         <div class="section">
             <div class="content-header">
-            <h2>Weighing Scale Controls</h2>
+                <h2>Weighing Scale Controls</h2>
             </div>
 
             <?php
-            // Database connection (adjust credentials as needed)
             $conn = new mysqli("localhost", "root", "", "sensory_data");
             if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
+                die("Connection failed: " . $conn->connect_error);
             }
 
-            $sql = "SELECT scale_id, scale_status, current_product FROM weighing_scale_controls";
+            $availableMachines = [
+                                    "ARB 50",
+                                    "SUM 260C",
+                                    "SUM 650",
+                                    "MIT 650D",
+                                    "TOS 650A",
+                                    "TOS 850A",
+                                    "TOS 850B",
+                                    "TOS 850C",
+                                    "CLF 750A",
+                                    "CLF 750B",
+                                    "CLF 750C",
+                                    "CLF 950A",
+                                    "CLF 950B",
+                                    "MIT 1050B"
+                                ];
+
+
+            $sql = "SELECT scale_id, scale_status, assigned_machine FROM weighing_scale_controls";
             $result = $conn->query($sql);
 
             echo '<div class="scale-controls">';
             if ($result && $result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                $isActive = $row['scale_status'] == 1;
-                $labelClass = $isActive ? "label-on" : "label-off";
-                $statusText = $isActive ? "active" : "not active";
-                $btnClass = $isActive ? "scale-on" : "scale-off";
-                $btnText = $isActive ? "Stop Scale" : "Start Scale";
-                $productPlaceholder = htmlspecialchars($row['current_product'] ?: "Enter Product Name");
-                $inputDisabled = $isActive ? "disabled" : "";
-                $scaleId = htmlspecialchars($row['scale_id']);
-                $inputValue = htmlspecialchars($row['current_product']);
-                echo '
-                <div class="scale" data-scale-id="' . $scaleId . '">
-                    <div class="scale-info">
-                        <label class="' . $labelClass . '">' . $scaleId . '</label>
-                        <p>' . $statusText . '</p>
-                    </div>
-                    <form method="post" action="to_database/update_scale_control.php" class="scale-form" style="display:inline;">
-                        <input type="hidden" name="scale_id" value="' . $scaleId . '">
-                        <input type="hidden" name="action" value="' . ($isActive ? 'stop' : 'start') . '">
-                        <div class="controls">
-                            <input type="text" class="input-field" name="product" placeholder="' . $productPlaceholder . '" value="' . $inputValue . '" ' . $inputDisabled . '>
-                            <button type="submit" class="btn btn-primary ' . $btnClass . '">' . $btnText . '</button>
+                while ($row = $result->fetch_assoc()) {
+                    $scaleId = htmlspecialchars($row['scale_id']);
+                    $assignedMachine = trim($row['assigned_machine']);
+                    $isActive = $row['scale_status'] == 1;
+
+                    $labelClass = $isActive ? "label-on" : "label-off";
+                    $btnText = $isActive ? "Change" : "Assign";
+                    $btnClass = $isActive ? "scale-on" : "scale-off";
+
+                    // Status text
+                    $statusText = $assignedMachine ?
+                        "assigned to " . htmlspecialchars($assignedMachine) :
+                        "no assigned machine";
+
+                    echo '
+                    <div class="scale" data-scale-id="' . $scaleId . '">
+                        <div class="scale-info">
+                            <label class="' . $labelClass . '">' . $scaleId . '</label>
+                            <p>' . $statusText . '</p>
                         </div>
-                    </form>
-                </div>';
-            }
+                        <form method="post" action="to_database/update_scale_control.php" class="scale-form" style="display:inline;">
+                            <input type="hidden" name="scale_id" value="' . $scaleId . '">
+                            <div class="controls">
+                                <select name="assigned_machine" class="input-field">
+                                    <option value="">None</option>';
+                    
+                    foreach ($availableMachines as $machine) {
+                        $selected = ($assignedMachine === $machine) ? 'selected' : '';
+                        echo '<option value="' . htmlspecialchars($machine) . '" ' . $selected . '>' . htmlspecialchars($machine) . '</option>';
+                    }
+
+                    echo '      </select>
+                                <button type="submit" class="btn btn-primary ' . $btnClass . '">' . $btnText . '</button>
+                            </div>
+                        </form>
+                    </div>';
+                }
             } else {
-            echo '<p>No scales found.</p>';
+                echo '<p>No scales found.</p>';
             }
             echo '</div>';
-
             $conn->close();
             ?>
+
         </div>
+
         <script>
         // Optional: Confirm before stopping a scale
         document.querySelectorAll('.scale-form').forEach(function(form) {
@@ -209,10 +238,11 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
+                                <th>Machine</th>
                                 <th>Product</th>
-                                <th>Gross Weight (kg)</th>
-                                <th>Net Weight (kg)</th>
-                                <th>Difference</th>
+                                <th>Gross Weight (g)</th>
+                                <th>Net Weight (g)</th>
+                                <th>Difference (g)</th>
                                 <th>Timestamp</th>
                             </tr>
                         </thead>

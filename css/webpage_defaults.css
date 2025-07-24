@@ -115,7 +115,7 @@ body {
     align-items: center;
 }
 
-.section-controls select {
+select {
     cursor: pointer;
     padding: 10px;
     background-color: var(--gray);

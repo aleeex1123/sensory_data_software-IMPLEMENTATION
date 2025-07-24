@@ -16,7 +16,7 @@ $show = isset($_GET['show']) ? intval($_GET['show']) : 10;
 $month = isset($_GET['month']) ? intval($_GET['month']) : 0; // 0 means all months
 
 // Base query
-$sql = "SELECT id, product, gross_weight, net_weight, difference, timestamp
+$sql = "SELECT id, machine, product, gross_weight, net_weight, difference, timestamp
         FROM weight_data";
 
 // Filter by month if needed
@@ -25,7 +25,7 @@ if ($month > 0) {
 }
 
 // Add ordering and limit
-$sql .= " ORDER BY timestamp DESC LIMIT ?";
+$sql .= " ORDER BY id DESC LIMIT ?";
 
 // Prepare statement
 $stmt = $conn->prepare($sql);
@@ -44,6 +44,7 @@ if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         echo "<tr>";
         echo "<td>".htmlspecialchars($row['id'])."</td>";
+        echo "<td>".htmlspecialchars($row['machine'])."</td>";
         echo "<td>".htmlspecialchars($row['product'])."</td>";
         echo "<td>".htmlspecialchars($row['gross_weight'])."</td>";
         echo "<td>".htmlspecialchars($row['net_weight'])."</td>";
