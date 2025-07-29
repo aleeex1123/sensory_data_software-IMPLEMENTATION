@@ -19,8 +19,15 @@ if (!isset($_POST['machine'])) {
     exit;
 }
 
+// Check if machine parameter is set
+if (!isset($_POST['thickness'])) {
+    echo json_encode(["status" => "error", "message" => "No thickness specified"]);
+    exit;
+}
+
 $product = $_POST['product'];
 $machine = $_POST['machine'];
+$thickness = $_POST['thickness'];
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -54,7 +61,9 @@ $lastId = $row['id'];
 // Update the product and machine fields of the latest row
 $stmt = $conn->prepare("UPDATE `$table_name` SET product = ? WHERE id = ?");
 if ($stmt) {
-    $stmt->bind_param("si", $product, $lastId);
+    $product_thickness = $product . " | " . $thickness;
+    $stmt->bind_param("si", $product_thickness, $lastId);
+    
     if ($stmt->execute()) {
         echo json_encode(["status" => "success", "message" => "Product and machine updated successfully"]);
     } else {

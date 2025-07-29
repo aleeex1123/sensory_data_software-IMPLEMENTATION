@@ -99,79 +99,42 @@ $result = $conn->query($sql);
         </div>
     </div>
 
-    <!-- Side Table
+    <!-- Side Table -->
     <div class="side-table" id="sideTable">
         <span class="side-table-toggle" id="sideTableToggle">&#x25C0;</span>
         
-        <h2>Last Cycle History</h2>
+        <h2>Mold List</h2>
 
         <div class="table-container">
             <table class="styled-table">
                 <thead>
                     <tr>
-                        <th>Machine Name</th>
-                        <th>Last Cycle Time (seconds)</th>
-                        <th>Last Processing Time (seconds)</th>
-                        <th>Last Recycle Time (seconds)</th>
-                        <th>Timestamp</th>
+                        <th>id</th>
+                        <th>Mold Name</th>
+                        <th>Mold Number</th>
+                        <th>Thickness</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>CLF750A</td>
-                        <td>120</td>
-                        <td>60</td>
-                        <td>60 </td>
-                        <td>2024-06-01 12:00:00</td>
-                    </tr>
-                    <tr>
-                        <td>CLF750B</td>
-                        <td>110</td>
-                        <td>55 </td>
-                        <td>55 </td>
-                        <td>2024-06-01 12:05:00</td>
-                    </tr>
-                    <tr>
-                        <td>CLF750C</td>
-                        <td>130</td>
-                        <td>65</td>
-                        <td>65</td>
-                        <td>2024-06-01 12:10:00</td>
-                    </tr>
+                <tbody></tbody>
+                    <?php
+                    // Fetch mold data from the database
+                    $mold_sql = "SELECT * FROM mold_thickness ORDER BY id ASC LIMIT 10";
+                    $mold_result = $conn->query($mold_sql);
+                    if ($mold_result && $mold_result->num_rows > 0) {
+                        while ($row = $mold_result->fetch_assoc()) {
+                            echo "<tr>
+                                    <td>{$row['id']}</td>
+                                    <td>{$row['mold_name']}</td>
+                                    <td>{$row['mold_number']}</td>
+                                    <td>{$row['thickness']} mm</td>
+                                  </tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='4'>No molds found</td></tr>";
+                    }
+                    ?>
                 </tbody>
             </table>
-
-            <script>
-                document.addEventListener("DOMContentLoaded", function () {
-                    fetch('fetch/fetch_production_cycle_last_entries.php')
-                        .then(res => res.json())
-                        .then(data => {
-                            const tbody = document.querySelector("#sideTable .styled-table tbody");
-                            tbody.innerHTML = "";
-
-                            if (Array.isArray(data)) {
-                                data.forEach(row => {
-                                    const tr = document.createElement("tr");
-                                    tr.innerHTML = `
-                                        <td>${row.machine}</td>
-                                        <td>${row.cycle_time}</td>
-                                        <td>${row.processing_time}</td>
-                                        <td>${row.recycle_time}</td>
-                                        <td>${row.timestamp}</td>
-                                    `;
-                                    tbody.appendChild(tr);
-                                });
-                            } else {
-                                tbody.innerHTML = `<tr><td colspan="5">No data found</td></tr>`;
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching last cycles:', error);
-                            const tbody = document.querySelector("#sideTable .styled-table tbody");
-                            tbody.innerHTML = `<tr><td colspan="5">Error loading data</td></tr>`;
-                        });
-                });
-            </script>
         </div>
 
         <script>
@@ -193,7 +156,7 @@ $result = $conn->query($sql);
                 transition: transform 0.3s;
             }
         </style>
-    </div> -->
+    </div>
 
     <!-- Main -->
     <div class="main-content">
@@ -301,7 +264,7 @@ $result = $conn->query($sql);
                         .then(data => {
                             document.getElementById("temp1-value").textContent = data.tempC_01 + "°C";
                             document.getElementById("temp2-value").textContent = data.tempC_02 + "°C";
-                            document.getElementById("product-status").textContent = data.product;
+                            document.getElementById("product-status").textContent = data.product.split('|')[0].trim();
 
                             // Update status
                             let statusText = "Mold Open";
@@ -370,9 +333,7 @@ $result = $conn->query($sql);
                         <label for="show-product">Product</label>
                         <select id="show-product">
                             <option value="" selected>All</option>
-                            <option value="Pepsi">Pepsi</option>
-                            <option value="Basket">Basket</option>
-                            <option value="Chair">Chair</option>
+                            <!-- Options will be populated by JS -->
                         </select>
                     </div>
                     <div class="by_number">
@@ -402,6 +363,27 @@ $result = $conn->query($sql);
                             <option value="12">December</option>
                         </select>
                     </div>
+
+                    <script>
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const machine = urlParams.get('machine');
+
+                        fetch('fetch/fetch_products.php?machine=' + machine)
+                            .then(res => res.json())
+                            .then(products => {
+                                const select = document.getElementById("show-product");
+                                select.innerHTML = '<option value="" selected>All</option>';
+                                products.forEach(product => {
+                                    const option = document.createElement("option");
+                                    option.value = product.name;
+                                    option.textContent = product.name.split('|')[0].trim(); // Show product name
+                                    select.appendChild(option);
+                                });
+                            })
+                            .catch(err => {
+                                console.error("Failed to load products:", err);
+                            });
+                    </script>
                 </div>
             </div>
 
@@ -435,7 +417,7 @@ $result = $conn->query($sql);
                     </div>
                     <h3>Processing Time (seconds)</h3>
                     <div class="bar-container">
-                        <div class="bar" style="width:<?php echo ($values['processing']/$maxValue)*100; ?>%;background:#9b2b2b;">
+                        <div class="bar" style="width:<?php echo ($values['processing']/$maxValue)*100; ?>%;background:#f59c2f;">
                             <span class="bar-label"><?php echo $values['processing']; ?></span>
                         </div>
                     </div>
@@ -488,25 +470,57 @@ $result = $conn->query($sql);
                     xhr.send();
                 }
 
+                function fetchStandardTimecard(product) {
+                    const url = `fetch/fetch_production_cycle_standard_timecard.php?machine=${encodeURIComponent(machineSafe)}&product=${encodeURIComponent(product)}`;
+
+                    fetch(url)
+                        .then(res => res.json())
+                        .then(data => {
+                            const card = document.querySelector(`.time-card.standard`);
+                            if (!card) return;
+
+                            const max = Math.max(data.cycle, data.processing, data.recycle, 1);
+
+                            card.querySelectorAll('.bar')[0].style.width = (data.cycle / max * 100) + '%';
+                            card.querySelectorAll('.bar')[0].innerText = data.cycle;
+
+                            card.querySelectorAll('.bar')[1].style.width = (data.processing / max * 100) + '%';
+                            card.querySelectorAll('.bar')[1].innerText = data.processing;
+
+                            card.querySelectorAll('.bar')[2].style.width = (data.recycle / max * 100) + '%';
+                            card.querySelectorAll('.bar')[2].innerText = data.recycle;
+                        });
+                }
+
                 function updateTimeCards(stats) {
-                    const max = Math.max(
-                        stats.average.cycle, stats.maximum.cycle,
-                        stats.average.processing, stats.maximum.processing,
-                        stats.average.recycle, stats.maximum.recycle,
-                        1 // avoid division by zero
-                    );
+                    const standard = stats.standard;
 
                     ['average', 'minimum', 'maximum'].forEach(type => {
                         const card = document.querySelector(`.time-card.${type}`);
                         const val = stats[type];
-                        card.querySelectorAll('.bar')[0].style.width = (val.cycle / max * 100) + '%';
-                        card.querySelectorAll('.bar')[0].innerText = val.cycle;
 
-                        card.querySelectorAll('.bar')[1].style.width = (val.processing / max * 100) + '%';
-                        card.querySelectorAll('.bar')[1].innerText = val.processing;
+                        ['cycle', 'processing', 'recycle'].forEach((key, i) => {
+                            const bar = card.querySelectorAll('.bar')[i];
+                            const value = val[key];
+                            const standardValue = standard[key];
+                            const colors = ['#417630', '#f59c2f', '#2a656f']; // Updated color for processing
 
-                        card.querySelectorAll('.bar')[2].style.width = (val.recycle / max * 100) + '%';
-                        card.querySelectorAll('.bar')[2].innerText = val.recycle;
+                            if (value === 0) {
+                                bar.style.width = '0%';
+                                bar.innerText = '0';
+                                bar.style.backgroundColor = '#646464'; // Gray when no data
+                            } else {
+                                const widthPercent = Math.min((value / standardValue) * 100, 100);
+                                bar.style.width = widthPercent + '%';
+                                bar.innerText = value;
+
+                                if (value > standardValue) {
+                                    bar.style.backgroundColor = '#d32f2f'; // Red if exceeded
+                                } else {
+                                    bar.style.backgroundColor = colors[i]; // Normal color
+                                }
+                            }
+                        });
                     });
                 }
 
@@ -524,8 +538,45 @@ $result = $conn->query($sql);
                         .then(res => res.json())
                         .then(data => {
                             if (data.error) return;
-                            updateTimeCards(data);
+
+                            const standardCycle = data.standard?.cycle || data.standard || 0;
+
+                            const stats = {
+                                standard: {
+                                    cycle: data.standard?.cycle || 0,
+                                    processing: data.standard?.processing || 0,
+                                    recycle: data.standard?.recycle || 0
+                                },
+                                average: {
+                                    cycle: data.average?.cycle || 0,
+                                    processing: data.average?.processing || 0,
+                                    recycle: data.average?.recycle || 0
+                                },
+                                minimum: {
+                                    cycle: data.minimum?.cycle || 0,
+                                    processing: data.minimum?.processing || 0,
+                                    recycle: data.minimum?.recycle || 0
+                                },
+                                maximum: {
+                                    cycle: data.maximum?.cycle || 0,
+                                    processing: data.maximum?.processing || 0,
+                                    recycle: data.maximum?.recycle || 0
+                                }
+                            };
+                            updateTimeCards(stats);
                         });
+
+                    if (product) {
+                        console.log("Selected product:", product);
+                        fetchStandardTimecard(product);
+                    } else {
+                        // Set to zero if no product selected
+                        const card = document.querySelector(`.time-card.standard`);
+                        ['cycle', 'processing', 'recycle'].forEach((_, i) => {
+                            card.querySelectorAll('.bar')[i].style.width = '0%';
+                            card.querySelectorAll('.bar')[i].innerText = '0';
+                        });
+                    }
                 }
 
                 // Initial load

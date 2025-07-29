@@ -64,12 +64,14 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 // Display results
-if ($result->num_rows > 1) {
+if ($result->num_rows > 0) {
+    $rowsShown = 0;
+
     while ($row = $result->fetch_assoc()) {
-        // Skip if both times are zero
         if (floatval($row['processing_time']) == 0 && floatval($row['recycle_time']) == 0) {
             continue;
         }
+
         echo "<tr>";
         echo "<td>".htmlspecialchars($row['id'])."</td>";
         echo "<td>".htmlspecialchars($row['cycle_time'])."</td>";
@@ -77,9 +79,15 @@ if ($result->num_rows > 1) {
         echo "<td>".htmlspecialchars($row['recycle_time'])."</td>";
         echo "<td>".htmlspecialchars($row['tempC_01'])."</td>";
         echo "<td>".htmlspecialchars($row['tempC_02'])."</td>";
-        echo "<td>".htmlspecialchars($row['product'])."</td>";
+        echo "<td>". htmlspecialchars(explode('|', $row['product'])[0]) ."</td>";
         echo "<td>".htmlspecialchars($row['timestamp'])."</td>";
         echo "</tr>";
+
+        $rowsShown++;
+    }
+
+    if ($rowsShown === 0) {
+        echo "<tr><td colspan='8'>No valid records found.</td></tr>";
     }
 } else {
     echo "<tr><td colspan='8'>No records found.</td></tr>";

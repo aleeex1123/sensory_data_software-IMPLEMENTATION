@@ -2,87 +2,125 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "sensory_data";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die(json_encode(["error" => "DB connection failed"]));
+// Connect to both databases
+$conn1 = new mysqli($servername, $username, $password, "dms");            // for product_parameters
+$conn2 = new mysqli($servername, $username, $password, "sensory_data");   // for production_cycle_<machine>
+
+if ($conn1->connect_error || $conn2->connect_error) {
+    die(json_encode(["error" => "Database connection failed"]));
 }
 
-$show = isset($_GET['show']) ? intval($_GET['show']) : 10;
-$month = isset($_GET['month']) ? intval($_GET['month']) : 0;
-$product = isset($_GET['product']) ? $_GET['product'] : '';
-$machine = isset($_GET['machine']) ? $_GET['machine'] : 'CLF 750A';
+$product = isset($_GET['product']) ? $conn2->real_escape_string($_GET['product']) : '';
+$machine = isset($_GET['machine']) ? $conn2->real_escape_string($_GET['machine']) : '';
+$limit   = isset($_GET['show']) ? intval($_GET['show']) : 20;
+$month   = isset($_GET['month']) ? intval($_GET['month']) : date('n');
 
-$table = "production_cycle_" . preg_replace('/[^a-zA-Z0-9_]/', '_', $machine);
+$table = "production_cycle_" . preg_replace('/[^a-zA-Z0-9_]/', '_', strtolower($machine));
 
-// Check if table exists
-$check = $conn->query("SHOW TABLES LIKE '$table'");
-if ($check->num_rows == 0) {
-    echo json_encode(["error" => "Table not found"]);
-    exit;
+// Step 1: Get mold number from production cycle table (sensory_data)
+$moldQuery = "SELECT mold_number FROM `$table` WHERE product LIKE '%" . $conn2->real_escape_string($product) . "%' LIMIT 1";
+$moldResult = $conn2->query($moldQuery);
+$mold_number = "";
+
+if ($moldResult && $row = $moldResult->fetch_assoc()) {
+    $mold_number = $row['mold_number'];
 }
 
-$sql = "SELECT cycle_time, processing_time, recycle_time FROM `$table`";
-$conditions = [];
-$params = [];
-$types = "";
-
-// Filters
-if ($month > 0) {
-    $conditions[] = "MONTH(timestamp) = ?";
-    $params[] = $month;
-    $types .= "i";
-}
-if (!empty($product)) {
-    $conditions[] = "product = ?";
-    $params[] = $product;
-    $types .= "s";
+// Step 2: Get cycle_time_target from product_parameters (dms)
+$standard = 0;
+if ($mold_number !== "") {
+    $paramQuery = "SELECT cycle_time_target FROM product_parameters WHERE mold_code = '$mold_number'";
+    $paramResult = $conn1->query($paramQuery);
+    if ($paramResult && $param = $paramResult->fetch_assoc()) {
+        $standard = floatval($param['cycle_time_target']);
+    }
 }
 
-if ($conditions) {
-    $sql .= " WHERE " . implode(" AND ", $conditions);
+// Step 3: Fetch past cycle data from sensory_data
+$entries = [];
+$average = 0;
+$min = 0;
+$max = 0;
+
+$dataQuery = "
+    SELECT cycle_time, processing_time, recycle_time, timestamp
+    FROM `$table`
+    WHERE 1
+      " . ($product ? " AND product LIKE '%$product%'" : "") . "
+      " . ($month > 0 ? " AND MONTH(timestamp) = $month" : "") . "
+      AND cycle_time IS NOT NULL
+    ORDER BY timestamp DESC
+    LIMIT $limit
+";
+
+$dataResult = $conn2->query($dataQuery);
+
+if ($dataResult && $dataResult->num_rows > 0) {
+    $cycleTimes = [];
+    $processingTimes = [];
+    $recycleTimes = [];
+
+    while ($row = $dataResult->fetch_assoc()) {
+        $entries[] = $row;
+        $cycleTimes[] = floatval($row['cycle_time']);
+        $processingTimes[] = floatval($row['processing_time']);
+        $recycleTimes[] = floatval($row['recycle_time']);
+    }
+
+    // Calculate cycle
+    $avgCycleTime = round(array_sum($cycleTimes) / count($cycleTimes), 2);
+    $maxCycleTime = round(max($cycleTimes), 2);
+
+    // Calculate processing
+    $avgProcessingTime = round(array_sum($processingTimes) / count($processingTimes), 2);
+    $maxProcessingTime = round(max($processingTimes), 2);
+
+    // Calculate recycle
+    $avgRecycleTime = round(array_sum($recycleTimes) / count($recycleTimes), 2);
+    $maxRecycleTime = round(max($recycleTimes), 2);
+
+    function getMinNonZero($array) {
+        $nonZero = array_filter($array, fn($v) => $v > 0);
+        return count($nonZero) > 0 ? round(min($nonZero), 2) : 0;
+    }
+
+    $minCycleTime = getMinNonZero($cycleTimes);
+    $minProcessingTime = getMinNonZero($processingTimes);
+    $minRecycleTime = getMinNonZero($recycleTimes);
+} else {
+    // Defaults when no data found
+    $avgCycleTime = $minCycleTime = $maxCycleTime = 0;
+    $avgProcessingTime = $minProcessingTime = $maxProcessingTime = 0;
+    $avgRecycleTime = $minRecycleTime = $maxRecycleTime = 0;
 }
-$sql .= " ORDER BY timestamp DESC LIMIT ?";
-$params[] = $show + 1; // Fetch one extra row
-$types .= "i";
-
-$stmt = $conn->prepare($sql);
-$stmt->bind_param($types, ...$params);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$rows = [];
-while ($row = $result->fetch_assoc()) {
-    $rows[] = $row;
-}
-
-if (count($rows) === 0) {
-    echo json_encode(["error" => "No data"]);
-    exit;
-}
-
-$cycle_values = array_column($rows, 'cycle_time');
-$processing_values = array_column($rows, 'processing_time');
-$recycle_values = array_column($rows, 'recycle_time');
 
 $response = [
-    "average" => [
-        "cycle" => round(array_sum($cycle_values) / (count($cycle_values)-1), 2),
-        "processing" => round(array_sum($processing_values) / (count($processing_values)-1), 2),
-        "recycle" => round(array_sum($recycle_values) / (count($recycle_values)-1), 2)
+    'standard' => [
+        'cycle' => $standard,
+        'processing' => $standard / 2,
+        'recycle' => $standard / 2
     ],
-    "minimum" => [
-        "cycle" => min(array_filter($cycle_values, fn($v) => $v > 0)) ?: 0,
-        "processing" => min(array_filter($processing_values, fn($v) => $v > 0)) ?: 0,
-        "recycle" => min(array_filter($recycle_values, fn($v) => $v > 0)) ?: 0
+    'average' => [
+        'cycle' => $avgCycleTime,
+        'processing' => $avgProcessingTime,
+        'recycle' => $avgRecycleTime
     ],
-    "maximum" => [
-        "cycle" => max($cycle_values),
-        "processing" => max($processing_values),
-        "recycle" => max($recycle_values)
-    ]
+    'minimum' => [
+        'cycle' => $minCycleTime,
+        'processing' => $minProcessingTime,
+        'recycle' => $minRecycleTime
+    ],
+    'maximum' => [
+        'cycle' => $maxCycleTime,
+        'processing' => $maxProcessingTime,
+        'recycle' => $maxRecycleTime
+    ],
+    'entries' => $entries
 ];
 
 echo json_encode($response);
+
+$conn1->close();
+$conn2->close();
 ?>

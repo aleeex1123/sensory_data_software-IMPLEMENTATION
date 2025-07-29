@@ -159,7 +159,7 @@ h2 {
     color: var(--white);
     font-weight: bold;
     padding-left: 10px;
-    transition: width 0.5s;
+    transition: width 0.4s ease, background-color 0.3s ease;
     position: relative;
 }
 .bar-label {
