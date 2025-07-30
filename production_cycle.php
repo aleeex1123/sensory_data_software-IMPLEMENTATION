@@ -586,7 +586,7 @@ $result = $conn->query($sql);
                                 : '<p>No product selected</p>';
                         } else {
                             if (isInvalid) {
-                                content = `<p style="color:gray;">No parameters available.</p>
+                                content = `<p style="color:gray;">No parameters available</p>
                                     <p><span style="color:#417630; font-weight: bold;">Cycle time</span> limit set to 300 seconds</p>
                                     <p><span style="color:#f59c2f; font-weight: bold;">Processing time</span> limit set to 150 seconds</p>
                                     <p><span style="color:#2a656f; font-weight: bold;">Recycle time</span> limit set to 150 seconds</p>`;
