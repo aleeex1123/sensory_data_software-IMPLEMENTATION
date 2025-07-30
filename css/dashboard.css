@@ -45,7 +45,7 @@
     display: flex;
     overflow-x: scroll;
     scrollbar-width: thin;
-    scrollbar-color: var(--gray) var(--black);
+    scrollbar-color: var(--dark-green) var(--black);
     gap: 18px;
 }
 
@@ -120,7 +120,7 @@
 .table-container {
     overflow-x: scroll;
     scrollbar-width: thin;
-    scrollbar-color: var(--gray) var(--black);
+    scrollbar-color: var(--dark-green) var(--black);
 }
 
 .styled-table td:nth-child(5),

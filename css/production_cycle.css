@@ -151,6 +151,7 @@ h2 {
     height: 28px;
     position: relative;
 }
+
 .bar {
     height: 100%;
     border-radius: 4px;
@@ -162,7 +163,61 @@ h2 {
     transition: width 0.4s ease, background-color 0.3s ease;
     position: relative;
 }
+
 .bar-label {
     font-size: 0.8rem;
     align-self: center;
 }
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-icon {
+    font-weight: bold;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--off-white);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+    z-index: 1;
+}
+
+.tooltip {
+    opacity: 0;
+    transform: translateY(-5px);
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    position: absolute;
+    top: 25px;
+    right: 0;
+    background-color: var(--black);
+    color: var(--off-white);
+    padding: 8px 12px;
+    border: solid 1.5px var(--dark-green);
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 0.75rem;
+    width: max-content;
+    max-width: 220px;
+    z-index: 10;
+}
+
+/* Show tooltip on hover */
+.info-icon:hover .tooltip {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+

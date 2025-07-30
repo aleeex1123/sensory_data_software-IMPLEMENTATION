@@ -85,6 +85,11 @@
     background-color: #365b25;
 }
 
+.table-container {
+    max-height: 488px;
+    overflow-y: auto;
+}
+
 .side-table {
     margin: 0;
     position: fixed;
@@ -97,6 +102,8 @@
     z-index: 100;
     border-left: solid 2px var(--green);
     box-shadow: -2px 0 10px var(--dark-green);
+    scrollbar-width: thin;
+    scrollbar-color: var(--dark-green) var(--black);
 }
 
 .side-table-toggle {
@@ -108,15 +115,14 @@
     z-index: 101;
     position: absolute;
     top: calc(50% - 48px);
-    right: 639px;
+    right: 638px;
     padding: 12px 6px;
     cursor: pointer;
     color: var(--white);
     transition: left 0.3s ease;
     font-size: 1.25rem;
-
 }
-
+ 
 @media screen and (max-width: 720px) {
     .side-table {
         width: 90%;

@@ -102,23 +102,25 @@ $result = $conn->query($sql);
     <!-- Side Table -->
     <div class="side-table" id="sideTable">
         <span class="side-table-toggle" id="sideTableToggle">&#x25C0;</span>
-        
-        <h2>Mold List</h2>
+
+        <div class="content-header">
+            <h2 style="margin: 0;">Product Molds</h2>
+            <input type="text" id="searchMold" placeholder="Search Molds..." onkeyup="filterMolds()">
+        </div>
 
         <div class="table-container">
             <table class="styled-table">
                 <thead>
                     <tr>
-                        <th>id</th>
+                        <th>ID</th>
                         <th>Mold Name</th>
                         <th>Mold Number</th>
                         <th>Thickness</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody id="moldTableBody">
                     <?php
-                    // Fetch mold data from the database
-                    $mold_sql = "SELECT * FROM mold_thickness ORDER BY id ASC LIMIT 10";
+                    $mold_sql = "SELECT * FROM mold_thickness ORDER BY id";
                     $mold_result = $conn->query($mold_sql);
                     if ($mold_result && $mold_result->num_rows > 0) {
                         while ($row = $mold_result->fetch_assoc()) {
@@ -127,12 +129,13 @@ $result = $conn->query($sql);
                                     <td>{$row['mold_name']}</td>
                                     <td>{$row['mold_number']}</td>
                                     <td>{$row['thickness']} mm</td>
-                                  </tr>";
+                                </tr>";
                         }
-                    } else {
-                        echo "<tr><td colspan='4'>No molds found</td></tr>";
                     }
                     ?>
+                    <tr class="no-results" style="display: none;">
+                        <td colspan="4" style="text-align: center; color: #aaa;">No molds found</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -146,6 +149,36 @@ $result = $conn->query($sql);
                     sideTable.classList.toggle('collapsed');
                 });
             });
+
+            // Filter molds based on search input
+            function filterMolds() {
+                const input = document.getElementById("searchMold");
+                const filter = input.value.toLowerCase();
+                const rows = document.querySelectorAll("#moldTableBody tr:not(.no-results)");
+                const noResultsRow = document.querySelector(".no-results");
+
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const cells = row.getElementsByTagName("td");
+                    const match = Array.from(cells).some(cell =>
+                        cell.textContent.toLowerCase().includes(filter)
+                    );
+                    if (match) {
+                        row.style.display = "";
+                        visibleCount++;
+                    } else {
+                        row.style.display = "none";
+                    }
+                });
+
+                // Show or hide "no results" row
+                if (visibleCount === 0) {
+                    noResultsRow.style.display = "";
+                } else {
+                    noResultsRow.style.display = "none";
+                }
+            }
         </script>
         <style>
             .side-table.collapsed {
@@ -154,6 +187,9 @@ $result = $conn->query($sql);
             }
             .side-table {
                 transition: transform 0.3s;
+            }
+            .no-results td {
+                background-color: var(--gray);
             }
         </style>
     </div>
@@ -409,6 +445,12 @@ $result = $conn->query($sql);
 
                 <div class="time-card <?php echo $type; ?>">
                     <h2><?php echo ucfirst($type); ?></h2>
+                    <span class="info-icon" data-type="<?php echo $type; ?>">ⓘ
+                        <div class="tooltip" id="tooltip-<?php echo $type; ?>">
+                            <p>Loading...</p>
+                        </div>
+                    </span>
+                    
                     <h3>Cycle Time (seconds)</h3>
                     <div class="bar-container">
                         <div class="bar" style="width:<?php echo ($values['cycle']/$maxValue)*100; ?>%;background:#417630;">
@@ -524,6 +566,41 @@ $result = $conn->query($sql);
                     });
                 }
 
+                function updateTooltips(product, standardCycle = 300) {
+                    const cards = ['standard', 'average', 'minimum', 'maximum'];
+
+                    // Fallback check
+                    const isInvalid = (
+                        typeof standardCycle !== 'number' ||
+                        isNaN(standardCycle)
+                    );
+
+                    cards.forEach(type => {
+                        const tooltip = document.getElementById(`tooltip-${type}`);
+                        let content = "";
+
+                        if (type === 'standard') {
+                            const trimmedProduct = product ? product.split('|')[0].trim() : '';
+                            content = trimmedProduct
+                                ? `<p>${trimmedProduct} selected</p>`
+                                : '<p>No product selected</p>';
+                        } else {
+                            if (isInvalid) {
+                                content = `<p style="color:gray;">No parameters available.</p>
+                                    <p><span style="color:#417630; font-weight: bold;">Cycle time</span> limit set to 300 seconds</p>
+                                    <p><span style="color:#f59c2f; font-weight: bold;">Processing time</span> limit set to 150 seconds</p>
+                                    <p><span style="color:#2a656f; font-weight: bold;">Recycle time</span> limit set to 150 seconds</p>`;
+                            } else {
+                                content = ` <p><span style="color:#417630; font-weight: bold;">Cycle time</span> limit set to ${standardCycle} seconds</p>
+                                            <p><span style="color:#f59c2f; font-weight: bold;">Processing time</span> limit set to ${standardCycle / 2} seconds</p>
+                                            <p><span style="color:#2a656f; font-weight: bold;">Recycle time</span> limit set to ${standardCycle / 2} seconds</p>`;
+                            }
+                        }
+
+                        if (tooltip) tooltip.innerHTML = content;
+                    });
+                }
+
                 function fetchAll() {
                     fetchTableData(); // update table
 
@@ -543,9 +620,9 @@ $result = $conn->query($sql);
 
                             const stats = {
                                 standard: {
-                                    cycle: data.standard?.cycle || 0,
-                                    processing: data.standard?.processing || 0,
-                                    recycle: data.standard?.recycle || 0
+                                    cycle: data.standard?.cycle || 300,
+                                    processing: data.standard?.processing || 150,
+                                    recycle: data.standard?.recycle || 150
                                 },
                                 average: {
                                     cycle: data.average?.cycle || 0,
@@ -564,6 +641,7 @@ $result = $conn->query($sql);
                                 }
                             };
                             updateTimeCards(stats);
+                            updateTooltips(product, standardCycle);
                         });
 
                     if (product) {
@@ -577,6 +655,7 @@ $result = $conn->query($sql);
                             card.querySelectorAll('.bar')[i].innerText = '0';
                         });
                     }
+                    updateTooltips(null, 500);
                 }
 
                 // Initial load

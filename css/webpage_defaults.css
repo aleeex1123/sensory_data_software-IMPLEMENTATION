@@ -90,10 +90,23 @@ body {
     gap: 12px;
 }
 
-.section-controls input {
+.section-controls div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media screen and (max-width: 500px) {
+    .section-controls div {
+        display: block; 
+        text-align: left;
+    }
+}
+
+input {
     padding: 6px 10px;
     color: var(--white);
-    width: 100%;
+    width: 40%;
     font-size: 0.75rem;
     background: var(--gray);
     border: 1px solid var(--light-gray);
