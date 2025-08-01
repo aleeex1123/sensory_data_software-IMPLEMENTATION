@@ -77,9 +77,9 @@ if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
 
             // Insert new row with same product
             $stmt2 = $conn->prepare("INSERT INTO `$targetTable` 
-                                     (product, cycle_status, cycle_time, processing_time, recycle_time, timestamp) 
-                                     VALUES (?, 0, 0, 0, 0, NOW())");
-            $stmt2->bind_param("s", $lastProduct);
+                                    (product, mold_number, cycle_status, cycle_time, processing_time, recycle_time, timestamp) 
+                                    VALUES (?, ?, 0, 0, 0, 0, NOW())");
+            $stmt2->bind_param("ss", $lastProduct, $lastRow['mold_number']);  // FIXED
             $stmt2->execute();
             $stmt2->close();
 

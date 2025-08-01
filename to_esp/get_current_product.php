@@ -33,7 +33,7 @@ $result = $conn->query($sql);
 
 if ($result && $result->num_rows > 0) {
     $row = $result->fetch_assoc();
-    echo json_encode(["product" => $row['product']]);
+    echo json_encode(["product" => (explode('|', $row['product'])[0])]);
 } else {
     echo json_encode(["product" => ""]);
 }

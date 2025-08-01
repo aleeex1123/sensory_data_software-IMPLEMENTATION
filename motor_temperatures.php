@@ -100,7 +100,7 @@ if ($conn->connect_error) {
         <div class="header">
             <div class="header-left">
                 <h3>Motor Temperatures</h3>
-                <span>Technical Service Department - Sensory Data</span>
+                <span>Technical Services Department - Sensory Data</span>
             </div>
             <div class="header-right">
             </div>

@@ -96,7 +96,7 @@
     height: 180px;
 }
 
-.card-row {
+.card-column {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -129,19 +129,21 @@
     color: var(--white)
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 720px) {
     .card-container {
         flex-wrap: wrap;
-        overflow-x: visible;
+        overflow-x: none;
     }
-    .card-row {
+    .card-column {
         display: flex;
         flex-wrap: wrap;
         gap: 18px;
     }
     .card {
-        min-width: 0;
         box-sizing: border-box;
         flex: 1 1 calc(50% - 9px);
+    }
+    .temperature1-card, .temperature2-card {
+       min-width: auto;
     }
 }

@@ -7,27 +7,16 @@ $username = "root";
 $password = "";
 $dbname = "sensory_data";
 
-// Check if product parameter is set
-if (!isset($_POST['product'])) {
-    echo json_encode(["status" => "error", "message" => "No product specified"]);
-    exit;
-}
-
-// Check if machine parameter is set
-if (!isset($_POST['machine'])) {
-    echo json_encode(["status" => "error", "message" => "No machine specified"]);
-    exit;
-}
-
-// Check if machine parameter is set
-if (!isset($_POST['thickness'])) {
-    echo json_encode(["status" => "error", "message" => "No thickness specified"]);
+// Validate inputs
+if (!isset($_POST['product']) || !isset($_POST['machine']) || !isset($_POST['thickness']) || !isset($_POST['mold_num'])) {
+    echo json_encode(["status" => "error", "message" => "Missing one or more required parameters"]);
     exit;
 }
 
 $product = $_POST['product'];
 $machine = $_POST['machine'];
 $thickness = $_POST['thickness'];
+$mold_num = $_POST['mold_num']; // this is the actual mold code
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -36,17 +25,17 @@ if ($conn->connect_error) {
     exit;
 }
 
-// Use machine name directly
+// Build the correct table name
 $table_name = "production_cycle_" . str_replace(' ', '', strtolower($machine));
 
-// Check if the table exists
+// Check if table exists
 $tableCheck = $conn->query("SHOW TABLES LIKE '$table_name'");
 if ($tableCheck->num_rows == 0) {
-    echo json_encode(["error" => "Table $table_name does not exist"]);
+    echo json_encode(["status" => "error", "message" => "Table $table_name does not exist"]);
     exit;
 }
 
-// Fetch the latest row
+// Get latest row
 $sql_latest = "SELECT id FROM `$table_name` ORDER BY id DESC LIMIT 1";
 $result = $conn->query($sql_latest);
 if ($result === false || $result->num_rows == 0) {
@@ -58,17 +47,18 @@ if ($result === false || $result->num_rows == 0) {
 $row = $result->fetch_assoc();
 $lastId = $row['id'];
 
-// Update the product and machine fields of the latest row
-$stmt = $conn->prepare("UPDATE `$table_name` SET product = ? WHERE id = ?");
+// Update the latest row with product | thickness and mold code
+$stmt = $conn->prepare("UPDATE `$table_name` SET product = ?, mold_number = ? WHERE id = ?");
 if ($stmt) {
-    $product_thickness = $product . " | " . $thickness;
-    $stmt->bind_param("si", $product_thickness, $lastId);
-    
+    $product_with_thickness = $product . " | " . $thickness;
+    $stmt->bind_param("ssi", $product_with_thickness, $mold_num, $lastId);
+
     if ($stmt->execute()) {
-        echo json_encode(["status" => "success", "message" => "Product and machine updated successfully"]);
+        echo json_encode(["status" => "success", "message" => "Product and mold number updated successfully"]);
     } else {
         echo json_encode(["status" => "error", "message" => "Execute failed: " . $stmt->error]);
     }
+
     $stmt->close();
 } else {
     echo json_encode(["status" => "error", "message" => "Prepare failed: " . $conn->error]);
