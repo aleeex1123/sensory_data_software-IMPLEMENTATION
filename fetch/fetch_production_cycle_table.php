@@ -72,11 +72,20 @@ if ($result->num_rows > 0) {
             continue;
         }
 
+
         echo "<tr>";
         echo "<td>".htmlspecialchars($row['id'])."</td>";
         echo "<td>".htmlspecialchars($row['cycle_time'])."</td>";
         echo "<td>".htmlspecialchars($row['processing_time'])."</td>";
-        echo "<td>".htmlspecialchars($row['recycle_time'])."</td>";
+
+        if (floatval($row['recycle_time']) != 0) {
+            echo "<td>".htmlspecialchars($row['recycle_time'])."</td>";
+        }
+        else {
+            echo "<td style=\"color: #417630;\">Start of production</td>";
+
+        }
+
         echo "<td>".htmlspecialchars($row['tempC_01'])."</td>";
         echo "<td>".htmlspecialchars($row['tempC_02'])."</td>";
         echo "<td>". htmlspecialchars(explode('|', $row['product'])[0]) ."</td>";

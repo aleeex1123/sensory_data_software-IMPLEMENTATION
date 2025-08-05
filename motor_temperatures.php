@@ -458,6 +458,8 @@ if ($conn->connect_error) {
                     fetchTableData(); // fallback if something goes wrong
                     }
                 });
+                // 🔁 Auto-refresh the temperature table every 30 seconds
+                setInterval(fetchTableData, 15000);
             </script>
 
             

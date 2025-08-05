@@ -313,7 +313,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         </tbody>
                     </table>
                     <script>
-                        document.addEventListener("DOMContentLoaded", function () {
+                        function fetchLastCycleData() {
                             fetch('fetch/fetch_production_cycle_last_entries.php')
                                 .then(res => res.json())
                                 .then(data => {
@@ -343,6 +343,11 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                                     const tbody = document.querySelector(".styled-table tbody");
                                     tbody.innerHTML = `<tr><td colspan="7">Error loading data</td></tr>`;
                                 });
+                        }
+
+                        document.addEventListener("DOMContentLoaded", function () {
+                            fetchLastCycleData(); // Initial fetch
+                            setInterval(fetchLastCycleData, 15000); // Auto-refresh every 15 seconds
                         });
                     </script>
                 </div>

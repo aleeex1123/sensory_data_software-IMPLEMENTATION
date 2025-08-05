@@ -453,20 +453,31 @@ $result = $conn->query($sql);
                     
                     <h3>Cycle Time (seconds)</h3>
                     <div class="bar-container">
-                        <div class="bar" style="width:<?php echo ($values['cycle']/$maxValue)*100; ?>%;background:#417630;">
-                            <span class="bar-label"><?php echo $values['cycle']; ?></span>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="width:<?php echo ($values['cycle']/$maxValue)*100; ?>%;background:#417630;">
+                                <span class="bar-label"><?php echo $values['cycle']; ?></span>
+                            </div>
+                            <div class="bar-tooltip">Cycle Time: <?php echo $values['cycle']; ?>s</div>
                         </div>
                     </div>
+
                     <h3>Processing Time (seconds)</h3>
                     <div class="bar-container">
-                        <div class="bar" style="width:<?php echo ($values['processing']/$maxValue)*100; ?>%;background:#f59c2f;">
-                            <span class="bar-label"><?php echo $values['processing']; ?></span>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="width:<?php echo ($values['processing']/$maxValue)*100; ?>%;background:#f59c2f;">
+                                <span class="bar-label"><?php echo $values['processing']; ?></span>
+                            </div>
+                            <div class="bar-tooltip">Processing Time: <?php echo $values['processing']; ?>s</div>
                         </div>
                     </div>
+                    
                     <h3>Recycle Time (seconds)</h3>
                     <div class="bar-container">
-                        <div class="bar" style="width:<?php echo ($values['recycle']/$maxValue)*100; ?>%;background:#2a656f;">
-                            <span class="bar-label"><?php echo $values['recycle']; ?></span>
+                        <div class="bar-wrapper">
+                            <div class="bar" style="width:<?php echo ($values['recycle']/$maxValue)*100; ?>%;background:#2a656f;">
+                                <span class="bar-label"><?php echo $values['recycle']; ?></span>
+                            </div>
+                            <div class="bar-tooltip">Recycle Time: <?php echo $values['recycle']; ?>s</div>
                         </div>
                     </div>
                 </div>
@@ -543,30 +554,60 @@ $result = $conn->query($sql);
 
                         ['cycle', 'processing', 'recycle'].forEach((key, i) => {
                             const bar = card.querySelectorAll('.bar')[i];
+                            const tooltip = card.querySelectorAll('.bar-tooltip')[i];
                             const value = val[key];
                             const standardValue = standard[key];
-                            const colors = ['#417630', '#f59c2f', '#2a656f']; // Updated color for processing
+                            const colors = ['#417630', '#f59c2f', '#2a656f'];
 
-                            if (value === 0) {
+                            if (value === 0 || standardValue === 0) {
                                 bar.style.width = '0%';
                                 bar.innerText = '0';
-                                bar.style.backgroundColor = '#646464'; // Gray when no data
+                                bar.style.backgroundColor = '#646464';
+                                tooltip.textContent = 'No data available';
                             } else {
                                 const widthPercent = Math.min((value / standardValue) * 100, 100);
                                 bar.style.width = widthPercent + '%';
                                 bar.innerText = value;
 
+                                // Apply color
                                 if (value > standardValue) {
                                     bar.style.backgroundColor = '#d32f2f'; // Red if exceeded
                                 } else {
                                     bar.style.backgroundColor = colors[i]; // Normal color
+                                }
+
+                                // Calculate tooltip details
+                                const rawDiff = value - standardValue;
+                                const absDiff = Math.abs(rawDiff);
+                                const percentDiff = Math.abs((rawDiff / standardValue) * 100);
+
+                                // Define thresholds
+                                const timeThreshold = 0.1; // seconds
+                                const percentThreshold = 1.0; // percent
+
+                                if (absDiff < timeThreshold || percentDiff < percentThreshold) {
+                                    tooltip.innerHTML = `<span style="color:#cccccc;">${capitalizeFirstLetter(key)} time matches the standard exactly.</span>`;
+                                } else {
+                                    const diff = absDiff.toFixed(2);
+                                    const percent = percentDiff.toFixed(2);
+                                    const isHigher = rawDiff > 0;
+
+                                    const coloredWord = `<span style="color:${isHigher ? '#ff5252' : '#4caf50'};">${isHigher ? 'higher' : 'lower'}</span>`;
+
+                                    tooltip.innerHTML = `${capitalizeFirstLetter(key)} time is ${percent}% ${coloredWord} than the standard by ${diff} seconds`;
                                 }
                             }
                         });
                     });
                 }
 
-                function updateTooltips(product, standardCycle = 300) {
+                // Utility to capitalize time types
+                function capitalizeFirstLetter(str) {
+                    return str.charAt(0).toUpperCase() + str.slice(1);
+                }
+
+
+                function updateTooltips(product, standardCycle = 120) {
                     const cards = ['standard', 'average', 'minimum', 'maximum'];
 
                     // Fallback check
@@ -587,9 +628,9 @@ $result = $conn->query($sql);
                         } else {
                             if (isInvalid) {
                                 content = `<p style="color:gray;">No parameters available</p>
-                                    <p><span style="color:#417630; font-weight: bold;">Cycle time</span> limit set to 300 seconds</p>
-                                    <p><span style="color:#f59c2f; font-weight: bold;">Processing time</span> limit set to 150 seconds</p>
-                                    <p><span style="color:#2a656f; font-weight: bold;">Recycle time</span> limit set to 150 seconds</p>`;
+                                    <p><span style="color:#417630; font-weight: bold;">Cycle time</span> limit set to 120 seconds</p>
+                                    <p><span style="color:#f59c2f; font-weight: bold;">Processing time</span> limit set to 60 seconds</p>
+                                    <p><span style="color:#2a656f; font-weight: bold;">Recycle time</span> limit set to 60 seconds</p>`;
                             } else {
                                 content = ` <p><span style="color:#417630; font-weight: bold;">Cycle time</span> limit set to ${standardCycle} seconds</p>
                                             <p><span style="color:#f59c2f; font-weight: bold;">Processing time</span> limit set to ${standardCycle / 2} seconds</p>
@@ -620,9 +661,9 @@ $result = $conn->query($sql);
 
                             const stats = {
                                 standard: {
-                                    cycle: data.standard?.cycle || 300,
-                                    processing: data.standard?.processing || 150,
-                                    recycle: data.standard?.recycle || 150
+                                    cycle: data.standard?.cycle || 120,
+                                    processing: data.standard?.processing || 60,
+                                    recycle: data.standard?.recycle || 60
                                 },
                                 average: {
                                     cycle: data.average?.cycle || 0,
@@ -681,6 +722,20 @@ $result = $conn->query($sql);
                     document.getElementById("filter-month").value = currentMonth;
                     fetchTableData();
                 });
+
+                let isInteracting = false;
+
+                ['show-entries', 'filter-month', 'show-product'].forEach(id => {
+                    const el = document.getElementById(id);
+                    el.addEventListener('focus', () => isInteracting = true);
+                    el.addEventListener('blur', () => isInteracting = false);
+                });
+
+                setInterval(() => {
+                    if (!isInteracting) {
+                        fetchAll();
+                    }
+                }, 15000);
             </script>
             
             <div class="table-download">

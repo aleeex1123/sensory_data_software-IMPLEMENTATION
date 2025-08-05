@@ -253,29 +253,31 @@
                 </div>
 
                 <script>
-                function fetchTableData() {
-                    const showEntries = document.getElementById('show-entries').value;
-                    const filterMonth = document.getElementById('filter-month').value;
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('GET', `fetch/fetch_weights_table.php?show=${showEntries}&month=${filterMonth}`, true);
-                    xhr.onload = function() {
-                        if (xhr.status === 200) {
-                            document.getElementById('table-body').innerHTML = xhr.responseText;
-                        }
-                    };
-                    xhr.send();
-                }
+                    function fetchTableData() {
+                        const showEntries = document.getElementById('show-entries').value;
+                        const filterMonth = document.getElementById('filter-month').value;
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('GET', `fetch/fetch_weights_table.php?show=${showEntries}&month=${filterMonth}`, true);
+                        xhr.onload = function() {
+                            if (xhr.status === 200) {
+                                document.getElementById('table-body').innerHTML = xhr.responseText;
+                            }
+                        };
+                        xhr.send();
+                    }
 
-                // Update table when controls change
-                document.getElementById('show-entries').addEventListener('change', fetchTableData);
-                document.getElementById('filter-month').addEventListener('change', fetchTableData);
+                    // Update table when controls change
+                    document.getElementById('show-entries').addEventListener('change', fetchTableData);
+                    document.getElementById('filter-month').addEventListener('change', fetchTableData);
 
-                // Set default month to current month
-                document.addEventListener("DOMContentLoaded", function () {
-                    let currentMonth = new Date().getMonth() + 1;
-                    document.getElementById("filter-month").value = currentMonth;
-                    fetchTableData();
-                });
+                    // Set default month to current month
+                    document.addEventListener("DOMContentLoaded", function () {
+                        let currentMonth = new Date().getMonth() + 1;
+                        document.getElementById("filter-month").value = currentMonth;
+                        fetchTableData();
+                    });
+                    // 🔁 Auto-refresh every 30 seconds
+                    setInterval(fetchTableData, 15000);
                 </script>
             
             <div class="table-download">
