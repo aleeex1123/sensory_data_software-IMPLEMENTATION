@@ -532,16 +532,19 @@ $result = $conn->query($sql);
                             const card = document.querySelector(`.time-card.standard`);
                             if (!card) return;
 
+                            const bars = card.querySelectorAll('.bar');
+                            const tooltips = card.querySelectorAll('.bar-tooltip');
+
                             const max = Math.max(data.cycle, data.processing, data.recycle, 1);
 
-                            card.querySelectorAll('.bar')[0].style.width = (data.cycle / max * 100) + '%';
-                            card.querySelectorAll('.bar')[0].innerText = data.cycle;
+                            const values = [data.cycle, data.processing, data.recycle];
+                            const labels = ['Cycle Time', 'Processing Time', 'Recycle Time'];
 
-                            card.querySelectorAll('.bar')[1].style.width = (data.processing / max * 100) + '%';
-                            card.querySelectorAll('.bar')[1].innerText = data.processing;
-
-                            card.querySelectorAll('.bar')[2].style.width = (data.recycle / max * 100) + '%';
-                            card.querySelectorAll('.bar')[2].innerText = data.recycle;
+                            values.forEach((val, i) => {
+                                bars[i].style.width = (val / max * 100) + '%';
+                                bars[i].innerText = val;
+                                tooltips[i].innerText = `${labels[i]}: ${val}s`;
+                            });
                         });
                 }
 
