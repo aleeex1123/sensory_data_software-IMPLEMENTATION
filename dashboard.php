@@ -555,7 +555,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                             
                             // Also show days without data
                             const chartData = result.data;
-                            const year = new Date().getFullYear(); // Or use `result.year` if your API provides it
+                            const year = new Date().getFullYear();
                             const daysInMonth = new Date(year, month, 0).getDate();
 
                             // Generate all days of selected month
