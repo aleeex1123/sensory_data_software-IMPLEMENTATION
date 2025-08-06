@@ -375,8 +375,9 @@ $result = $conn->query($sql);
                     <div class="by_number">
                         <label for="show-entries">Show</label>
                         <select id="show-entries">
+                            <option value="all" selected>All</option>
                             <option value="5">5</option>
-                            <option value="10" selected>10</option>
+                            <option value="10">10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
                         </select>
@@ -451,7 +452,10 @@ $result = $conn->query($sql);
                         </div>
                     </span>
                     
-                    <h3>Cycle Time (seconds)</h3>
+                    <h3>
+                        Cycle Time (seconds)
+                        <span class="diff-indicator" data-type="<?php echo $type; ?>" data-metric="cycle"></span>
+                    </h3>
                     <div class="bar-container">
                         <div class="bar-wrapper">
                             <div class="bar" style="width:<?php echo ($values['cycle']/$maxValue)*100; ?>%;background:#417630;">
@@ -461,7 +465,10 @@ $result = $conn->query($sql);
                         </div>
                     </div>
 
-                    <h3>Processing Time (seconds)</h3>
+                    <h3>
+                        Processing Time (seconds)
+                        <span class="diff-indicator" data-type="<?php echo $type; ?>" data-metric="processing"></span>
+                    </h3>
                     <div class="bar-container">
                         <div class="bar-wrapper">
                             <div class="bar" style="width:<?php echo ($values['processing']/$maxValue)*100; ?>%;background:#f59c2f;">
@@ -471,7 +478,10 @@ $result = $conn->query($sql);
                         </div>
                     </div>
                     
-                    <h3>Recycle Time (seconds)</h3>
+                    <h3>
+                        Recycle Time (seconds)
+                        <span class="diff-indicator" data-type="<?php echo $type; ?>" data-metric="recycle"></span>
+                    </h3>
                     <div class="bar-container">
                         <div class="bar-wrapper">
                             <div class="bar" style="width:<?php echo ($values['recycle']/$maxValue)*100; ?>%;background:#2a656f;">
@@ -495,6 +505,7 @@ $result = $conn->query($sql);
                             <th>Motor Temperature 1 (°C)</th>
                             <th>Motor Temperature 2 (°C)</th>
                             <th>Product</th>
+                            <th>Mold Number</th>
                             <th>Timestamp</th>
                         </tr>
                     </thead>
@@ -509,13 +520,16 @@ $result = $conn->query($sql);
                 const machineSafe = "<?php echo $machine_safe; ?>";
 
                 function fetchTableData() {
-                    const showEntries = document.getElementById('show-entries').value;
+                    let showEntries = document.getElementById('show-entries').value;
                     const filterMonth = document.getElementById('filter-month').value;
                     const selectedProduct = document.getElementById('show-product').value;
 
+                    // Convert 'all' to a large number like 9999
+                    const showLimit = (showEntries === 'all') ? 9999 : showEntries;
+
                     const xhr = new XMLHttpRequest();
-                    xhr.open('GET', `fetch/fetch_production_cycle_table.php?machine=${encodeURIComponent(machineSafe)}&show=${showEntries}&month=${filterMonth}&product=${encodeURIComponent(selectedProduct)}`, true);
-                    xhr.onload = function() {
+                    xhr.open('GET', `fetch/fetch_production_cycle_table.php?machine=${encodeURIComponent(machineSafe)}&show=${showLimit}&month=${filterMonth}&product=${encodeURIComponent(selectedProduct)}`, true);
+                    xhr.onload = function () {
                         if (xhr.status === 200) {
                             document.getElementById('table-body').innerHTML = xhr.responseText;
                         }
@@ -551,6 +565,10 @@ $result = $conn->query($sql);
                 function updateTimeCards(stats) {
                     const standard = stats.standard;
 
+                    const allZero = ['average', 'minimum', 'maximum'].every(type =>
+                        ['cycle', 'processing', 'recycle'].every(metric => stats[type][metric] === 0)
+                    );
+
                     ['average', 'minimum', 'maximum'].forEach(type => {
                         const card = document.querySelector(`.time-card.${type}`);
                         const val = stats[type];
@@ -558,47 +576,50 @@ $result = $conn->query($sql);
                         ['cycle', 'processing', 'recycle'].forEach((key, i) => {
                             const bar = card.querySelectorAll('.bar')[i];
                             const tooltip = card.querySelectorAll('.bar-tooltip')[i];
+                            const indicator = card.querySelector(`.diff-indicator[data-type="${type}"][data-metric="${key}"]`);
                             const value = val[key];
                             const standardValue = standard[key];
                             const colors = ['#417630', '#f59c2f', '#2a656f'];
 
-                            if (value === 0 || standardValue === 0) {
+                            if (allZero || value === 0 || standardValue === 0) {
                                 bar.style.width = '0%';
                                 bar.innerText = '0';
                                 bar.style.backgroundColor = '#646464';
                                 tooltip.textContent = 'No data available';
+                                if (indicator) indicator.innerHTML = ''; // ✅ Clear the ▲ 00%
+                                return;
+                            }
+
+                            const widthPercent = Math.min((value / standardValue) * 100, 100);
+                            bar.style.width = widthPercent + '%';
+                            bar.innerText = value;
+
+                            if (indicator) {
+                                const percentDiff = ((value - standardValue) / standardValue) * 100;
+                                const rounded = Math.abs(percentDiff).toFixed(2);
+                                const direction = percentDiff > 0 ? '▲' : percentDiff < 0 ? '▼' : '';
+                                const color = percentDiff > 0 ? '#d32f2f' : percentDiff < 0 ? '#4caf50' : '#aaa';
+
+                                indicator.innerHTML = `<span style="color:${color}; font-weight: bold; font-size: 0.8em;"><strong>${direction}</strong> ${rounded}%</span>`;
+                            }
+
+                            const rawDiff = value - standardValue;
+                            const absDiff = Math.abs(rawDiff);
+                            const percentDiff = Math.abs((rawDiff / standardValue) * 100);
+
+                            const timeThreshold = 0.1;
+                            const percentThreshold = 1.0;
+
+                            if (absDiff < timeThreshold || percentDiff < percentThreshold) {
+                                tooltip.innerHTML = `<span style="color:#cccccc;">${capitalizeFirstLetter(key)} time matches the standard exactly.</span>`;
                             } else {
-                                const widthPercent = Math.min((value / standardValue) * 100, 100);
-                                bar.style.width = widthPercent + '%';
-                                bar.innerText = value;
+                                const diff = absDiff.toFixed(2);
+                                const percent = percentDiff.toFixed(2);
+                                const isHigher = rawDiff > 0;
 
-                                // Apply color
-                                if (value > standardValue) {
-                                    bar.style.backgroundColor = '#d32f2f'; // Red if exceeded
-                                } else {
-                                    bar.style.backgroundColor = colors[i]; // Normal color
-                                }
+                                const coloredWord = `<span style="color:${isHigher ? '#ff5252' : '#4caf50'};">${isHigher ? 'slower' : 'faster'}</span>`;
 
-                                // Calculate tooltip details
-                                const rawDiff = value - standardValue;
-                                const absDiff = Math.abs(rawDiff);
-                                const percentDiff = Math.abs((rawDiff / standardValue) * 100);
-
-                                // Define thresholds
-                                const timeThreshold = 0.1; // seconds
-                                const percentThreshold = 1.0; // percent
-
-                                if (absDiff < timeThreshold || percentDiff < percentThreshold) {
-                                    tooltip.innerHTML = `<span style="color:#cccccc;">${capitalizeFirstLetter(key)} time matches the standard exactly.</span>`;
-                                } else {
-                                    const diff = absDiff.toFixed(2);
-                                    const percent = percentDiff.toFixed(2);
-                                    const isHigher = rawDiff > 0;
-
-                                    const coloredWord = `<span style="color:${isHigher ? '#ff5252' : '#4caf50'};">${isHigher ? 'higher' : 'lower'}</span>`;
-
-                                    tooltip.innerHTML = `${capitalizeFirstLetter(key)} time is ${percent}% ${coloredWord} than the standard by ${diff} seconds`;
-                                }
+                                tooltip.innerHTML = `${capitalizeFirstLetter(key)} time is ${percent}% ${coloredWord} than the standard by ${diff} seconds`;
                             }
                         });
                     });
@@ -649,12 +670,14 @@ $result = $conn->query($sql);
                     fetchTableData(); // update table
 
                     const machine = "<?php echo $machine_safe; ?>";
-                    const show = document.getElementById('show-entries').value;
+                    let show = document.getElementById('show-entries').value;
                     const month = document.getElementById('filter-month').value;
                     const product = document.getElementById('show-product').value;
 
-                    const url = `fetch/fetch_production_cycle_timecards.php?machine=${encodeURIComponent(machine)}&show=${show}&month=${month}&product=${encodeURIComponent(product)}`;
+                    const showLimit = (show === 'all') ? 9999 : show;
 
+                    const url = `fetch/fetch_production_cycle_timecards.php?machine=${encodeURIComponent(machine)}&show=${showLimit}&month=${month}&product=${encodeURIComponent(product)}`;
+                    
                     fetch(url)
                         .then(res => res.json())
                         .then(data => {
@@ -689,17 +712,14 @@ $result = $conn->query($sql);
                         });
 
                     if (product) {
-                        console.log("Selected product:", product);
                         fetchStandardTimecard(product);
                     } else {
-                        // Set to zero if no product selected
-                        const card = document.querySelector(`.time-card.standard`);
+                        const card = document.querySelector(".time-card.standard");
                         ['cycle', 'processing', 'recycle'].forEach((_, i) => {
                             card.querySelectorAll('.bar')[i].style.width = '0%';
                             card.querySelectorAll('.bar')[i].innerText = '0';
                         });
                     }
-                    updateTooltips(null, 500);
                 }
 
                 // Initial load

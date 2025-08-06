@@ -28,7 +28,7 @@ if ($checkTable->num_rows == 0) {
 }
 
 // Build query
-$sql = "SELECT id, cycle_time, processing_time, recycle_time, tempC_01, tempC_02, product, timestamp FROM `$tableName`";
+$sql = "SELECT id, cycle_time, processing_time, recycle_time, tempC_01, tempC_02, product, mold_number, timestamp FROM `$tableName`";
 $where = [];
 $params = [];
 $types = "";
@@ -88,7 +88,8 @@ if ($result->num_rows > 0) {
 
         echo "<td>".htmlspecialchars($row['tempC_01'])."</td>";
         echo "<td>".htmlspecialchars($row['tempC_02'])."</td>";
-        echo "<td>". htmlspecialchars(explode('|', $row['product'])[0]) ."</td>";
+        echo "<td>".htmlspecialchars(explode('|', $row['product'])[0]) ."</td>";
+        echo "<td>".htmlspecialchars($row['mold_number']) ."</td>";
         echo "<td>".htmlspecialchars($row['timestamp'])."</td>";
         echo "</tr>";
 
@@ -96,10 +97,10 @@ if ($result->num_rows > 0) {
     }
 
     if ($rowsShown === 0) {
-        echo "<tr><td colspan='8'>No valid records found.</td></tr>";
+        echo "<tr><td colspan='9'>No valid records found.</td></tr>";
     }
 } else {
-    echo "<tr><td colspan='8'>No records found.</td></tr>";
+    echo "<tr><td colspan='9'>No records found.</td></tr>";
 }
 
 $stmt->close();

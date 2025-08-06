@@ -1,4 +1,7 @@
 <?php
+$isAjax = isset($_GET['ajax']) && $_GET['ajax'] === '1';
+ob_start();
+
 session_start();
 
 $conn = new mysqli("localhost", "root", "", "sensory_data");
@@ -133,7 +136,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                 <h2 style="margin: 0;">Production Status</h2>
             </div>
 
-            <div class="card-container">
+            <div class="card-container" id="machine-card-container">
                 <?php
                 foreach ($tables as $table) {
                     // Clean machine name from table name (e.g., 'production_cycle_clf750a' => 'CLF 750A')
@@ -146,43 +149,69 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                     if ($latest_result && $latest_result->num_rows > 0) {
                         $latest = $latest_result->fetch_assoc();
 
-                        // Determine border and status
+                        // Determine cycle status
                         $cycle_status = (int)$latest['cycle_status'];
                         $borderClass = 'inactive-border';
                         $dotClass = 'inactive';
-                        $statusText = 'Machine Inactive';
+
+                        // Calculate inactive duration
+                        $now = new DateTime();
+                        $lastTimestamp = new DateTime($latest['timestamp']);
+                        $diff = $now->diff($lastTimestamp);
 
                         if ($cycle_status === 0) {
                             $borderClass = 'active-border-open';
                             $dotClass = 'open';
-                            $statusText = 'Mold Open';
+                            $statusText = 'Mold open';
                         } elseif ($cycle_status === 1) {
                             $borderClass = 'active-border';
                             $dotClass = 'active';
-                            $statusText = 'Mold Closed';
+                            $statusText = 'Mold closed';
+                        } else {
+                            // Default: calculate inactive duration
+                            $now = new DateTime();
+                            $lastTimestamp = new DateTime($latest['timestamp']);
+                            $diff = $now->diff($lastTimestamp);
+
+                            $days = $diff->days;
+                            $hours = $diff->h;
+                            $minutes = $diff->i;
+
+                            $dayPart = $days > 0 ? "{$days}d " : "";
+                            $hourPart = "{$hours}h";
+                            $minutePart = "{$minutes}min";
+
+                            $statusText = trim("{$dayPart}{$hourPart} {$minutePart} inactive");
+
                         }
-                        // Determine displayed product value
+
+                        // Handle product display
                         $productDisplay = ($cycle_status === 2) ? '---' : htmlspecialchars($latest['product']);
+                        $productName = explode('|', $productDisplay)[0];  // Get text before " | "
+                        $productName = trim($productName);
 
                         // Output the card
                         echo <<<HTML
-                        <div id="status-card" class="card machine-card {$borderClass}">
+                        <div class="card machine-card {$borderClass}">
                             <div class="status-container">
-                                <div id="status-indicator" class="status-indicator {$dotClass}"></div>
-                                <h2 id="machine-name">{$machine_label}</h2>
+                                <div class="status-indicator {$dotClass}"></div>
+                                <h2 class="machine-name">{$machine_label}</h2>
                             </div>
+                            <p class="status-text">{$statusText}</p>
                             <span class="current-product-label">Current Product:<br></span>
-                            <p class="current-product-value">{$productDisplay}</p>
+                            <p class="current-product-value">{$productName}</p>
                         </div>
                         HTML;
                     }
                 }
                 ?>
+
                 <div id="status-card" class="card machine-card inactive-border">
                     <div class="status-container">
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">ARB 50</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -192,6 +221,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">SUM 260C</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -201,6 +231,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">SUM 650</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -210,6 +241,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">MIT 650D</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -219,6 +251,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">SUM 260C</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -228,6 +261,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">TOS 650A</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -237,6 +271,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">TOS 850A</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -246,6 +281,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">TOS 850B</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -255,6 +291,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">TOS 850C</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -264,6 +301,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">CLF 950A</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -273,6 +311,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">CLF 950B</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
@@ -282,390 +321,389 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         <div id="status-indicator" class="status-indicator inactive"></div>
                         <h2 id="machine-name">MIT 1050B</h2>
                     </div>
+                    <p class="status-text">is inactive</p>
                     <span class="current-product-label">Current Product:<br></span>
                     <p class="current-product-value">---</p>
                 </div>
             </div>
+            <?php
+            if ($isAjax) {
+                ob_end_flush(); // Output only the cards
+                exit;
+            }
+            ?>
+
+            <script>
+                function refreshMachineCards() {
+                    fetch(window.location.pathname + '?ajax=1')
+                        .then(res => res.text())
+                        .then(html => {
+                            const container = document.getElementById("machine-card-container");
+                            const tempDiv = document.createElement("div");
+                            tempDiv.innerHTML = html;
+
+                            const newCards = tempDiv.querySelector("#machine-card-container");
+                            if (newCards) {
+                                container.innerHTML = newCards.innerHTML;
+                            }
+                        })
+                        .catch(err => console.error("Failed to refresh machine cards:", err));
+                }
+
+                document.addEventListener("DOMContentLoaded", () => {
+                    refreshMachineCards(); // Initial fetch
+                    setInterval(refreshMachineCards, 5000); // Auto-refresh every 5 sec
+                });
+            </script>
         </div>
         
-        <div class="paired-section">
-            <!-- Last Cycle Data -->
-            <div class="section left">
-                <div class="content-header">
-                    <h2 style="margin: 0;">Last Cycle Data</h2>
-                </div>
+        <!-- Last Cycle Data -->
+        <div class="section">
+            <div class="content-header">
+                <h2 style="margin: 0;">Last Cycle Data</h2>
+            </div>
 
-                <div class="table-container">
-                    <table class="styled-table">
-                        <thead>
-                            <tr>
-                                <th>Machine Name</th>
-                                <th>Last Cycle Time (seconds)</th>
-                                <th>Last Processing Time (seconds)</th>
-                                <th>Last Recycle Time (seconds)</th>
-                                <th>Timestamp</th>
-                                <th>Last Gross Weight (g)</th>
-                                <th>Last Net Weight (g)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Data will be populated by JavaScript -->
-                        </tbody>
-                    </table>
-                    <script>
-                        function fetchLastCycleData() {
-                            fetch('fetch/fetch_production_cycle_last_entries.php')
-                                .then(res => res.json())
-                                .then(data => {
-                                    const tbody = document.querySelector(".styled-table tbody");
-                                    tbody.innerHTML = "";
+            <div class="table-container">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>Machine Name</th>
+                            <th>Last Cycle Time (seconds)</th>
+                            <th>Last Processing Time (seconds)</th>
+                            <th>Last Recycle Time (seconds)</th>
+                            <th>Timestamp</th>
+                            <th>Last Gross Weight (g)</th>
+                            <th>Last Net Weight (g)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+                <script>
+                    function fetchLastCycleData() {
+                        fetch('fetch/fetch_production_cycle_last_entries.php')
+                            .then(res => res.json())
+                            .then(data => {
+                                const tbody = document.querySelector(".styled-table tbody");
+                                tbody.innerHTML = "";
 
-                                    if (Array.isArray(data)) {
-                                        data.forEach(row => {
-                                            const tr = document.createElement("tr");
-                                            tr.innerHTML = `
-                                                <td>${row.machine}</td>
-                                                <td>${row.cycle_time}</td>
-                                                <td>${row.processing_time}</td>
-                                                <td>${row.recycle_time}</td>
-                                                <td>${row.timestamp}</td>
-                                                <td>${parseFloat(row.gross_weight).toFixed(2)}</td>
-                                                <td>${parseFloat(row.net_weight).toFixed(2)}</td>
-                                            `;
-                                            tbody.appendChild(tr);
-                                        });
-                                    } else {
-                                        tbody.innerHTML = `<tr><td colspan="7">No data found</td></tr>`;
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error fetching last cycles:', error);
-                                    const tbody = document.querySelector(".styled-table tbody");
-                                    tbody.innerHTML = `<tr><td colspan="7">Error loading data</td></tr>`;
-                                });
-                        }
+                                if (Array.isArray(data)) {
+                                    data.forEach(row => {
+                                        const tr = document.createElement("tr");
+                                        tr.innerHTML = `
+                                            <td>${row.machine}</td>
+                                            <td>${row.cycle_time}</td>
+                                            <td>${row.processing_time}</td>
+                                            <td>${row.recycle_time}</td>
+                                            <td>${row.timestamp}</td>
+                                            <td>${parseFloat(row.gross_weight).toFixed(2)}</td>
+                                            <td>${parseFloat(row.net_weight).toFixed(2)}</td>
+                                        `;
+                                        tbody.appendChild(tr);
+                                    });
+                                } else {
+                                    tbody.innerHTML = `<tr><td colspan="7">No data found</td></tr>`;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching last cycles:', error);
+                                const tbody = document.querySelector(".styled-table tbody");
+                                tbody.innerHTML = `<tr><td colspan="7">Error loading data</td></tr>`;
+                            });
+                    }
 
-                        document.addEventListener("DOMContentLoaded", function () {
-                            fetchLastCycleData(); // Initial fetch
-                            setInterval(fetchLastCycleData, 15000); // Auto-refresh every 15 seconds
-                        });
-                    </script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        fetchLastCycleData(); // Initial fetch
+                        setInterval(fetchLastCycleData, 15000); // Auto-refresh every 15 seconds
+                    });
+                </script>
+            </div>
+        </div>
+
+        <!-- Average Cycle Times -->
+        <div class="section">
+            <div class="content-header">
+                <h2 style="margin: 0;">Average Cycle Times</h2>
+
+                <div class="section-controls">
+                    <div class="by_month" style="width: min-content;">
+                        <label for="filter-month">Month</label>
+                        <select id="filter-month" onchange="onMonthChange()">
+                            <option value="1">January</option>
+                            <option value="2">February</option>
+                            <option value="3">March</option>
+                            <option value="4">April</option>
+                            <option value="5">May</option>
+                            <option value="6">June</option>
+                            <option value="7">July</option>
+                            <option value="8">August</option>
+                            <option value="9">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
-            <!-- Average Cycle Times -->
-            <div class="section right">
-                <div class="content-header">
-                    <h2 style="margin: 0;">Average Cycle Times</h2>
-                    <div class="section-controls">
-                        <div class="by_number">
-                            <label for="show-entries">Week</label>
-                            <select id="show-entries" onchange="updateTableDisplay()">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                <option value="5">5</option>
-                            </select>
-                        </div>
-                    
-                        <div class="by_month">
-                            <label for="filter-month">Month</label>
-                            <select id="filter-month" onchange="onMonthChange()">
-                                <option value="1">January</option>
-                                <option value="2">February</option>
-                                <option value="3">March</option>
-                                <option value="4">April</option>
-                                <option value="5">May</option>
-                                <option value="6">June</option>
-                                <option value="7">July</option>
-                                <option value="8">August</option>
-                                <option value="9">September</option>
-                                <option value="10">October</option>
-                                <option value="11">November</option>
-                                <option value="12">December</option>
-                            </select>
-                        </div>
+            <div class="contents">
+                <!-- Machine Selection -->
+                <div class="machine-tabs">
+                    <label for="machine-select" style="display:none;">Select Machine:</label>
+                    <div id="machine-tab-list" class="machine-tab-list">
+                    <button class="machine-tab" data-machine="ARB50" onclick="selectMachineTab(this)">ARB50</button>
+                    <button class="machine-tab" data-machine="SUM 260C" onclick="selectMachineTab(this)">SUM 260C</button>
+                    <button class="machine-tab" data-machine="SUM 350" onclick="selectMachineTab(this)">SUM 350</button>
+                    <button class="machine-tab" data-machine="MIT 650D" onclick="selectMachineTab(this)">MIT 650D</button>
+                    <button class="machine-tab" data-machine="TOS 650A" onclick="selectMachineTab(this)">TOS 650A</button>
+                    <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
+                    <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTab(this)">CLF 750B</button>
+                    <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTab(this)">CLF 750C</button>
+                    <button class="machine-tab" data-machine="TOS 850A" onclick="selectMachineTab(this)">TOS 850A</button>
+                    <button class="machine-tab" data-machine="TOS 850B" onclick="selectMachineTab(this)">TOS 850B</button>
+                    <button class="machine-tab" data-machine="TOS 850C" onclick="selectMachineTab(this)">TOS 850C</button>
+                    <button class="machine-tab" data-machine="CLF 950A" onclick="selectMachineTab(this)">CLF 950A</button>
+                    <button class="machine-tab" data-machine="CLF 950B" onclick="selectMachineTab(this)">CLF 950B</button>
+                    <button class="machine-tab" data-machine="MIT 1050B" onclick="selectMachineTab(this)">MIT 1050B</button>
                     </div>
                 </div>
 
-                <div class="contents">
-                    <!-- Machine Selection -->
-                    <div class="machine-tabs">
-                        <label for="machine-select" style="display:none;">Select Machine:</label>
-                        <div id="machine-tab-list" class="machine-tab-list">
-                        <button class="machine-tab" data-machine="ARB50" onclick="selectMachineTab(this)">ARB50</button>
-                        <button class="machine-tab" data-machine="SUM 260C" onclick="selectMachineTab(this)">SUM 260C</button>
-                        <button class="machine-tab" data-machine="SUM 350" onclick="selectMachineTab(this)">SUM 350</button>
-                        <button class="machine-tab" data-machine="MIT 650D" onclick="selectMachineTab(this)">MIT 650D</button>
-                        <button class="machine-tab" data-machine="TOS 650A" onclick="selectMachineTab(this)">TOS 650A</button>
-                        <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
-                        <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTab(this)">CLF 750B</button>
-                        <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTab(this)">CLF 750C</button>
-                        <button class="machine-tab" data-machine="TOS 850A" onclick="selectMachineTab(this)">TOS 850A</button>
-                        <button class="machine-tab" data-machine="TOS 850B" onclick="selectMachineTab(this)">TOS 850B</button>
-                        <button class="machine-tab" data-machine="TOS 850C" onclick="selectMachineTab(this)">TOS 850C</button>
-                        <button class="machine-tab" data-machine="CLF 950A" onclick="selectMachineTab(this)">CLF 950A</button>
-                        <button class="machine-tab" data-machine="CLF 950B" onclick="selectMachineTab(this)">CLF 950B</button>
-                        <button class="machine-tab" data-machine="MIT 1050B" onclick="selectMachineTab(this)">MIT 1050B</button>
-                        </div>
+                <script>
+                    function selectMachineTab(tab) {
+                        document.querySelectorAll('.machine-tab').forEach(b => b.classList.remove('active'));
+                        tab.classList.add('active');
+                        updateChart(tab.getAttribute('data-machine'));
+                    }
+                    function selectMachine(btn) {
+                        document.querySelectorAll('.machine-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        updateChart(btn.getAttribute('data-machine'));
+                    }
+                </script>
+
+                <!-- Cycle Times Graph -->
+                <div class="chart-container" style="width: -webkit-fill-available;">
+                    <div class="chart-scroll-wrapper">    
+                        <div id="chart"></div>
                     </div>
 
+                    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
                     <script>
-                        function selectMachineTab(tab) {
-                            document.querySelectorAll('.machine-tab').forEach(b => b.classList.remove('active'));
-                            tab.classList.add('active');
-                            updateChart(tab.getAttribute('data-machine'));
+                        // Set default month and week selection to current
+                        function setDefaultMonthAndWeek() {
+                            const now = new Date();
+                            const month = now.getMonth() + 1; // 1-based
+                            const day = now.getDate();
+                            // Set month select
+                            const monthSelect = document.getElementById('filter-month');
+                            monthSelect.value = month;
                         }
-                        function selectMachine(btn) {
-                            document.querySelectorAll('.machine-btn').forEach(b => b.classList.remove('active'));
-                            btn.classList.add('active');
-                            updateChart(btn.getAttribute('data-machine'));
+                        
+                        // When month changes, set week to the current week of that month if it's this month, else week 1
+                        function onMonthChange() {
+                            updateTableDisplay();
                         }
-                    </script>
 
-                    <!-- Cycle Times Graph -->
-                    <div class="chart-container" style="width: -webkit-fill-available;">
-                        <div id="chart"></div>
-                        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-                        <script>
-                            // Example data for 5 weeks, each week has 7 days
-                            // You can replace this with your real data source
-                            const allData = {
-                                "CLF 750A": {
-                                actual: [
-                                    [112, 68, 88, 58, 60, 118, 58], // week 1
-                                    [120, 70, 90, 60, 62, 110, 65], // week 2
-                                    [115, 72, 85, 59, 61, 112, 60], // week 3
-                                    [118, 74, 87, 61, 63, 115, 62], // week 4
-                                    [119, 75, 89, 62, 64, 117, 63]  // week 5
-                                ],
-                                expected: [
-                                    [120, 75, 100, 60, 60, 120, 60],
-                                    [120, 75, 100, 60, 60, 120, 60],
-                                    [120, 75, 100, 60, 60, 120, 60],
-                                    [120, 75, 100, 60, 60, 120, 60],
-                                    [120, 75, 100, 60, 60, 120, 60]
-                                ]
-                                },
-                                // Add other machines here if needed
-                            };
+                        // Chart palette
+                        const rootStyles = getComputedStyle(document.documentElement);
+                        const palette = {
+                            green: rootStyles.getPropertyValue('--green').trim() || '#417630',
+                            darkGreen: rootStyles.getPropertyValue('--dark-green').trim() || '#23441e',
+                            orange: rootStyles.getPropertyValue('--orange').trim() || '#f59c2f',
+                            white: rootStyles.getPropertyValue('--white').trim() || '#d8d8d8',
+                            gray: rootStyles.getPropertyValue('--gray').trim() || '#1a1a1a',
+                            lightGray: rootStyles.getPropertyValue('--light-gray').trim() || '#646464',
+                            black: rootStyles.getPropertyValue('--black').trim() || '#101010'
+                        };
 
-                            // Set default month and week selection to current
-                            function setDefaultMonthAndWeek() {
-                                const now = new Date();
-                                const month = now.getMonth() + 1; // 1-based
-                                const day = now.getDate();
-                                // Set month select
-                                const monthSelect = document.getElementById('filter-month');
-                                monthSelect.value = month;
-                                // Calculate week number in month
-                                const week = Math.ceil((day + (new Date(now.getFullYear(), now.getMonth(), 1).getDay() || 7) - 1) / 7);
-                                const weekSelect = document.getElementById('show-entries');
-                                weekSelect.value = week;
+                        // Chart instance
+                        let chart = null;
+
+                        // Update chart based on selected week/machine
+                        async function updateChart(selectedMachine = null) {
+                            const machine = selectedMachine || document.querySelector('.machine-tab.active')?.getAttribute('data-machine');
+                            const month = document.getElementById('filter-month').value;
+
+                            const response = await fetch(`fetch/fetch_average_cycle_time.php?machine=${encodeURIComponent(machine)}&month=${month}`);
+                            const result = await response.json();
+
+                            if (result.status !== 'success') {
+                                document.getElementById('chart').innerHTML = `
+                                                                            <div style="
+                                                                                height: 100%;
+                                                                                display: flex;
+                                                                                justify-content: center;
+                                                                                align-items: center;
+                                                                                color: red;
+                                                                                font-size: 0.75rem;
+                                                                                font-family: 'Montserrat', sans-serif;
+                                                                                text-align: center;
+                                                                                padding: 174px;
+                                                                            ">
+                                                                                ${result.message}
+                                                                            </div>`;
+                                return;
+                            }
+                            
+                            // Show only days with data
+                            // const chartData = result.data;
+                            // const categories = chartData.map(row => new Date(row.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' }));
+                            // const avgSeries = chartData.map(row => row.average);
+                            // const minSeries = chartData.map(row => row.min);
+                            // const maxSeries = chartData.map(row => row.max);
+                            
+                            // Also show days without data
+                            const chartData = result.data;
+                            const year = new Date().getFullYear(); // Or use `result.year` if your API provides it
+                            const daysInMonth = new Date(year, month, 0).getDate();
+
+                            // Generate all days of selected month
+                            const allDays = [];
+                            for (let i = 1; i <= 31; i++) {
+                                const d = new Date(year, month - 1, i);
+                                if (d.getMonth() !== month - 1) break;
+                                allDays.push(d.toISOString().split('T')[0]);
                             }
 
-                            // When month changes, set week to the current week of that month if it's this month, else week 1
-                            function onMonthChange() {
-                                const now = new Date();
-                                const selectedMonth = parseInt(document.getElementById('filter-month').value, 10);
-                                const weekSelect = document.getElementById('show-entries');
-                                if (selectedMonth === now.getMonth() + 1) {
-                                // Current month: set to current week
-                                const day = now.getDate();
-                                const week = Math.ceil((day + (new Date(now.getFullYear(), now.getMonth(), 1).getDay() || 7) - 1) / 7);
-                                weekSelect.value = week;
+                            // Map actual data by date for quick lookup
+                            const dataMap = {};
+                            chartData.forEach(row => {
+                                dataMap[row.date] = row;
+                            });
+
+                            // Create series data aligned with full month
+                            const categories = [];
+                            const avgSeries = [];
+                            const minSeries = [];
+                            const maxSeries = [];
+
+                            allDays.forEach(dateStr => {
+                                const d = new Date(dateStr);
+                                categories.push(d.getDate().toString());
+
+                                
+                                if (dataMap[dateStr]) {
+                                    avgSeries.push(dataMap[dateStr].average);
+                                    minSeries.push(dataMap[dateStr].min);
+                                    maxSeries.push(dataMap[dateStr].max);
                                 } else {
-                                // Other month: default to week 1
-                                weekSelect.value = 1;
+                                    avgSeries.push(null);
+                                    minSeries.push(null);
+                                    maxSeries.push(null);
                                 }
-                                updateTableDisplay();
+                            });
+
+                            // Chart design
+                            if (chartData.length === 0) {
+                                document.getElementById('chart').innerHTML = `
+                                    <div style="
+                                        height: 100%;
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        color: gray;
+                                        font-size: 0.75rem;
+                                        font-family: 'Montserrat', sans-serif;
+                                        text-align: center;
+                                        padding: 174px;
+                                    ">
+                                        No data available for this month.
+                                    </div>
+                                `;
+                                return;
                             }
 
-                            // Helper to get day labels for a week (e.g., Mon, Tue, ...)
-                            function getWeekDayLabels(week, month, year) {
-                                // Find the first day of the month
-                                const firstDay = new Date(year, month - 1, 1);
-                                // Find the first day of the requested week
-                                const firstWeekDay = new Date(firstDay);
-                                firstWeekDay.setDate(1 + (week - 1) * 7);
-                                let labels = [];
-                                for (let i = 0; i < 7; i++) {
-                                const d = new Date(firstWeekDay);
-                                d.setDate(firstWeekDay.getDate() + i);
-                                // Only show days that are in the current month
-                                if (d.getMonth() === month - 1) {
-                                    labels.push(d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' }));
-                                } else {
-                                    labels.push('');
-                                }
-                                }
-                                return labels;
-                            }
-
-                            // Chart palette
-                            const rootStyles = getComputedStyle(document.documentElement);
-                            const palette = {
-                                green: rootStyles.getPropertyValue('--green').trim() || '#417630',
-                                darkGreen: rootStyles.getPropertyValue('--dark-green').trim() || '#23441e',
-                                orange: rootStyles.getPropertyValue('--orange').trim() || '#f59c2f',
-                                white: rootStyles.getPropertyValue('--white').trim() || '#d8d8d8',
-                                gray: rootStyles.getPropertyValue('--gray').trim() || '#1a1a1a',
-                                lightGray: rootStyles.getPropertyValue('--light-gray').trim() || '#646464',
-                                black: rootStyles.getPropertyValue('--black').trim() || '#101010'
-                            };
-
-                            // Chart instance
-                            let chart = null;
-
-                            // Update chart based on selected week/machine
-                            function updateChart(selectedMachine) {
-                                const week = parseInt(document.getElementById('show-entries').value, 10) - 1;
-                                const month = parseInt(document.getElementById('filter-month').value, 10);
-                                const year = new Date().getFullYear();
-                                const machine = selectedMachine || document.querySelector('.machine-tab.active').getAttribute('data-machine');
-                                const machineData = allData[machine] || allData["CLF 750A"];
-                                const actualValues = machineData.actual[week] || [];
-                                const expectedValues = machineData.expected[week] || [];
-                                const labels = getWeekDayLabels(week + 1, month, year);
-
-                                // Build dataPoints array for ApexCharts
-                                const dataPoints = actualValues.map((val, i) => ({
-                                x: labels[i] || (i + 1).toString(),
-                                y: val,
-                                goals: [
-                                    {
-                                    name: 'Expected',
-                                    value: expectedValues[i],
-                                    strokeHeight: 5,
-                                    strokeColor: palette.orange
-                                    }
-                                ]
-                                }));
-
-                                const options = {
+                            const options = {
                                 series: [
-                                    {
-                                    name: 'Actual',
-                                    data: dataPoints
-                                    }
+                                    { name: 'Average', data: avgSeries },
+                                    { name: 'Minimum', data: minSeries },
+                                    { name: 'Maximum', data: maxSeries }
                                 ],
                                 chart: {
-                                    height: 350,
                                     type: 'bar',
-                                    toolbar: { show: false },
-                                    background: palette.black
+                                    height: 350,
+                                    background: palette.black,
+                                    toolbar: { show: false }
                                 },
                                 plotOptions: {
-                                    bar: {
-                                    columnWidth: '60%',
-                                    borderRadius: 4,
-                                    colors: {
-                                        backgroundBarColors: [palette.lightGray],
-                                        backgroundBarOpacity: 0.2
-                                    }
-                                    }
+                                bar: {
+                                    columnWidth: '55%',
+                                    borderRadius: 2,
+                                    borderRadiusApplication: 'end', // Apply only to top
+                                    dataLabels: { position: 'top' }
+                                }
                                 },
-                                colors: [palette.green],
-                                dataLabels: {
-                                    enabled: false
-                                },
+                                colors: ['#417630', '#f59c2f', '#adadad'],
+                                dataLabels: { enabled: false },
                                 legend: {
-                                    show: true,
-                                    showForSingleSeries: true,
-                                    customLegendItems: ['Actual Cycle Time', 'Expected Cycle Time'],
-                                    markers: {
-                                    fillColors: [palette.green, palette.orange]
-                                    },
-                                    labels: {
-                                    colors: [palette.white]
-                                    }
+                                position: 'bottom',
+                                labels: { colors: [palette.white] }
                                 },
                                 xaxis: {
+                                    type: 'category',
+                                    categories: categories,
                                     labels: {
-                                    style: {
-                                        colors: palette.white,
-                                        fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
-                                    }
+                                        style: {
+                                            colors: palette.white,
+                                            fontFamily: 'Montserrat, sans-serif'
+                                        }
                                     },
-                                    axisBorder: {
-                                    color: palette.lightGray
-                                    },
-                                    axisTicks: {
-                                    color: palette.lightGray
-                                    }
+                                    axisBorder: { color: palette.lightGray },
+                                    axisTicks: { color: palette.lightGray }
                                 },
                                 yaxis: {
                                     labels: {
-                                    style: {
-                                        colors: palette.white,
-                                        fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
-                                    }
+                                        style: {
+                                            colors: palette.white,
+                                            fontFamily: 'Montserrat, sans-serif'
+                                        }
                                     }
                                 },
                                 tooltip: {
-                                    theme: 'dark',
-                                    style: {
-                                    fontFamily: rootStyles.getPropertyValue('--font-main').trim() || 'Montserrat, sans-serif'
-                                    }
+                                    theme: 'dark'
                                 },
                                 grid: {
                                     borderColor: palette.lightGray,
                                     strokeDashArray: 4
-                                },
-                                states: {
-                                    hover: {
-                                    filter: {
-                                        type: 'lighten',
-                                        value: 0.15
-                                    }
-                                    },
-                                    active: {
-                                    filter: {
-                                        type: 'darken',
-                                        value: 0.15
-                                    }
-                                    }
                                 }
-                                };
+                            };
 
-                                if (chart) {
+                            if (chart) {
                                 chart.updateOptions(options, true, true);
-                                } else {
+                            } else {
                                 chart = new ApexCharts(document.querySelector("#chart"), options);
                                 chart.render();
-                                }
                             }
+                        }
 
-                            // Dummy function for compatibility
-                            function updateTableDisplay() {
-                                updateChart();
-                            }
+                        // Dummy function for compatibility
+                        function updateTableDisplay() {
+                            updateChart();
+                        }
 
-                            // Set defaults on page load
-                            document.addEventListener('DOMContentLoaded', function() {
-                                setDefaultMonthAndWeek();
-                                updateChart();
-                            });
-                        </script>
-                        <style>
-                            /* ApexCharts custom tooltip and legend color overrides */
-                            .apexcharts-tooltip {
-                                background: var(--gray) !important;
-                                color: var(--white) !important;
-                                border: 1px solid var(--green) !important;
-                                font-family: var(--font-main), sans-serif !important;
-                            }
-                            .apexcharts-legend-text {
-                                color: var(--white) !important;
-                                font-family: var(--font-main), sans-serif !important;
-                            }
-                        </style>
-                    </div>
+                        // Set defaults on page load
+                        document.addEventListener('DOMContentLoaded', function() {
+                            setDefaultMonthAndWeek();
+                            updateChart();
+                        });
+                    </script>
+                    <style>
+                        /* ApexCharts custom tooltip and legend color overrides */
+                        .apexcharts-tooltip {
+                            background: var(--gray) !important;
+                            color: var(--white) !important;
+                            border: 1px solid var(--green) !important;
+                            font-family: var(--font-main), sans-serif !important;
+                        }
+                        .apexcharts-legend-text {
+                            color: var(--white) !important;
+                            font-family: var(--font-main), sans-serif !important;
+                        }
+                    </style>
                 </div>
             </div>
         </div>
     </div>
-
 </body>
 </html>

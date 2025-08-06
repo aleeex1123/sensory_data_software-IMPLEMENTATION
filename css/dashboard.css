@@ -41,6 +41,12 @@
     100% { transform: scale(1); opacity: 1; }
 }
 
+.status-text {
+    font-size: 0.75rem;
+    color: var(--off-white);
+    margin: 0;
+}
+
 .card-container {
     display: flex;
     overflow-x: scroll;
@@ -74,14 +80,15 @@
 
 .current-product-label {
     font-size: 0.75rem;
-    color:#646464;
+    color: var(--off-white);
     margin: 12px 0 2px 0;
 }
 
 .current-product-value {
-    color:rgb(216, 216, 216);
+    color: var(--white);
     margin: 0;
     font-size: 0.9rem;
+    font-weight: bold;
 }
 
 /* Average Cycle Times */
@@ -117,13 +124,22 @@
 }
 
 /* Last Cycle Data */
-.table-container {
-    overflow-x: scroll;
+.styled-table td:nth-child(5),
+.styled-table th:nth-child(5) {
+    border-right: 2px solid var(--black);
+}
+
+/* Average Cycle Times */
+.chart-scroll-wrapper {
+    overflow-y: hidden;
+    overflow-x: auto;
+    width: 100%;
     scrollbar-width: thin;
     scrollbar-color: var(--dark-green) var(--black);
 }
 
-.styled-table td:nth-child(5),
-.styled-table th:nth-child(5) {
-    border-right: 2px solid var(--black);
+@media (max-width: 758px) {
+    #chart {
+        min-width: 758px;
+    }
 }

@@ -3,36 +3,49 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "sensory_data";  // change to your DB
+$dbname = "sensory_data";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
-
 if ($conn->connect_error) {
     die("DB Connection failed: " . $conn->connect_error);
 }
 
-// Get the parameters safely
-$show = isset($_GET['show']) ? intval($_GET['show']) : 10;
-$month = isset($_GET['month']) ? intval($_GET['month']) : 0; // 0 means all months
+// Get parameters
+$show = isset($_GET['show']) ? $_GET['show'] : '10';  // Keep as string for now
+$month = isset($_GET['month']) ? intval($_GET['month']) : 0;
 
 // Base query
-$sql = "SELECT id, machine, product, gross_weight, net_weight, difference, timestamp
-        FROM weight_data";
+$sql = "SELECT id, machine, product, mold_number, gross_weight, net_weight, difference, timestamp FROM weight_data";
+$conditions = [];
+$params = [];
+$paramTypes = "";
 
-// Filter by month if needed
+// Add month filter
 if ($month > 0) {
-    $sql .= " WHERE MONTH(timestamp) = ?";
+    $conditions[] = "MONTH(timestamp) = ?";
+    $params[] = $month;
+    $paramTypes .= "i";
 }
 
-// Add ordering and limit
-$sql .= " ORDER BY id DESC LIMIT ?";
+// Apply WHERE if there are any conditions
+if (!empty($conditions)) {
+    $sql .= " WHERE " . implode(" AND ", $conditions);
+}
 
-// Prepare statement
+// Add ORDER BY
+$sql .= " ORDER BY id DESC";
+
+// Add LIMIT if show is not "all"
+if ($show !== "all") {
+    $sql .= " LIMIT ?";
+    $params[] = intval($show);
+    $paramTypes .= "i";
+}
+
+// Prepare and bind
 $stmt = $conn->prepare($sql);
-if ($month > 0) {
-    $stmt->bind_param("ii", $month, $show);
-} else {
-    $stmt->bind_param("i", $show);
+if ($paramTypes !== "") {
+    $stmt->bind_param($paramTypes, ...$params);
 }
 
 // Execute
@@ -43,13 +56,14 @@ $result = $stmt->get_result();
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         echo "<tr>";
-        echo "<td>".htmlspecialchars($row['id'])."</td>";
-        echo "<td>".htmlspecialchars($row['machine'])."</td>";
-        echo "<td>".htmlspecialchars($row['product'])."</td>";
-        echo "<td>".htmlspecialchars($row['gross_weight'])."</td>";
-        echo "<td>".htmlspecialchars($row['net_weight'])."</td>";
-        echo "<td>".htmlspecialchars($row['difference'])."</td>";
-        echo "<td>".htmlspecialchars($row['timestamp'])."</td>";
+        echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['machine']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['product']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['mold_number']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['gross_weight']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['net_weight']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['difference']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['timestamp']) . "</td>";
         echo "</tr>";
     }
 } else {

@@ -206,8 +206,9 @@
                     <div class="by_number">
                         <label for="show-entries">Show</label>
                         <select id="show-entries">
+                            <option value="all" selected>All</option>
                             <option value="5">5</option>
-                            <option value="10" selected>10</option>
+                            <option value="10">10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
                         </select>
@@ -240,6 +241,7 @@
                                 <th>ID</th>
                                 <th>Machine</th>
                                 <th>Product</th>
+                                <th>Mold Number</th>
                                 <th>Gross Weight (g)</th>
                                 <th>Net Weight (g)</th>
                                 <th>Difference (g)</th>

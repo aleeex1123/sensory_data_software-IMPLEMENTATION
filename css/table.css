@@ -88,6 +88,8 @@
 .table-container {
     max-height: 488px;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--dark-green) var(--black);
 }
 
 .side-table {

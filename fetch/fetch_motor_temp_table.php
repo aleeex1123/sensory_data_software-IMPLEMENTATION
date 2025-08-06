@@ -4,7 +4,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$show = isset($_GET['show']) ? intval($_GET['show']) : 10;
+$show = isset($_GET['show']) ? $_GET['show'] : '10';
 $month = isset($_GET['month']) ? intval($_GET['month']) : 0;
 $machine = isset($_GET['machine']) ? $conn->real_escape_string($_GET['machine']) : '';
 
@@ -20,7 +20,13 @@ if (!empty($machine)) {
     $sql .= " AND machine = '$machine'";
 }
 
-$sql .= " ORDER BY timestamp DESC LIMIT $show";
+$sql .= " ORDER BY timestamp DESC";
+
+// ✅ Only add LIMIT if show is not "all"
+if ($show !== "all") {
+    $showInt = intval($show);
+    $sql .= " LIMIT $showInt";
+}
 
 $result = $conn->query($sql);
 if ($result && $result->num_rows > 0) {

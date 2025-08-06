@@ -359,8 +359,9 @@ if ($conn->connect_error) {
                     <div class="by_number">
                         <label for="show-entries">Show</label>
                         <select id="show-entries">
+                            <option value="all" selected>All</option>
                             <option value="5">5</option>
-                            <option value="10" selected>10</option>
+                            <option value="10">10</option>
                             <option value="20">20</option>
                             <option value="50">50</option>
                         </select>
