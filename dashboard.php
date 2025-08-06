@@ -159,14 +159,39 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                         $lastTimestamp = new DateTime($latest['timestamp']);
                         $diff = $now->diff($lastTimestamp);
 
-                        if ($cycle_status === 0) {
-                            $borderClass = 'active-border-open';
-                            $dotClass = 'open';
-                            $statusText = 'Mold open';
-                        } elseif ($cycle_status === 1) {
-                            $borderClass = 'active-border';
-                            $dotClass = 'active';
-                            $statusText = 'Mold closed';
+                        if ($cycle_status === 0 || $cycle_status === 1) {
+                            // Determine style based on status
+                            if ($cycle_status === 0) {
+                                $borderClass = 'active-border-open';
+                                $dotClass = 'open';
+                            } else {
+                                $borderClass = 'active-border';
+                                $dotClass = 'active';
+                            }
+
+                            // Find last time where cycle_time is NOT NULL and recycle_time == 0
+                            $latestTimestampStr = $latest['timestamp'];
+                            $active_sql = "SELECT timestamp FROM `$table` WHERE cycle_time != 0 AND recycle_time = 0 AND timestamp <= '$latestTimestampStr' ORDER BY timestamp DESC LIMIT 1";
+                            $active_result = $conn->query($active_sql);
+
+                            if ($active_result && $active_result->num_rows > 0) {
+                                $active_row = $active_result->fetch_assoc();
+                                $active_start = new DateTime($active_row['timestamp']);
+                                $now = new DateTime();
+                                $active_diff = $now->diff($active_start);
+
+                                $days = $active_diff->days;
+                                $hours = $active_diff->h;
+                                $minutes = $active_diff->i;
+
+                                $dayPart = $days > 0 ? "{$days}d " : "";
+                                $hourPart = "{$hours}h";
+                                $minutePart = "{$minutes}min";
+
+                                $statusText = trim("{$dayPart}{$hourPart} {$minutePart} active");
+                            } else {
+                                $statusText = "Active time unknown";
+                            }
                         } else {
                             // Default: calculate inactive duration
                             $now = new DateTime();
