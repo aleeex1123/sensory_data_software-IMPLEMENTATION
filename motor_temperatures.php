@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Manila');
+
 $conn = new mysqli("localhost", "root", "", "sensory_data");
 
 // Check for connection errors
@@ -188,88 +190,94 @@ if ($conn->connect_error) {
                 let chartTemp01, chartTemp02;
 
                 function fetchRealtimeData(machine) {
-                    let url = "fetch/fetch_motor_temp.php?type=realtime";
-                    if (machine) {
-                        url += "&machine=" + encodeURIComponent(machine);
-                    }
+                let url = "fetch/fetch_motor_temp.php?type=realtime";
+                if (machine) {
+                url += "&machine=" + encodeURIComponent(machine);
+                }
 
-                    fetch(url)
-                        .then(response => response.json())
-                        .then(data => {
-                            const temp01 = data.motor_tempC_01;
-                            const temp02 = data.motor_tempC_02;
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const temp01 = data.motor_tempC_01;
+                        const temp02 = data.motor_tempC_02;
 
-                            const hasData = Array.isArray(temp01) && temp01.length > 0 && Array.isArray(temp02) && temp02.length > 0;
+                        const hasData = Array.isArray(temp01) && temp01.length > 0 && Array.isArray(temp02) && temp02.length > 0;
 
-                            if (hasData) {
-                                const labels = data.timestamps.slice().reverse();
-                                const reversedTemp01 = temp01.slice().reverse();
-                                const reversedTemp02 = temp02.slice().reverse();
+                        if (hasData) {
+                            const labels = data.timestamps.slice().reverse();
+                            const reversedTemp01 = temp01.slice().reverse();
+                            const reversedTemp02 = temp02.slice().reverse();
 
-                                // Set temperature display
-                                document.getElementById("temp01-value").innerText = reversedTemp01[reversedTemp01.length - 1] + "°C";
-                                document.getElementById("temp02-value").innerText = reversedTemp02[reversedTemp02.length - 1] + "°C";
+                            const currentTemp01 = reversedTemp01[reversedTemp01.length - 1];
+                            const currentTemp02 = reversedTemp02[reversedTemp02.length - 1];
 
-                                // Update charts
-                                updateChart(chartTemp01, reversedTemp01);
-                                updateChart(chartTemp02, reversedTemp02);
-                                chartTemp01.data.labels = labels;
-                                chartTemp02.data.labels = labels;
+                            // Update displayed temperature values
+                            document.getElementById("temp01-value").innerText = currentTemp01 + "°C";
+                            document.getElementById("temp02-value").innerText = currentTemp02 + "°C";
 
-                                // Spike check: Motor 01
-                                let spikeIndex1 = reversedTemp01.findIndex(temp => temp >= 40);
-                                let remarks1 = document.querySelectorAll(".remarks")[0];
+                            // Update charts
+                            updateChart(chartTemp01, reversedTemp01);
+                            updateChart(chartTemp02, reversedTemp02);
+                            chartTemp01.data.labels = labels;
+                            chartTemp02.data.labels = labels;
 
-                                if (spikeIndex1 !== -1) {
-                                    remarks1.querySelector("span").innerText = `Overheat at ${labels[spikeIndex1]}`;
-                                    remarks1.querySelector("span").style.color = "#f59c2f";
-                                    remarks1.querySelector("p").innerText = `Motor 01 spiked in temperature at ${reversedTemp01[spikeIndex1]}°C.`;
-                                    remarks1.querySelector("h2 + p").innerText = "Check machine.";
-                                } else {
-                                    remarks1.querySelector("span").innerText = "Normal";
-                                    remarks1.querySelector("span").style.color = ""; // Reset to default
-                                    remarks1.querySelector("p").innerText = "Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.";
-                                    remarks1.querySelector("h2 + p").innerText = "None";
-                                }
+                            // Update remarks
+                            updateRemarks(0, currentTemp01);
+                            updateRemarks(1, currentTemp02);
 
-                                // Spike check: Motor 02
-                                let spikeIndex2 = reversedTemp02.findIndex(temp => temp >= 40);
-                                let remarks2 = document.querySelectorAll(".remarks")[1];
-
-                                if (spikeIndex2 !== -1) {
-                                    remarks2.querySelector("span").innerText = `Overheat at ${labels[spikeIndex2]}`;
-                                    remarks2.querySelector("span").style.color = "#f59c2f";
-                                    remarks2.querySelector("p").innerText = `Motor 02 spiked in temperature at ${reversedTemp02[spikeIndex2]}°C.`;
-                                    remarks2.querySelector("h2 + p").innerText = "Check machine.";
-                                } else {
-                                    remarks2.querySelector("span").innerText = "Normal";
-                                    remarks2.querySelector("span").style.color = ""; // Reset to default
-                                    remarks2.querySelector("p").innerText = "Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.";
-                                    remarks2.querySelector("h2 + p").innerText = "None";
-                                }
-                            }       
-                            else {
-                                document.getElementById("temp01-value").innerText = "--";
-                                document.getElementById("temp02-value").innerText = "--";
-                                updateChart(chartTemp01, []);
-                                updateChart(chartTemp02, []);
-
-                                document.querySelector(".remarks span").innerText = "No data found";
-                                document.querySelector(".remarks p").innerText = "No motor temperature data available for the selected machine.";
-                                document.querySelector(".remarks h2 + p").innerText = "Please check if the machine is active.";
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error fetching real-time data:", error);
+                        } else {
                             document.getElementById("temp01-value").innerText = "--";
                             document.getElementById("temp02-value").innerText = "--";
                             updateChart(chartTemp01, []);
                             updateChart(chartTemp02, []);
 
-                            document.querySelector(".remarks span").innerText = "Error";
-                            document.querySelector(".remarks p").innerText = "Unable to fetch real-time data.";
-                            document.querySelector(".remarks h2 + p").innerText = "Check network or server issues.";
+                            document.querySelectorAll(".remarks").forEach(remarks => {
+                                remarks.querySelector("span").innerText = "No data found";
+                                remarks.querySelector("span").style.color = "#999";
+                                remarks.querySelector("p").innerText = "No motor temperature data available for the selected machine.";
+                                remarks.querySelector("h2 + p").innerText = "Please check if the machine is active.";
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching real-time data:", error);
+                        document.getElementById("temp01-value").innerText = "--";
+                        document.getElementById("temp02-value").innerText = "--";
+                        updateChart(chartTemp01, []);
+                        updateChart(chartTemp02, []);
+
+                        document.querySelectorAll(".remarks").forEach(remarks => {
+                            remarks.querySelector("span").innerText = "Error";
+                            remarks.querySelector("span").style.color = "#dc3545";
+                            remarks.querySelector("p").innerText = "Unable to fetch real-time data.";
+                            remarks.querySelector("h2 + p").innerText = "Check network or server issues.";
                         });
+                    });
+                }
+
+                // Add this helper function once, outside fetchRealtimeData:
+                function updateRemarks(motorIndex, currentTemp) {
+                const remarks = document.querySelectorAll(".remarks")[motorIndex];
+                const status = remarks.querySelector("span");
+                const msg = remarks.querySelector("p");
+                const recommendation = remarks.querySelector("h2 + p");
+
+                if (currentTemp > 80) {
+                    status.innerText = "Overheat";
+                    status.style.color = "#dc3545"; // red
+                    msg.innerText = `Motor 0${motorIndex + 1} temperature is too high: ${currentTemp}°C.`;
+                    recommendation.innerText = "Check cooling system and machine load.";
+                } else if (currentTemp < 30) {
+                    status.innerText = "Abnormally Low";
+                    status.style.color = "#17a2b8"; // blue
+                    msg.innerText = `Motor 0${motorIndex + 1} temperature is unusually low: ${currentTemp}°C.`;
+                    recommendation.innerText = "Verify if machine is running or sensor is connected.";
+                } else {
+                    status.innerText = "Normal";
+                    status.style.color = "";
+                    msg.innerText = "Motor temperature is within optimal range.";
+                    recommendation.innerText = "None";
+                }
                 }
 
                 function createChart(canvasId, color) {

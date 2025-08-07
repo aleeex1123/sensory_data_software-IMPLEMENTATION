@@ -188,6 +188,12 @@ select {
     text-align: left;
 }
 
+.header-right {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+}
+
 .header h3 {
     color: var(--green);
     text-align: left;;

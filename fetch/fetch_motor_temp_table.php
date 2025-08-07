@@ -22,7 +22,6 @@ if (!empty($machine)) {
 
 $sql .= " ORDER BY timestamp DESC";
 
-// ✅ Only add LIMIT if show is not "all"
 if ($show !== "all") {
     $showInt = intval($show);
     $sql .= " LIMIT $showInt";
@@ -37,8 +36,23 @@ if ($result && $result->num_rows > 0) {
         $tempF1 = round($tempC1 * 9 / 5 + 32, 2);
         $tempF2 = round($tempC2 * 9 / 5 + 32, 2);
 
-        $remarks1 = $tempC1 >= 40 ? "<span style='color: #f59c2f;'>Overheat</span>" : "<span style='color: #417630;'>Normal</span>";
-        $remarks2 = $tempC2 >= 40 ? "<span style='color: #f59c2f;'>Overheat</span>" : "<span style='color: #417630;'>Normal</span>";
+        // Determine remarks for motor 01
+        if ($tempC1 > 80) {
+            $remarks1 = "<span style='color: #dc3545;'>Overheat</span>";
+        } elseif ($tempC1 < 30) {
+            $remarks1 = "<span style='color: #17a2b8;'>Abnormally Low</span>";
+        } else {
+            $remarks1 = "<span style='color: #417630;'>Normal</span>";
+        }
+
+        // Determine remarks for motor 02
+        if ($tempC2 > 80) {
+            $remarks2 = "<span style='color: #dc3545;'>Overheat</span>";
+        } elseif ($tempC2 < 30) {
+            $remarks2 = "<span style='color: #17a2b8;'>Abnormally Low</span>";
+        } else {
+            $remarks2 = "<span style='color: #417630;'>Normal</span>";
+        }
 
         echo "<tr>
             <td>{$row['id']}</td>

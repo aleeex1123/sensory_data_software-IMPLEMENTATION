@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Manila');
+
 $conn = new mysqli("localhost", "root", "", "sensory_data");
 
 // Check for connection errors
@@ -204,7 +206,30 @@ $result = $conn->query($sql);
             </div>
             <div class="header-right">
                 <h2><?php echo htmlspecialchars($machine ? $machine : 'No Machine Selected'); ?></h2>
+                <span id="machine-status-duration" style="color: #adadad; text-align: right;">
+                    <?php echo $durationText; ?>
+                </span>
             </div>
+
+            <script>
+                function refreshDuration() {
+                    const machineName = <?php echo json_encode($machine); ?>;
+                    if (!machineName) return;
+
+                    fetch(`fetch/fetch_production_cycle_machine_status.php?machine=${encodeURIComponent(machineName)}`)
+                        .then(res => res.text())
+                        .then(text => {
+                            document.getElementById('machine-status-duration').innerText = text;
+                        })
+                        .catch(err => {
+                            console.error("Failed to update machine status duration", err);
+                        });
+                }
+
+                // Initial call and repeat every 30 seconds
+                refreshDuration();
+                setInterval(refreshDuration, 30000);
+            </script>
         </div>
 
         <!-- Production Status -->

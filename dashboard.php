@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Manila'); // or your correct timezone
+
 $isAjax = isset($_GET['ajax']) && $_GET['ajax'] === '1';
 ob_start();
 
@@ -185,10 +187,10 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                                 $minutes = $active_diff->i;
 
                                 $dayPart = $days > 0 ? "{$days}d " : "";
-                                $hourPart = "{$hours}h";
-                                $minutePart = "{$minutes}min";
+                                $hourPart = $hours > 0 ? "{$hours}h " : "";
+                                $minutePart = $minutes > 0 ? "{$minutes}m " : "";
 
-                                $statusText = trim("{$dayPart}{$hourPart} {$minutePart} active");
+                                $statusText = trim("{$dayPart}{$hourPart}{$minutePart} active");
                             } else {
                                 $statusText = "Active time unknown";
                             }
@@ -203,11 +205,10 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                             $minutes = $diff->i;
 
                             $dayPart = $days > 0 ? "{$days}d " : "";
-                            $hourPart = "{$hours}h";
-                            $minutePart = "{$minutes}min";
+                            $hourPart = $hours > 0 ? "{$hours}h " : "";
+                            $minutePart = $minutes > 0 ? "{$minutes}m " : "";
 
-                            $statusText = trim("{$dayPart}{$hourPart} {$minutePart} inactive");
-
+                            $statusText = trim("{$dayPart}{$hourPart}{$minutePart} inactive");
                         }
 
                         // Handle product display
@@ -217,15 +218,17 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
 
                         // Output the card
                         echo <<<HTML
-                        <div class="card machine-card {$borderClass}">
-                            <div class="status-container">
-                                <div class="status-indicator {$dotClass}"></div>
-                                <h2 class="machine-name">{$machine_label}</h2>
+                        <a href="production_cycle.php?machine={$machine_code}" style="text-decoration: none; color: inherit;">
+                            <div class="card machine-card {$borderClass}">
+                                <div class="status-container">
+                                    <div class="status-indicator {$dotClass}"></div>
+                                    <h2 class="machine-name">{$machine_label}</h2>
+                                </div>
+                                <p class="status-text">{$statusText}</p>
+                                <span class="current-product-label">Current Product:<br></span>
+                                <p class="current-product-value">{$productName}</p>
                             </div>
-                            <p class="status-text">{$statusText}</p>
-                            <span class="current-product-label">Current Product:<br></span>
-                            <p class="current-product-value">{$productName}</p>
-                        </div>
+                        </a>
                         HTML;
                     }
                 }
@@ -449,7 +452,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
         <!-- Average Cycle Times -->
         <div class="section">
             <div class="content-header">
-                <h2 style="margin: 0;">Average Cycle Times</h2>
+                <h2 style="margin: 0;">Daily Cycle Data</h2>
 
                 <div class="section-controls">
                     <div class="by_month" style="width: min-content;">
@@ -477,58 +480,52 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                 <div class="machine-tabs">
                     <label for="machine-select" style="display:none;">Select Machine:</label>
                     <div id="machine-tab-list" class="machine-tab-list">
-                    <button class="machine-tab" data-machine="ARB50" onclick="selectMachineTab(this)">ARB50</button>
-                    <button class="machine-tab" data-machine="SUM 260C" onclick="selectMachineTab(this)">SUM 260C</button>
-                    <button class="machine-tab" data-machine="SUM 350" onclick="selectMachineTab(this)">SUM 350</button>
-                    <button class="machine-tab" data-machine="MIT 650D" onclick="selectMachineTab(this)">MIT 650D</button>
-                    <button class="machine-tab" data-machine="TOS 650A" onclick="selectMachineTab(this)">TOS 650A</button>
-                    <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
-                    <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTab(this)">CLF 750B</button>
-                    <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTab(this)">CLF 750C</button>
-                    <button class="machine-tab" data-machine="TOS 850A" onclick="selectMachineTab(this)">TOS 850A</button>
-                    <button class="machine-tab" data-machine="TOS 850B" onclick="selectMachineTab(this)">TOS 850B</button>
-                    <button class="machine-tab" data-machine="TOS 850C" onclick="selectMachineTab(this)">TOS 850C</button>
-                    <button class="machine-tab" data-machine="CLF 950A" onclick="selectMachineTab(this)">CLF 950A</button>
-                    <button class="machine-tab" data-machine="CLF 950B" onclick="selectMachineTab(this)">CLF 950B</button>
-                    <button class="machine-tab" data-machine="MIT 1050B" onclick="selectMachineTab(this)">MIT 1050B</button>
+                        <button class="machine-tab" data-machine="ARB50" onclick="selectMachineTab(this)" disabled>ARB50</button>
+                        <button class="machine-tab" data-machine="SUM 260C" onclick="selectMachineTab(this)" disabled>SUM 260C</button>
+                        <button class="machine-tab" data-machine="SUM 350" onclick="selectMachineTab(this)" disabled>SUM 350</button>
+                        <button class="machine-tab" data-machine="MIT 650D" onclick="selectMachineTab(this)" disabled>MIT 650D</button>
+                        <button class="machine-tab" data-machine="TOS 650A" onclick="selectMachineTab(this)" disabled>TOS 650A</button>
+                        <button class="machine-tab active" data-machine="CLF 750A" onclick="selectMachineTab(this)">CLF 750A</button>
+                        <button class="machine-tab" data-machine="CLF 750B" onclick="selectMachineTab(this)">CLF 750B</button>
+                        <button class="machine-tab" data-machine="CLF 750C" onclick="selectMachineTab(this)">CLF 750C</button>
+                        <button class="machine-tab" data-machine="TOS 850A" onclick="selectMachineTab(this)" disabled>TOS 850A</button>
+                        <button class="machine-tab" data-machine="TOS 850B" onclick="selectMachineTab(this)" disabled>TOS 850B</button>
+                        <button class="machine-tab" data-machine="TOS 850C" onclick="selectMachineTab(this)" disabled>TOS 850C</button>
+                        <button class="machine-tab" data-machine="CLF 950A" onclick="selectMachineTab(this)" disabled>CLF 950A</button>
+                        <button class="machine-tab" data-machine="CLF 950B" onclick="selectMachineTab(this)" disabled>CLF 950B</button>
+                        <button class="machine-tab" data-machine="MIT 1050B" onclick="selectMachineTab(this)" disabled>MIT 1050B</button>
                     </div>
                 </div>
 
-                <script>
-                    function selectMachineTab(tab) {
-                        document.querySelectorAll('.machine-tab').forEach(b => b.classList.remove('active'));
-                        tab.classList.add('active');
-                        updateChart(tab.getAttribute('data-machine'));
-                    }
-                    function selectMachine(btn) {
-                        document.querySelectorAll('.machine-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        updateChart(btn.getAttribute('data-machine'));
-                    }
-                </script>
-
-                <!-- Cycle Times Graph -->
+                <!-- Graph -->
                 <div class="chart-container" style="width: -webkit-fill-available;">
                     <div class="chart-scroll-wrapper">    
                         <div id="chart"></div>
+                        <div id="no-data-message" style="text-align:center; font-size: 12px; color: #646464; margin-top: 0px;"></div>
                     </div>
 
                     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
                     <script>
+                        function onMonthChange() {
+                            updateChart();
+                        }
+
+                        function selectMachineTab(tab) {
+                            document.querySelectorAll('.machine-tab').forEach(b => b.classList.remove('active'));
+                            tab.classList.add('active');
+                            updateChart(tab.getAttribute('data-machine'));
+                            onMonthChange();
+                        }
+
                         // Set default month and week selection to current
                         function setDefaultMonthAndWeek() {
                             const now = new Date();
                             const month = now.getMonth() + 1; // 1-based
-                            const day = now.getDate();
                             // Set month select
                             const monthSelect = document.getElementById('filter-month');
                             monthSelect.value = month;
                         }
                         
-                        // When month changes, set week to the current week of that month if it's this month, else week 1
-                        function onMonthChange() {
-                            updateTableDisplay();
-                        }
 
                         // Chart palette
                         const rootStyles = getComputedStyle(document.documentElement);
@@ -571,24 +568,17 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                                 return;
                             }
                             
-                            // Show only days with data
-                            // const chartData = result.data;
-                            // const categories = chartData.map(row => new Date(row.date).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric' }));
-                            // const avgSeries = chartData.map(row => row.average);
-                            // const minSeries = chartData.map(row => row.min);
-                            // const maxSeries = chartData.map(row => row.max);
-                            
                             // Also show days without data
                             const chartData = result.data;
-                            const year = new Date().getFullYear();
-                            const daysInMonth = new Date(year, month, 0).getDate();
 
-                            // Generate all days of selected month
+                            const numericMonth = Number(month); // convert string to number
+                            const year = new Date().getFullYear();
+                            const daysInMonth = new Date(year, numericMonth, 0).getDate();
+
                             const allDays = [];
-                            for (let i = 1; i <= 31; i++) {
-                                const d = new Date(year, month - 1, i);
-                                if (d.getMonth() !== month - 1) break;
-                                allDays.push(d.toISOString().split('T')[0]);
+                            for (let i = 1; i <= daysInMonth; i++) {
+                                const d = new Date(year, numericMonth - 1, i);
+                                allDays.push(d.toLocaleDateString('sv-SE')); // → "YYYY-MM-DD" in local time
                             }
 
                             // Map actual data by date for quick lookup
@@ -619,24 +609,20 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                                 }
                             });
 
-                            // Chart design
+                            const noDataMessage = document.getElementById('no-data-message');
+
                             if (chartData.length === 0) {
-                                document.getElementById('chart').innerHTML = `
-                                    <div style="
-                                        height: 100%;
-                                        display: flex;
-                                        justify-content: center;
-                                        align-items: center;
-                                        color: gray;
-                                        font-size: 0.75rem;
-                                        font-family: 'Montserrat', sans-serif;
-                                        text-align: center;
-                                        padding: 174px;
-                                    ">
-                                        No data available for this month.
-                                    </div>
-                                `;
+                                if (chart) {
+                                    chart.updateSeries([
+                                        { name: 'Average', data: [] },
+                                        { name: 'Minimum', data: [] },
+                                        { name: 'Maximum', data: [] }
+                                    ]);
+                                }
+                                noDataMessage.textContent = "No data for this month.";
                                 return;
+                            } else {
+                                noDataMessage.textContent = ""; // Clear the message when data exists
                             }
 
                             const options = {
@@ -700,11 +686,6 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                                 chart = new ApexCharts(document.querySelector("#chart"), options);
                                 chart.render();
                             }
-                        }
-
-                        // Dummy function for compatibility
-                        function updateTableDisplay() {
-                            updateChart();
                         }
 
                         // Set defaults on page load

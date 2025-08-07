@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Manila');
+
 header('Content-Type: application/json');
 
 $servername = "localhost";
@@ -41,7 +43,9 @@ $sql = "SELECT DATE(timestamp) as day,
                ROUND(MIN(cycle_time), 2) as min_cycle_time,
                ROUND(MAX(cycle_time), 2) as max_cycle_time
         FROM `$table`
-        WHERE cycle_time > 0 AND timestamp BETWEEN '$startDate 00:00:00' AND '$endDate 23:59:59'
+        WHERE cycle_time > 0
+          AND timestamp BETWEEN '$startDate 00:00:00' AND '$endDate 23:59:59'
+          AND MONTH(timestamp) = $month AND YEAR(timestamp) = $year
         GROUP BY day
         ORDER BY day ASC";
 

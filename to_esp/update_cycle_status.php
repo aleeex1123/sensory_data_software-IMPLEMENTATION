@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Manila');
+
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -23,6 +25,7 @@ if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
     if ($lastRowResult && $lastRowResult->num_rows > 0) {
         $lastRow = $lastRowResult->fetch_assoc();
         $lastProduct = $lastRow['product'];
+        $lastCycleStatus = intval($lastRow['cycle_status']);
         $lastId = $lastRow['id'];
 
         if (empty($lastProduct)) {
@@ -30,12 +33,23 @@ if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
             exit;
         }
 
+        // Check if the new cycle_status is the same as current one
+        if ($lastCycleStatus == $cycle_status) {
+            echo "Ignored: Same cycle_status as current — no update needed.";
+            exit;
+        }
+
         if ($cycle_status == 1) {
             // Start of cycle
+            if ($lastCycleStatus == 2) {
+                $recycle_time = 0; // Force recycle_time to 0 if coming from alert state
+            }
+
             $stmt = $conn->prepare("UPDATE `$targetTable` 
                                     SET cycle_status = 1, recycle_time = ?, timestamp = NOW()
                                     WHERE id = ?");
             $stmt->bind_param("ii", $recycle_time, $lastId);
+
             $stmt->execute();
             $stmt->close();
 
@@ -77,9 +91,9 @@ if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
 
             // Insert new row with same product
             $stmt2 = $conn->prepare("INSERT INTO `$targetTable` 
-                                    (product, mold_number, cycle_status, cycle_time, processing_time, recycle_time, timestamp) 
-                                    VALUES (?, ?, 0, 0, 0, 0, NOW())");
-            $stmt2->bind_param("ss", $lastProduct, $lastRow['mold_number']);  // FIXED
+                                     (product, mold_number, cycle_status, cycle_time, processing_time, recycle_time, timestamp) 
+                                     VALUES (?, ?, 0, 0, 0, 0, NOW())");
+            $stmt2->bind_param("ss", $lastProduct, $lastRow['mold_number']);
             $stmt2->execute();
             $stmt2->close();
 
