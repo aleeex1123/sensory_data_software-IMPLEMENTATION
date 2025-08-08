@@ -262,12 +262,12 @@ if ($conn->connect_error) {
                 const msg = remarks.querySelector("p");
                 const recommendation = remarks.querySelector("h2 + p");
 
-                if (currentTemp > 80) {
+                if (currentTemp > 90) {
                     status.innerText = "Overheat";
                     status.style.color = "#dc3545"; // red
                     msg.innerText = `Motor 0${motorIndex + 1} temperature is too high: ${currentTemp}°C.`;
                     recommendation.innerText = "Check cooling system and machine load.";
-                } else if (currentTemp < 30) {
+                } else if (currentTemp < 40) {
                     status.innerText = "Abnormally Low";
                     status.style.color = "#17a2b8"; // blue
                     msg.innerText = `Motor 0${motorIndex + 1} temperature is unusually low: ${currentTemp}°C.`;
