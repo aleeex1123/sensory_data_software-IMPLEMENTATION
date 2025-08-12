@@ -66,3 +66,4 @@ usort($products, function($a, $b) {
 
 echo json_encode($products);
 $conn->close();
+?>

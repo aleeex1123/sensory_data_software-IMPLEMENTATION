@@ -43,7 +43,7 @@
         <div class="tabs">
             <p>CORE</p>
             <div class="sidebar-link-group">
-                <a href="dashboard.php" class="sidebar-link"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
+                <a href="index.php" class="sidebar-link"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
             </div>
             <p>SYSTEMS</p>
             <div class="sidebar-link-group">

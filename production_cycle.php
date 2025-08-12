@@ -61,7 +61,7 @@ $result = $conn->query($sql);
         <div class="tabs">
             <p>CORE</p>
             <div class="sidebar-link-group">
-                <a href="dashboard.php" class="sidebar-link"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
+                <a href="index.php" class="sidebar-link"><i class='bx  bx-dashboard-alt'></i> Dashboard</a>
             </div>
             <p>SYSTEMS</p>
             <div class="sidebar-link-group">
@@ -604,20 +604,22 @@ $result = $conn->query($sql);
                             const indicator = card.querySelector(`.diff-indicator[data-type="${type}"][data-metric="${key}"]`);
                             const value = val[key];
                             const standardValue = standard[key];
+                            
                             const colors = ['#417630', '#f59c2f', '#2a656f'];
 
                             if (allZero || value === 0 || standardValue === 0) {
                                 bar.style.width = '0%';
                                 bar.innerText = '0';
-                                bar.style.backgroundColor = '#646464';
+                                bar.style.backgroundColor = '#646464'; // Gray
                                 tooltip.textContent = 'No data available';
-                                if (indicator) indicator.innerHTML = ''; // ✅ Clear the ▲ 00%
+                                if (indicator) indicator.innerHTML = '';
                                 return;
                             }
 
                             const widthPercent = Math.min((value / standardValue) * 100, 100);
                             bar.style.width = widthPercent + '%';
                             bar.innerText = value;
+                            bar.style.backgroundColor = colors[i]; // ✅ Restore original color here
 
                             if (indicator) {
                                 const percentDiff = ((value - standardValue) / standardValue) * 100;
