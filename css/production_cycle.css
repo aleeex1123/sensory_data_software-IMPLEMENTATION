@@ -9,7 +9,7 @@
     --green: #417630;
     --dark-green: rgb(35, 68, 30);
     --orange: #f59c2f;
-    --red: rgb(174, 21, 21)
+    --red: rgb(174, 21, 21);
     --font-main: 'Montserrat', sans-serif;
 }
 
@@ -28,12 +28,12 @@
     animation: pulse 1.5s infinite;
 }
 
-.inactive { background-color: red; }
-.active { background-color: green; }
+.inactive { background-color: var(--red); }
+.active { background-color: var(--green); }
 .inactive-dim { background-color: var(--light-gray); }
 
-.inactive-border {border-left: 10px solid; border-left-color: red;}
-.active-border {border-left: 10px solid; border-left-color: green;}
+.inactive-border {border-left: 10px solid; border-left-color: var(--red);}
+.active-border {border-left: 10px solid; border-left-color: var(--green);}
 
 /* Dot (indicator) styles */
 .status-indicator.inactive-gray {
@@ -56,6 +56,7 @@
     overflow-x: scroll;
     scrollbar-width: none;
     gap: 18px;
+    width: -webkit-fill-available;
 }
 
 .card {
@@ -68,7 +69,7 @@
     box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
     height: auto;
     min-width: 180px;
-    width: 360px;
+    width: inherit;
     text-align: center;
     position: relative;
 }
@@ -112,7 +113,70 @@ h2 {
 
 .product-card {
     border-left: 10px solid;
-    border-left-color: var(--green);
+    border-left-color: var(--off-white);
+}
+
+/* Production Cycle Span */
+.bar-wrapper {
+    display: flex;
+    height: 36px;
+    border-radius: 4px;
+}
+
+.bar-segment {
+    height: 100%;
+}
+
+.bar-segment {
+    transition: transform 0.15s ease, filter 0.15s ease;
+    cursor: pointer;
+}
+
+.bar-segment:hover {
+    transform: scaleY(1.18); /* Makes it taller */
+    filter: brightness(1.6);
+}
+
+.mold-open_hourly { background-color: var(--red); }
+.mold-closed_hourly { background-color: var(--green); }
+
+.legend {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    justify-self: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.legend-color {
+    width: 15px;
+    height: 15px;
+}
+
+.spanTooltip {
+    opacity: 0;
+    text-align: left;
+    font-family: var(--font-main);
+    font-weight: normal;
+    pointer-events: none;
+    position: absolute;
+    background-color: var(--black);
+    color: var(--off-white);
+    padding: 8px 12px;
+    border: solid 1.5px var(--dark-green);
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 0.75rem;
+    width: max-content;
+    max-width: 220px;
+    z-index: 10;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 /* Time Cards */
@@ -122,6 +186,7 @@ h2 {
     scrollbar-width: none;
     gap: 18px;
     margin-bottom: 18px;
+    width: -webkit-fill-available;
 }
 
 .time-card {
@@ -134,7 +199,7 @@ h2 {
     box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
     height: auto;
     min-width: 180px;
-    width: 360px;
+    width: inherit;
     text-align: left;
     position: relative;
 }

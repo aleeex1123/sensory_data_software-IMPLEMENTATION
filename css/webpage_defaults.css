@@ -9,6 +9,7 @@
     --green: #417630;
     --dark-green: rgb(35, 68, 30);
     --orange: #f59c2f;
+    --red: rgb(174, 21, 21);
     --font-main: 'Montserrat', sans-serif;
 }
 
@@ -92,14 +93,13 @@ body {
 
 .section-controls div {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
 }
 
 @media screen and (max-width: 500px) {
     .section-controls div {
-        display: block; 
         text-align: left;
     }
 }
@@ -107,10 +107,10 @@ body {
 input {
     padding: 6px 10px;
     color: var(--white);
-    width: 40%;
+    min-width: 64px;
     font-size: 0.75rem;
     background: var(--gray);
-    border: 1px solid var(--light-gray);
+    border: 1px solid var(--green);
     border-radius: 4px;
 }
 

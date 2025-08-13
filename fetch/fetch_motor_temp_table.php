@@ -66,7 +66,7 @@ if ($result && $result->num_rows > 0) {
         </tr>";
     }
 } else {
-    echo "<tr><td colspan='8'>No data found.</td></tr>";
+    echo "<tr><td colspan='8'>No records found.</td></tr>";
 }
 
 $conn->close();

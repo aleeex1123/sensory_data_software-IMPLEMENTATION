@@ -6,7 +6,7 @@ ob_start();
 
 session_start();
 
-$conn = new mysqli("localhost", "root", "", "sensory_data");
+$conn = new mysqli("srv1518.hstgr.io", "u158529957_spmc", "5PM(@ppD8", "u158529957_spmc");
 ?>
 
 <!DOCTYPE html>
@@ -455,7 +455,7 @@ $conn = new mysqli("localhost", "root", "", "sensory_data");
                 <h2 style="margin: 0;">Daily Cycle Data</h2>
 
                 <div class="section-controls">
-                    <div class="by_month" style="width: min-content;">
+                    <div class="by_month">
                         <label for="filter-month">Month</label>
                         <select id="filter-month" onchange="onMonthChange()">
                             <option value="1">January</option>

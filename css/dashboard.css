@@ -9,6 +9,7 @@
     --green: #417630;
     --dark-green: rgb(35, 68, 30);
     --orange: #f59c2f;
+    --red: rgb(174, 21, 21);
     --font-main: 'Montserrat', sans-serif;
 }
 
@@ -28,12 +29,12 @@
 }
 
 .inactive { background-color: var(--light-gray);}
-.active { background-color: green; }
-.open { background-color: red; }
+.active { background-color: var(--green); }
+.open { background-color: var(--red); }
 
 .inactive-border {border-left: 10px solid; border-left-color: var(--light-gray);}
-.active-border {border-left: 10px solid; border-left-color: green;}
-.active-border-open {border-left: 10px solid; border-left-color: red;}
+.active-border {border-left: 10px solid; border-left-color: var(--green);}
+.active-border-open {border-left: 10px solid; border-left-color: var(--red);}
 
 @keyframes pulse {
     0% { transform: scale(1); opacity: 1; }

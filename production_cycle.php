@@ -10,9 +10,6 @@ if ($conn->connect_error) {
 
 // Get $machine from URL (GET parameter)
 $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
-
-$sql = "SELECT * FROM production_cycle ORDER BY timestamp DESC";
-$result = $conn->query($sql);
 ?>
 
 <!DOCTYPE html>
@@ -382,6 +379,96 @@ $result = $conn->query($sql);
                     setInterval(fetchData, 1000);
                 });
             </script>
+            
+            <!-- Production Cycle Span -->
+            <div class="content-header" style="margin-top: 18px;">
+                <h2>Production Cycle Span</h2>
+            </div>
+
+            <div class="bar-container">
+                <div id="bar-wrapper" class="bar-wrapper"></div>
+            </div>
+
+            <div class="legend">
+                <div class="legend-item"><div class="legend-color mold-open_hourly"></div>Mold Open</div>
+                <div class="legend-item"><div class="legend-color mold-closed_hourly"></div>Mold Closed</div>
+            </div>
+
+            <script>
+                const machineName = "<?php echo $machine ?>";
+
+                // Create spanTooltip element
+                const spanTooltip = document.createElement('div');
+                spanTooltip.classList.add('spanTooltip');
+                document.body.appendChild(spanTooltip);
+
+                function renderBar(data) {
+                    const barWrapper = document.getElementById('bar-wrapper');
+                    barWrapper.innerHTML = '';
+
+                    const total = data.reduce((sum, seg) => sum + seg.size, 0);
+
+                    data.forEach(segment => {
+                        const div = document.createElement('div');
+                        div.classList.add('bar-segment', segment.type);
+                        div.style.flex = segment.size / total;
+
+                        div.addEventListener('mouseenter', () => {
+                            let labelColor = '';
+                            if (segment.label.startsWith("Mold open")) {
+                                labelColor = 'rgb(174, 21, 21)';
+                            } else if (segment.label.startsWith("Mold closed")) {
+                                labelColor = '#417630';
+                            } else {
+                                labelColor = '#417630'; // default if needed
+                            }
+
+                            spanTooltip.innerHTML = `
+                                <span style="font-weight: bold; color: ${labelColor};">${segment.label}</span><br>
+                                Product: <span style="color: #adadad; font-weight: bold;">${segment.product}</span><br>
+                                Motor 1 Temp: <span style="color: rgb(255,179,71); font-weight: bold;">${segment.temp1}°C</span><br>
+                                Motor 2 Temp: <span style="color: rgb(255,99,71); font-weight: bold;">${segment.temp2}°C</span>
+                            `;
+                            spanTooltip.style.opacity = 1;
+                        });
+
+                        div.addEventListener('mousemove', (e) => {
+                            const spanTooltipRect = spanTooltip.getBoundingClientRect();
+                            const padding = 12;
+
+                            let left = e.pageX + padding;
+                            let top = e.pageY + padding;
+
+                            // If spanTooltip goes beyond right edge, move it to the left of cursor
+                            if (left + spanTooltipRect.width > window.innerWidth) {
+                                left = e.pageX - spanTooltipRect.width - padding;
+                            }
+
+                            // If spanTooltip goes beyond bottom edge, move it above cursor
+                            if (top + spanTooltipRect.height > window.innerHeight) {
+                                top = e.pageY - spanTooltipRect.height - padding;
+                            }
+
+                            spanTooltip.style.left = left + 'px';
+                            spanTooltip.style.top = top + 'px';
+                        });
+
+                        div.addEventListener('mouseleave', () => {
+                            spanTooltip.style.opacity = 0;
+                        });
+
+                        barWrapper.appendChild(div);
+                    });
+                }
+
+                fetch(`fetch/fetch_production_cycle_stack.php?machine=${encodeURIComponent(machineName)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.segments) {
+                            renderBar(data.segments);
+                        }
+                    });
+            </script>
         </div>
 
         <!-- Cycle History -->
@@ -604,7 +691,7 @@ $result = $conn->query($sql);
                             const indicator = card.querySelector(`.diff-indicator[data-type="${type}"][data-metric="${key}"]`);
                             const value = val[key];
                             const standardValue = standard[key];
-                            
+
                             const colors = ['#417630', '#f59c2f', '#2a656f'];
 
                             if (allZero || value === 0 || standardValue === 0) {
