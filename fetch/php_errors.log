@@ -1,0 +1,105 @@
+[14-Aug-2025 12:18:07 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:07 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:09 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:09 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:12 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:12 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:24 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:24 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:39 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:39 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:54 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:54 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:56 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:56 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:58 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:18:58 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:19:11 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:19:11 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:19:26 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:19:26 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:19:41 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:19:41 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:19:56 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:19:56 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:11 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:11 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:26 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:26 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:37 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:37 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:38 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:38 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:38 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_standard_timecard.php on line 9
+[14-Aug-2025 12:20:38 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_standard_timecard.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_standard_timecard.php on line 9
+[14-Aug-2025 12:20:39 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:39 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:39 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_standard_timecard.php on line 9
+[14-Aug-2025 12:20:39 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_standard_timecard.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_standard_timecard.php on line 9
+[14-Aug-2025 12:20:52 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:52 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_timecards.php on line 9
+[14-Aug-2025 12:20:52 Asia/Manila] PHP Warning:  require_once(/db_config.php): Failed to open stream: No such file or directory in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_standard_timecard.php on line 9
+[14-Aug-2025 12:20:52 Asia/Manila] PHP Fatal error:  Uncaught Error: Failed opening required '/db_config.php' (include_path='C:\xampp\php\PEAR') in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_standard_timecard.php:9
+Stack trace:
+#0 {main}
+  thrown in C:\xampp\htdocs\ts-sensory_data\fetch\fetch_production_cycle_standard_timecard.php on line 9

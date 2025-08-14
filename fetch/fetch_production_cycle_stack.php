@@ -1,19 +1,13 @@
 <?php
+date_default_timezone_set('Asia/Manila');
 header('Content-Type: application/json');
 
-// DB connection
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "sensory_data";
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    die(json_encode(["error" => "DB connection failed: " . $conn->connect_error]));
-}
+// Include DB config
+require_once __DIR__ . '/db_config.php';
 
 // Sanitize machine name
 $machine = isset($_GET['machine']) ? $_GET['machine'] : '';
-$machine_safe = preg_replace('/[^a-zA-Z0-9_]/', '_', $machine);
+$machine_safe = strtolower(str_replace(' ', '', $machine));
 $tableName = "production_cycle_" . $machine_safe;
 
 // Get latest row

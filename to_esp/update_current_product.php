@@ -1,13 +1,9 @@
 <?php
 date_default_timezone_set('Asia/Manila');
-
 header('Content-Type: application/json');
 
-// Database credentials
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "sensory_data";
+// Include DB config
+require_once __DIR__ . '/db_config.php';
 
 // Validate inputs
 if (!isset($_POST['product']) || !isset($_POST['machine']) || !isset($_POST['thickness']) || !isset($_POST['mold_num'])) {
@@ -19,13 +15,6 @@ $product = $_POST['product'];
 $machine = $_POST['machine'];
 $thickness = $_POST['thickness'];
 $mold_num = $_POST['mold_num']; // this is the actual mold code
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    echo json_encode(["status" => "error", "message" => "DB connection failed: " . $conn->connect_error]);
-    exit;
-}
 
 // Build the correct table name
 $table_name = "production_cycle_" . str_replace(' ', '', strtolower($machine));

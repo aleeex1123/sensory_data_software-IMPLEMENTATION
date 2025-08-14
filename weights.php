@@ -1,3 +1,9 @@
+<?php
+date_default_timezone_set('Asia/Manila');
+
+require_once __DIR__ . '/fetch/db_config.php';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,11 +108,6 @@
             </div>
 
             <?php
-            $conn = new mysqli("localhost", "root", "", "sensory_data");
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
-
             $availableMachines = [
                                     "ARB 50",
                                     "SUM 260C",
@@ -200,7 +201,12 @@
         <!-- Weight Data -->
         <div class="section">
             <div class="content-header">
-                <h2>Gross/Net Weight Data</h2>
+                <h2>
+                    Gross/Net Weight Data
+                    <button id="refreshWeightData" style="background: none; border: none; cursor: pointer;">
+                        <i class='bxr  bx-refresh-cw refresh'></i> 
+                    </button>
+                </h2>
 
                 <div class="section-controls">
                     <div class="by_number">
@@ -278,8 +284,9 @@
                         document.getElementById("filter-month").value = currentMonth;
                         fetchTableData();
                     });
-                    // 🔁 Auto-refresh every 30 seconds
-                    setInterval(fetchTableData, 15000);
+
+                    // Refresh button click
+                    document.getElementById('refreshWeightData').addEventListener('click', fetchTableData);
                 </script>
             
             <div class="table-download">

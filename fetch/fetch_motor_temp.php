@@ -1,13 +1,9 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "sensory_data";
+date_default_timezone_set('Asia/Manila');
+header('Content-Type: application/json');
 
-$conn = new mysqli($servername, $username, $password, $database);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// Include DB config
+require_once 'db_config.php';
 
 $type = $_GET['type'] ?? '';
 $machine = $_GET['machine'] ?? '';

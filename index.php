@@ -1,12 +1,13 @@
 <?php
 date_default_timezone_set('Asia/Manila'); // or your correct timezone
 
+// Include DB config
+require_once __DIR__ . '/fetch/db_config.php';
+
 $isAjax = isset($_GET['ajax']) && $_GET['ajax'] === '1';
 ob_start();
 
 session_start();
-
-$conn = new mysqli("srv1518.hstgr.io", "u158529957_spmc", "5PM(@ppD8", "u158529957_spmc");
 ?>
 
 <!DOCTYPE html>
@@ -115,16 +116,6 @@ $conn = new mysqli("srv1518.hstgr.io", "u158529957_spmc", "5PM(@ppD8", "u1585299
         
         <!-- Active Machines -->
         <?php
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $database = "sensory_data";
-
-        $conn = new mysqli($servername, $username, $password, $database);
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
         // Get all production_cycle_* tables
         $tables = [];
         $tableResult = $conn->query("SHOW TABLES LIKE 'production_cycle_%'");
@@ -380,7 +371,7 @@ $conn = new mysqli("srv1518.hstgr.io", "u158529957_spmc", "5PM(@ppD8", "u1585299
 
                 document.addEventListener("DOMContentLoaded", () => {
                     refreshMachineCards(); // Initial fetch
-                    setInterval(refreshMachineCards, 5000); // Auto-refresh every 5 sec
+                    setInterval(refreshMachineCards, 8000); // Auto-refresh every 5 sec
                 });
             </script>
         </div>
@@ -388,7 +379,12 @@ $conn = new mysqli("srv1518.hstgr.io", "u158529957_spmc", "5PM(@ppD8", "u1585299
         <!-- Last Cycle Data -->
         <div class="section">
             <div class="content-header">
-                <h2 style="margin: 0;">Last Cycle Data</h2>
+                <h2 style="margin: 0;">
+                    Last Cycle Data
+                    <button id="refreshLastCycleData" style="background: none; border: none; cursor: pointer;">
+                        <i class='bxr  bx-refresh-cw refresh'></i> 
+                    </button>
+                </h2>
             </div>
 
             <div class="table-container">
@@ -441,10 +437,12 @@ $conn = new mysqli("srv1518.hstgr.io", "u158529957_spmc", "5PM(@ppD8", "u1585299
                             });
                     }
 
-                    document.addEventListener("DOMContentLoaded", function () {
-                        fetchLastCycleData(); // Initial fetch
-                        setInterval(fetchLastCycleData, 15000); // Auto-refresh every 15 seconds
+                    document.addEventListener("DOMContentLoaded", () => {
+                        fetchLastCycleData(); // Call the function on page load
                     });
+
+                    // Refresh button click
+                    document.getElementById('refreshLastCycleData').addEventListener('click', fetchLastCycleData);
                 </script>
             </div>
         </div>
@@ -452,7 +450,12 @@ $conn = new mysqli("srv1518.hstgr.io", "u158529957_spmc", "5PM(@ppD8", "u1585299
         <!-- Average Cycle Times -->
         <div class="section">
             <div class="content-header">
-                <h2 style="margin: 0;">Daily Cycle Data</h2>
+                <h2 style="margin: 0;">
+                    Daily Cycle Data
+                    <button id="refreshDailyCycleData" style="background: none; border: none; cursor: pointer;">
+                        <i class='bxr  bx-refresh-cw refresh'></i> 
+                    </button>
+                </h2>
 
                 <div class="section-controls">
                     <div class="by_month">
@@ -692,6 +695,12 @@ $conn = new mysqli("srv1518.hstgr.io", "u158529957_spmc", "5PM(@ppD8", "u1585299
                         document.addEventListener('DOMContentLoaded', function() {
                             setDefaultMonthAndWeek();
                             updateChart();
+                        });
+
+                        // Refresh button click
+                        document.getElementById('refreshDailyCycleData').addEventListener('click', () => {
+                            const activeMachine = document.querySelector('.machine-tab.active')?.getAttribute('data-machine');
+                            updateChart(activeMachine);
                         });
                     </script>
                     <style>

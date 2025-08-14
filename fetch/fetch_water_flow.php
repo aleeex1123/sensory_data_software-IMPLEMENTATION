@@ -1,10 +1,9 @@
 <?php
+date_default_timezone_set('Asia/Manila');
 header('Content-Type: application/json');
 
-$conn = new mysqli("localhost", "root", "", "sensory_data");
-if ($conn->connect_error) {
-    die(json_encode(["error" => "Connection failed: " . $conn->connect_error]));
-}
+// Include DB config
+require_once 'db_config.php';
 
 // Check request type
 $type = isset($_GET['type']) ? $_GET['type'] : 'cycle'; 

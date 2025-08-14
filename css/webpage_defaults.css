@@ -75,6 +75,20 @@ body {
     flex-wrap: wrap
 }
 
+.content-header .refresh {
+    color: #adadad;
+    background: #417630;
+    border-radius: 24px;
+    padding: 6px;
+    cursor: pointer; 
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.content-header .refresh:hover {
+    filter: brightness(1.2);
+    transform: rotate(45deg);
+}
+
 .content-header h2 {
     text-align: left;
     font-family: 'Montserrat', sans-serif;
@@ -264,6 +278,7 @@ select {
     text-align: left;
     padding: 64px 18px 64px 18px;
     flex-direction: column;
+    scrollbar-width: none;
 }
 
 #sidebarToggle {

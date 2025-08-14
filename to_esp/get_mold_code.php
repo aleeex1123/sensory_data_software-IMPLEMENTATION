@@ -1,11 +1,9 @@
 <?php
+date_default_timezone_set('Asia/Manila');
 header('Content-Type: application/json');
 
-// Database credentials
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "sensory_data";
+// Include DB config
+require_once __DIR__ . '/db_config.php';
 
 // Check for 'code' parameter
 if (!isset($_GET['code']) || empty($_GET['code'])) {

@@ -1,12 +1,8 @@
 <?php
 date_default_timezone_set('Asia/Manila');
 
-$conn = new mysqli("localhost", "root", "", "sensory_data");
-
-// Check for connection errors
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// Include DB config
+require_once __DIR__ . '/fetch/db_config.php';
 
 // Get $machine from URL (GET parameter)
 $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
@@ -225,7 +221,6 @@ $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
 
                 // Initial call and repeat every 30 seconds
                 refreshDuration();
-                setInterval(refreshDuration, 30000);
             </script>
         </div>
 
@@ -375,14 +370,19 @@ $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
                     temp1Chart = createChart(document.getElementById("chartTemp1"), <?php echo (int)$latest['tempC_01']; ?>, 100, "#FFB347");
                     temp2Chart = createChart(document.getElementById("chartTemp2"), <?php echo (int)$latest['tempC_02']; ?>, 100, "#FF6347");
 
-                    // Fetch Data Every 1 Second
-                    setInterval(fetchData, 1000);
+                    // Fetch Data Every 8 Seconds
+                    setInterval(fetchData, 8000);
                 });
             </script>
             
             <!-- Production Cycle Span -->
             <div class="content-header" style="margin-top: 18px;">
-                <h2>Production Cycle Span</h2>
+                <h2>
+                    Production Cycle Span
+                    <button id="refreshCycleSpan" style="background: none; border: none; cursor: pointer;">
+                        <i class='bxr  bx-refresh-cw refresh'></i> 
+                    </button>
+                </h2>
             </div>
 
             <div class="bar-container">
@@ -397,7 +397,7 @@ $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
             <script>
                 const machineName = "<?php echo $machine ?>";
 
-                // Create spanTooltip element
+                // Tooltip element
                 const spanTooltip = document.createElement('div');
                 spanTooltip.classList.add('spanTooltip');
                 document.body.appendChild(spanTooltip);
@@ -420,7 +420,7 @@ $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
                             } else if (segment.label.startsWith("Mold closed")) {
                                 labelColor = '#417630';
                             } else {
-                                labelColor = '#417630'; // default if needed
+                                labelColor = '#417630';
                             }
 
                             spanTooltip.innerHTML = `
@@ -433,20 +433,16 @@ $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
                         });
 
                         div.addEventListener('mousemove', (e) => {
-                            const spanTooltipRect = spanTooltip.getBoundingClientRect();
+                            const rect = spanTooltip.getBoundingClientRect();
                             const padding = 12;
-
                             let left = e.pageX + padding;
                             let top = e.pageY + padding;
 
-                            // If spanTooltip goes beyond right edge, move it to the left of cursor
-                            if (left + spanTooltipRect.width > window.innerWidth) {
-                                left = e.pageX - spanTooltipRect.width - padding;
+                            if (left + rect.width > window.innerWidth) {
+                                left = e.pageX - rect.width - padding;
                             }
-
-                            // If spanTooltip goes beyond bottom edge, move it above cursor
-                            if (top + spanTooltipRect.height > window.innerHeight) {
-                                top = e.pageY - spanTooltipRect.height - padding;
+                            if (top + rect.height > window.innerHeight) {
+                                top = e.pageY - rect.height - padding;
                             }
 
                             spanTooltip.style.left = left + 'px';
@@ -461,20 +457,34 @@ $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
                     });
                 }
 
-                fetch(`fetch/fetch_production_cycle_stack.php?machine=${encodeURIComponent(machineName)}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.segments) {
-                            renderBar(data.segments);
-                        }
-                    });
+                function loadBarSegments() {
+                    fetch(`fetch/fetch_production_cycle_stack.php?machine=${encodeURIComponent(machineName)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.segments) {
+                                renderBar(data.segments);
+                            }
+                        })
+                        .catch(err => console.error("Error fetching bar segments:", err));
+                }
+
+                // Load on page load
+                loadBarSegments();
+
+                // Refresh button click
+                document.getElementById('refreshCycleSpan').addEventListener('click', loadBarSegments);
             </script>
         </div>
 
         <!-- Cycle History -->
         <div class="section">
             <div class="content-header">
-                <h2>Cycle History</h2>
+                <h2>
+                    Cycle History
+                    <button id="refreshCycleHistory" style="background: none; border: none; cursor: pointer;">
+                        <i class='bxr  bx-refresh-cw refresh'></i> 
+                    </button>
+                </h2>
 
                 <div class="section-controls">
                     <div class="by_product">
@@ -866,13 +876,11 @@ $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
                     const el = document.getElementById(id);
                     el.addEventListener('focus', () => isInteracting = true);
                     el.addEventListener('blur', () => isInteracting = false);
+                    el.addEventListener('change', fetchAll);
                 });
 
-                setInterval(() => {
-                    if (!isInteracting) {
-                        fetchAll();
-                    }
-                }, 15000);
+                // Refresh button click
+                document.getElementById('refreshCycleHistory').addEventListener('click', fetchAll);
             </script>
             
             <div class="table-download">

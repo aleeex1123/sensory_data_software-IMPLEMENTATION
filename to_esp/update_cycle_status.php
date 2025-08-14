@@ -1,15 +1,9 @@
 <?php
 date_default_timezone_set('Asia/Manila');
+header('Content-Type: application/json');
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "sensory_data";
-
-$conn = new mysqli($servername, $username, $password, $database);
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// Include DB config
+require_once __DIR__ . '/db_config.php';
 
 if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
     $cycle_status = intval($_GET['cycle_status']);

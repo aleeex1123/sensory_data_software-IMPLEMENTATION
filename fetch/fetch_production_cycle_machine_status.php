@@ -1,12 +1,8 @@
 <?php
 date_default_timezone_set('Asia/Manila');
 
-$conn = new mysqli("localhost", "root", "", "sensory_data");
-
-// Check for connection errors
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// Include DB config
+require_once __DIR__ . '/db_config.php';
 
 $machine = $_GET['machine'] ?? '';
 $durationText = 'No Machine Selected';

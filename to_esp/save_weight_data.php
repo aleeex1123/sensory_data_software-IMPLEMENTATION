@@ -1,20 +1,9 @@
 <?php
 date_default_timezone_set('Asia/Manila');
+header('Content-Type: application/json');
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "sensory_data";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die(json_encode(["error" => "Connection failed"]));
-}
-
-if (!isset($_POST['machine']) || !isset($_POST['product'])) {
-    echo json_encode(["error" => "Missing machine or product"]);
-    exit;
-}
+// Include DB config
+require_once __DIR__ . '/db_config.php';
 
 $machine = $conn->real_escape_string($_POST['machine']);
 $product = $conn->real_escape_string($_POST['product']);

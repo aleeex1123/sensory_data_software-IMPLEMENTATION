@@ -1,14 +1,8 @@
 <?php
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "sensory_data";
+date_default_timezone_set('Asia/Manila');
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    die("DB Connection failed: " . $conn->connect_error);
-}
+// Include DB config
+require_once __DIR__ . '/db_config.php';
 
 // Get parameters
 $show = isset($_GET['show']) ? intval($_GET['show']) : 10;

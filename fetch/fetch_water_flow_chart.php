@@ -1,10 +1,10 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "sensory_data");
+date_default_timezone_set('Asia/Manila');
+header('Content-Type: application/json');
 
-// Check for connection errors
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// Include DB config
+require_once 'db_config.php';
+
 
 $month = isset($_GET['month']) ? intval($_GET['month']) : date('m');
 $year = date('Y');

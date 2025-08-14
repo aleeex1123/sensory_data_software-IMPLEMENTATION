@@ -1,9 +1,9 @@
 <?php
-$conn = new mysqli("localhost", "root", "", "sensory_data");
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+date_default_timezone_set('Asia/Manila');
+header('Content-Type: application/json');
 
+// Include DB config
+require_once __DIR__ . '/db_config.php';
 $scale_id = $_POST['scale_id'] ?? '';
 $assigned_machine = $_POST['assigned_machine'] ?? '';
 

@@ -1,12 +1,8 @@
 <?php
 header('Content-Type: application/json');
 
-// DB connection
-$conn = new mysqli("localhost", "root", "", "sensory_data");
-if ($conn->connect_error) {
-    echo json_encode(["error" => "Database connection failed"]);
-    exit;
-}
+// Include DB config
+require_once __DIR__ . '/db_config.php';
 
 $availableMachines = [
     "ARB 50", "SUM 260C", "SUM 650", "MIT 650D", "TOS 650A", "TOS 850A", "TOS 850B",

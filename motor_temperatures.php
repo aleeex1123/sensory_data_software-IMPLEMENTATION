@@ -1,12 +1,7 @@
 <?php
 date_default_timezone_set('Asia/Manila');
 
-$conn = new mysqli("localhost", "root", "", "sensory_data");
-
-// Check for connection errors
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+require_once __DIR__ . '/fetch/db_config.php';
 ?>
 
 <!DOCTYPE html>
@@ -353,7 +348,7 @@ if ($conn->connect_error) {
                     setInterval(function () {
                         let machine = document.querySelector('#machine-tab-list-realtime .machine-tab.active').getAttribute('data-machine');
                         fetchRealtimeData(machine);
-                    }, 5000);
+                    }, 8000);
                 });
             </script>
         </div>
@@ -361,7 +356,12 @@ if ($conn->connect_error) {
         <!-- Temperature History -->
         <div class="section">
             <div class="content-header">
-                <h2>Temperature History</h2>
+                <h2>
+                    Temperature History
+                    <button id="refreshTempHistory" style="background: none; border: none; cursor: pointer;">
+                        <i class='bxr  bx-refresh-cw refresh'></i> 
+                    </button>
+                </h2>
 
                 <div class="section-controls">
                     <div class="by_number">
@@ -467,10 +467,10 @@ if ($conn->connect_error) {
                     fetchTableData(); // fallback if something goes wrong
                     }
                 });
-                // 🔁 Auto-refresh the temperature table every 30 seconds
-                setInterval(fetchTableData, 15000);
+                
+                // Refresh button click
+                document.getElementById('refreshTempHistory').addEventListener('click', fetchTableData);
             </script>
-
             
             <div class="table-download">
                 <a href="#" class="btn-download">Download PDF</a>
