@@ -155,7 +155,7 @@ require_once __DIR__ . '/fetch/db_config.php';
                     <!-- Remarks -->
                     <div class="remarks">
                         <h2>Remarks</h2>
-                        <span>Normal</span>
+                        <span>Loading...</span>
                         <p>Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.</p>
                         <h2>Recommendations</h2>
                         <p>None</p>
@@ -173,7 +173,7 @@ require_once __DIR__ . '/fetch/db_config.php';
                     <!-- Remarks -->
                     <div class="remarks">
                         <h2>Remarks</h2>
-                        <span>Normal</span>
+                        <span>Loading...</span>
                         <p>Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.</p>
                         <h2>Recommendations</h2>
                         <p>None</p>

@@ -6,6 +6,7 @@ require_once __DIR__ . '/fetch/db_config.php';
 
 // Get $machine from URL (GET parameter)
 $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
+$durationText = 'Loading...';
 ?>
 
 <!DOCTYPE html>
