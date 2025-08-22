@@ -1,13 +1,13 @@
 <?php
-// $servername = "localhost";
-// $username   = "root";
-// $password   = "";
-// $database   = "sensory_data";
+$servername = "localhost";
+$username   = "root";
+$password   = "";
+$database   = "sensory_data";
 
-$servername = "srv1518.hstgr.io";
-$username   = "u158529957_spmc_sensory";
-$password   = "e3Y0@1#U^[N";
-$database   = "u158529957_spmc_sensory";
+// $servername = "srv1518.hstgr.io";
+// $username   = "u158529957_spmc_sensory";
+// $password   = "e3Y0@1#U^[N";
+// $database   = "u158529957_spmc_sensory";
 
 $conn = new mysqli($servername, $username, $password, $database);
 

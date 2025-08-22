@@ -13,13 +13,6 @@ if (!isset($_GET['code']) || empty($_GET['code'])) {
 
 $code = $_GET['code'];
 
-// Create DB connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-if ($conn->connect_error) {
-    echo json_encode(["found" => false, "error" => "DB connection failed: " . $conn->connect_error]);
-    exit;
-}
-
 // Prepare and execute query
 $stmt = $conn->prepare("SELECT mold_name, thickness FROM mold_thickness WHERE mold_number = ?");
 $stmt->bind_param("s", $code);

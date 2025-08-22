@@ -33,27 +33,53 @@ if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
             exit;
         }
 
+        // 🔥 Function to fetch latest motor temperatures
+        function getLatestTemps($conn, $machine) {
+            $stmt = $conn->prepare("SELECT motor_tempC_01, motor_tempC_02 
+                                    FROM motor_temperatures 
+                                    WHERE machine = ? 
+                                    ORDER BY id DESC LIMIT 1");
+            $stmt->bind_param("s", $machine);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $temps = ["temp1" => null, "temp2" => null];
+            if ($result && $result->num_rows > 0) {
+                $row = $result->fetch_assoc();
+                $temps["temp1"] = $row['motor_tempC_01'];
+                $temps["temp2"] = $row['motor_tempC_02'];
+            }
+            $stmt->close();
+            return $temps;
+        }
+
         if ($cycle_status == 1) {
             // Start of cycle
             if ($lastCycleStatus == 2) {
                 $recycle_time = 0; // Force recycle_time to 0 if coming from alert state
             }
 
+            // Get latest temps
+            $temps = getLatestTemps($conn, $_GET['machine']);
+
             $stmt = $conn->prepare("UPDATE `$targetTable` 
-                                    SET cycle_status = 1, recycle_time = ?, timestamp = NOW()
+                                    SET cycle_status = 1, recycle_time = ?, 
+                                        tempC_01 = ?, tempC_02 = ?, 
+                                        timestamp = NOW()
                                     WHERE id = ?");
-            $stmt->bind_param("ii", $recycle_time, $lastId);
+            $stmt->bind_param("iiii", $recycle_time, $temps['temp1'], $temps['temp2'], $lastId);
 
             $stmt->execute();
             $stmt->close();
 
-            echo "Cycle START updated.";
+            echo "Cycle START updated with motor temperatures.";
 
         } elseif ($cycle_status == 0) {
             // If too short, clear row
             if ($processing_time < 10) {
                 $stmt_clear = $conn->prepare("UPDATE `$targetTable` 
-                                              SET cycle_status = 0, cycle_time = 0, processing_time = 0, recycle_time = 0, timestamp = NOW()
+                                              SET cycle_status = 0, cycle_time = 0, processing_time = 0, recycle_time = 0, 
+                                                  tempC_01 = 0, tempC_02 = 0,
+                                                  timestamp = NOW()
                                               WHERE id = ?");
                 $stmt_clear->bind_param("i", $lastId);
                 $stmt_clear->execute();
@@ -76,25 +102,30 @@ if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
                 $cycle_time = $processing_time;
             }
 
+            // Get latest temps
+            $temps = getLatestTemps($conn, $_GET['machine']);
+
             $stmt1 = $conn->prepare("UPDATE `$targetTable` 
-                                     SET cycle_status = 0, processing_time = ?, cycle_time = ?, timestamp = NOW()
+                                     SET cycle_status = 0, processing_time = ?, cycle_time = ?, 
+                                         tempC_01 = ?, tempC_02 = ?,
+                                         timestamp = NOW()
                                      WHERE id = ?");
-            $stmt1->bind_param("iii", $processing_time, $cycle_time, $lastId);
+            $stmt1->bind_param("iiiii", $processing_time, $cycle_time, $temps['temp1'], $temps['temp2'], $lastId);
             $stmt1->execute();
             $stmt1->close();
 
             // Insert new row with same product
             $stmt2 = $conn->prepare("INSERT INTO `$targetTable` 
-                                     (product, mold_number, cycle_status, cycle_time, processing_time, recycle_time, timestamp) 
-                                     VALUES (?, ?, 0, 0, 0, 0, NOW())");
+                                     (product, mold_number, cycle_status, cycle_time, processing_time, recycle_time, tempC_01, tempC_02, timestamp) 
+                                     VALUES (?, ?, 0, 0, 0, 0, 0, 0, NOW())");
             $stmt2->bind_param("ss", $lastProduct, $lastRow['mold_number']);
             $stmt2->execute();
             $stmt2->close();
 
-            echo "Cycle ENDED and new row created.";
+            echo "Cycle ENDED and new row created with motor temperatures.";
 
         } elseif ($cycle_status == 2) {
-            // Alert/idle state
+            // Alert/idle state (no temp update requested here)
             $stmt_alert = $conn->prepare("UPDATE `$targetTable` 
                                           SET cycle_status = 2, timestamp = NOW()
                                           WHERE id = ?");

@@ -1,13 +1,13 @@
 <?php
-// $servername = "localhost";
-// $username   = "root";
-// $password   = "";
-// $database   = "dms";
+$servername = "localhost";
+$username   = "root";
+$password   = "";
+$database   = "dms";
 
-$servername = "srv1518.hstgr.io";
-$username   = "u158529957_spmc_dmonitor";
-$password   = "RSzGvru!0S[m";
-$database   = "u158529957_spmc_dmonitor";
+// $servername = "srv1518.hstgr.io";
+// $username   = "u158529957_spmc_dmonitor";
+// $password   = "RSzGvru!0S[m";
+// $database   = "u158529957_spmc_dmonitor";
 
 $conn2 = new mysqli($servername, $username, $password, $database);
 

@@ -11,10 +11,10 @@ if (!isset($_POST['product']) || !isset($_POST['machine']) || !isset($_POST['thi
     exit;
 }
 
-$product = $_POST['product'];
-$machine = $_POST['machine'];
+$product   = $_POST['product'];
+$machine   = $_POST['machine'];
 $thickness = $_POST['thickness'];
-$mold_num = $_POST['mold_num']; // this is the actual mold code
+$mold_num  = $_POST['mold_num']; // this is the actual mold code
 
 // Build the correct table name
 $table_name = "production_cycle_" . str_replace(' ', '', strtolower($machine));
@@ -26,8 +26,8 @@ if ($tableCheck->num_rows == 0) {
     exit;
 }
 
-// Get latest row
-$sql_latest = "SELECT id FROM `$table_name` ORDER BY id DESC LIMIT 1";
+// Get latest row with cycle_status
+$sql_latest = "SELECT id, cycle_status FROM `$table_name` ORDER BY id DESC LIMIT 1";
 $result = $conn->query($sql_latest);
 if ($result === false || $result->num_rows == 0) {
     echo json_encode(["status" => "error", "message" => "No rows found to update"]);
@@ -37,8 +37,16 @@ if ($result === false || $result->num_rows == 0) {
 
 $row = $result->fetch_assoc();
 $lastId = $row['id'];
+$cycle_status = $row['cycle_status'];
 
-// Update the latest row with product | thickness and mold code
+// If cycle_status == 1, prevent update
+if ($cycle_status == 1) {
+    echo json_encode(["status" => "error", "message" => "Cannot update mold. Cycle is closed (status = 1)"]);
+    $conn->close();
+    exit;
+}
+
+// Otherwise (status 0 or 2), update the row
 $stmt = $conn->prepare("UPDATE `$table_name` SET product = ?, mold_number = ? WHERE id = ?");
 if ($stmt) {
     $product_with_thickness = $product . " | " . $thickness;
