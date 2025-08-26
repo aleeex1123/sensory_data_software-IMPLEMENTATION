@@ -20,14 +20,14 @@ if (!$machine || $temp1 === null || $temp2 === null) {
 $tempF_01 = ($temp1 * 9 / 5) + 32;
 $tempF_02 = ($temp2 * 9 / 5) + 32;
 
-// Timestamp rounded to minute (00 seconds)
-$currentMinute = date('Y-m-d H:i:00');
+// ✅ Timestamp rounded to the current minute (00 seconds)
+$timestamp = date('Y-m-d H:i:00');
 
 // Use INSERT ... ON DUPLICATE KEY UPDATE to avoid double queries
-// Ensure that (timestamp, machine) is set as a UNIQUE key in your DB
+// Ensure that (`timestamp`, machine) is set as a UNIQUE key in your DB
 $sql = "
 INSERT INTO motor_temperatures 
-    (motor_tempC_01, motor_tempF_01, motor_tempC_02, motor_tempF_02, timestamp, machine) 
+    (motor_tempC_01, motor_tempF_01, motor_tempC_02, motor_tempF_02, `timestamp`, machine) 
 VALUES (?, ?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE
     motor_tempC_01 = VALUES(motor_tempC_01),
@@ -37,7 +37,7 @@ ON DUPLICATE KEY UPDATE
 ";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("ddddss", $temp1, $tempF_01, $temp2, $tempF_02, $currentMinute, $machine);
+$stmt->bind_param("ddddss", $temp1, $tempF_01, $temp2, $tempF_02, $timestamp, $machine);
 
 if ($stmt->execute()) {
     echo json_encode(["status" => "success", "message" => "Data saved"]);

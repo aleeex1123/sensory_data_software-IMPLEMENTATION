@@ -220,8 +220,9 @@ $durationText = 'Loading...';
                         });
                 }
 
-                // Initial call and repeat every 30 seconds
+                // Initial call and repeat every 60 seconds
                 refreshDuration();
+                setInterval(refreshDuration, 60000);
             </script>
         </div>
 
