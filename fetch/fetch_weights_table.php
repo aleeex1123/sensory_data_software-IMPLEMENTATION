@@ -6,8 +6,9 @@ header('Content-Type: application/json');
 require_once 'db_config.php';
 
 // Get parameters
-$show = isset($_GET['show']) ? $_GET['show'] : '10';  // Keep as string for now
-$month = isset($_GET['month']) ? intval($_GET['month']) : 0;
+$show    = isset($_GET['show']) ? $_GET['show'] : '10';  // Keep as string for now
+$month   = isset($_GET['month']) ? intval($_GET['month']) : 0;
+$product = isset($_GET['product']) ? trim($_GET['product']) : "";
 
 // Base query
 $sql = "SELECT id, machine, product, mold_number, gross_weight, net_weight, difference, timestamp FROM weight_data";
@@ -20,6 +21,13 @@ if ($month > 0) {
     $conditions[] = "MONTH(timestamp) = ?";
     $params[] = $month;
     $paramTypes .= "i";
+}
+
+// Add product filter
+if (!empty($product)) {
+    $conditions[] = "product = ?";
+    $params[] = $product;
+    $paramTypes .= "s";
 }
 
 // Apply WHERE if there are any conditions
@@ -39,6 +47,10 @@ if ($show !== "all") {
 
 // Prepare and bind
 $stmt = $conn->prepare($sql);
+if ($stmt === false) {
+    die("SQL Error: " . $conn->error);
+}
+
 if ($paramTypes !== "") {
     $stmt->bind_param($paramTypes, ...$params);
 }

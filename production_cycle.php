@@ -408,28 +408,23 @@ $durationText = 'Loading...';
                     const barWrapper = document.getElementById('bar-wrapper');
                     barWrapper.innerHTML = '';
 
-                    const total = data.reduce((sum, seg) => sum + seg.size, 0);
+                    const hasSegments = Array.isArray(data) && data.length > 0;
+                    const total = hasSegments ? data.reduce((sum, seg) => sum + (Number(seg.size) || 0), 0) : 0;
 
-                    data.forEach(segment => {
+                    // Fallback if no segments or total size is zero
+                    if (!hasSegments || total <= 0) {
                         const div = document.createElement('div');
-                        div.classList.add('bar-segment', segment.type);
-                        div.style.flex = segment.size / total;
+                        div.classList.add('bar-segment');
+                        div.style.flex = 1;
+                        div.style.backgroundColor = '#555';  // gray fallback
 
+                        // Tooltip for "no data"
                         div.addEventListener('mouseenter', () => {
-                            let labelColor = '';
-                            if (segment.label.startsWith("Mold open")) {
-                                labelColor = 'rgb(174, 21, 21)';
-                            } else if (segment.label.startsWith("Mold closed")) {
-                                labelColor = '#417630';
-                            } else {
-                                labelColor = '#417630';
-                            }
-
                             spanTooltip.innerHTML = `
-                                <span style="font-weight: bold; color: ${labelColor};">${segment.label}</span><br>
-                                Product: <span style="color: #adadad; font-weight: bold;">${segment.product}</span><br>
-                                Motor 1 Temp: <span style="color: rgb(255,179,71); font-weight: bold;">${segment.temp1}°C</span><br>
-                                Motor 2 Temp: <span style="color: rgb(255,99,71); font-weight: bold;">${segment.temp2}°C</span>
+                                <span style="font-weight: bold; color: #bbb;">No production data available</span><br>
+                                Product: <span style="color: #adadad; font-weight: bold;">—</span><br>
+                                Motor 1 Temp: <span style="color: #bbb; font-weight: bold;">—</span><br>
+                                Motor 2 Temp: <span style="color: #bbb; font-weight: bold;">—</span>
                             `;
                             spanTooltip.style.opacity = 1;
                         });
@@ -440,12 +435,57 @@ $durationText = 'Loading...';
                             let left = e.pageX + padding;
                             let top = e.pageY + padding;
 
-                            if (left + rect.width > window.innerWidth) {
-                                left = e.pageX - rect.width - padding;
+                            if (left + rect.width > window.innerWidth) left = e.pageX - rect.width - padding;
+                            if (top + rect.height > window.innerHeight) top = e.pageY - rect.height - padding;
+
+                            spanTooltip.style.left = left + 'px';
+                            spanTooltip.style.top = top + 'px';
+                        });
+
+                        div.addEventListener('mouseleave', () => {
+                            spanTooltip.style.opacity = 0;
+                        });
+
+                        barWrapper.appendChild(div);
+                        return;
+                    }
+
+                    // Normal render
+                    data.forEach(segment => {
+                        const size = Number(segment.size) || 0;
+                        const flex = size / total;
+
+                        const div = document.createElement('div');
+                        div.classList.add('bar-segment', segment.type);
+                        div.style.flex = flex;
+
+                        div.addEventListener('mouseenter', () => {
+                            let labelColor = '';
+                            if ((segment.label || '').toLowerCase().startsWith("mold open")) {
+                                labelColor = 'rgb(174, 21, 21)';
+                            } else if ((segment.label || '').toLowerCase().startsWith("mold closed")) {
+                                labelColor = '#417630';
+                            } else {
+                                labelColor = '#417630';
                             }
-                            if (top + rect.height > window.innerHeight) {
-                                top = e.pageY - rect.height - padding;
-                            }
+
+                            spanTooltip.innerHTML = `
+                                <span style="font-weight: bold; color: ${labelColor};">${segment.label || ''}</span><br>
+                                Product: <span style="color: #adadad; font-weight: bold;">${segment.product || ''}</span><br>
+                                Motor 1 Temp: <span style="color: rgb(255,179,71); font-weight: bold;">${segment.temp1 ?? ''}°C</span><br>
+                                Motor 2 Temp: <span style="color: rgb(255,99,71); font-weight: bold;">${segment.temp2 ?? ''}°C</span>
+                            `;
+                            spanTooltip.style.opacity = 1;
+                        });
+
+                        div.addEventListener('mousemove', (e) => {
+                            const rect = spanTooltip.getBoundingClientRect();
+                            const padding = 12;
+                            let left = e.pageX + padding;
+                            let top = e.pageY + padding;
+
+                            if (left + rect.width > window.innerWidth) left = e.pageX - rect.width - padding;
+                            if (top + rect.height > window.innerHeight) top = e.pageY - rect.height - padding;
 
                             spanTooltip.style.left = left + 'px';
                             spanTooltip.style.top = top + 'px';
@@ -463,11 +503,14 @@ $durationText = 'Loading...';
                     fetch(`fetch/fetch_production_cycle_stack.php?machine=${encodeURIComponent(machineName)}`)
                         .then(res => res.json())
                         .then(data => {
-                            if (data.segments) {
-                                renderBar(data.segments);
-                            }
+                            const segments = Array.isArray(data?.segments) ? data.segments : [];
+                            renderBar(segments);
                         })
-                        .catch(err => console.error("Error fetching bar segments:", err));
+                        .catch(err => {
+                            console.error("Error fetching bar segments:", err);
+                            // Show gray fallback on error, too
+                            renderBar([]);
+                        });
                 }
 
                 // Load on page load

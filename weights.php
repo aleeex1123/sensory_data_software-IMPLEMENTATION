@@ -209,6 +209,13 @@ require_once __DIR__ . '/fetch/db_config.php';
                 </h2>
 
                 <div class="section-controls">
+                    <div class="by_product">
+                        <label for="show-product">Product</label>
+                        <select id="show-product">
+                            <option value="" selected>All</option>
+                            <!-- Options will be populated by JS -->
+                        </select>
+                    </div>
                     <div class="by_number">
                         <label for="show-entries">Show</label>
                         <select id="show-entries">
@@ -261,11 +268,24 @@ require_once __DIR__ . '/fetch/db_config.php';
                 </div>
 
                 <script>
+                    function loadProductOptions() {
+                        const xhr = new XMLHttpRequest();
+                        xhr.open('GET', 'fetch/fetch_weights_products.php', true);
+                        xhr.onload = function() {
+                            if (xhr.status === 200) {
+                                document.getElementById('show-product').innerHTML = xhr.responseText;
+                            }
+                        };
+                        xhr.send();
+                    }
+
                     function fetchTableData() {
                         const showEntries = document.getElementById('show-entries').value;
                         const filterMonth = document.getElementById('filter-month').value;
+                        const product = document.getElementById('show-product').value;
+
                         const xhr = new XMLHttpRequest();
-                        xhr.open('GET', `fetch/fetch_weights_table.php?show=${showEntries}&month=${filterMonth}`, true);
+                        xhr.open('GET', `fetch/fetch_weights_table.php?show=${showEntries}&month=${filterMonth}&product=${encodeURIComponent(product)}`, true);
                         xhr.onload = function() {
                             if (xhr.status === 200) {
                                 document.getElementById('table-body').innerHTML = xhr.responseText;
@@ -275,11 +295,13 @@ require_once __DIR__ . '/fetch/db_config.php';
                     }
 
                     // Update table when controls change
+                    document.getElementById('show-product').addEventListener('change', fetchTableData);
                     document.getElementById('show-entries').addEventListener('change', fetchTableData);
                     document.getElementById('filter-month').addEventListener('change', fetchTableData);
 
-                    // Set default month to current month
+                    // On page load
                     document.addEventListener("DOMContentLoaded", function () {
+                        loadProductOptions();
                         let currentMonth = new Date().getMonth() + 1;
                         document.getElementById("filter-month").value = currentMonth;
                         fetchTableData();
