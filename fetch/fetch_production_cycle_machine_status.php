@@ -44,8 +44,10 @@ if ($machine) {
         if ($diff->days === 0 && $diff->h === 0 && $diff->i === 0) {
             echo "Just{$suffix}";
         } else {
-            $dayPart = $diff->days > 0 ? "{$diff->days} days " : "";
-            $hourPart = $diff->h > 0 ? "{$diff->h} hours " : "";
+            $dayLabel = $diff->days === 1 ? "day" : "days";
+            $dayPart = $diff->days > 0 ? "{$diff->days} {$dayLabel} " : "";
+            $hourLabel = $diff->h === 1 ? "hour" : "hours";
+            $hourPart = $diff->h > 0 ? "{$diff->h} {$hourLabel} " : "";
             $minuteLabel = $diff->i === 1 ? "minute" : "minutes";
             $minutePart = $diff->i > 0 ? "{$diff->i} {$minuteLabel}" : "";
 

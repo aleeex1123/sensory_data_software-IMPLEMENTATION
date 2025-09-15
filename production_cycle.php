@@ -521,11 +521,240 @@ $durationText = 'Loading...';
             </script>
         </div>
 
-        <!-- Cycle History -->
+        <!-- Time and Temperature -->
+        <div class="section">
+            <div class="content-header">
+                <h2 style="margin: 0;">
+                    Time and Temperature
+                    <button id="refreshCycleTemp" style="background: none; border: none; cursor: pointer;">
+                        <i class='bxr  bx-refresh-cw refresh'></i> 
+                    </button>
+                </h2>
+
+                <div class="section-controls">
+                    <button id="prevButton" class="triangle-button prev">&#9665</button>
+                    <button id="nextButton" class="triangle-button next">&#9655</button>
+            </div>
+            </div>
+            
+            <div class="chart-section">
+                <div class="chart-fullwidth">
+                    <canvas id="cycleTempChart"></canvas>
+                </div>
+                
+                <div class="chartInfo">
+                    <div class="legends">
+                    <h2>Legends</h2>
+                        <div class="legend-item">
+                            <span class="legend-box cycle-bar"></span>
+                            Cycle time averages at...
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-line motor1"></span>
+                            Motor Temperature averages at...
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-line motor2"></span>
+                            Motor Temperature averages at...
+                        </div>
+                    </div>
+
+                    <div class="remarks">
+                        <h2>Remarks</h2>
+                        <span>Stable</span>
+                        <p>Maintain current operation parameters</p>
+                        <h2>Recommendations</h2>
+                        <p>None</p>
+                    </div>
+                </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                    let currentPage = 1;
+                    let cycleTempChart = null;
+
+                    async function loadChartData() {
+                        const machine = "<?php echo $_GET['machine']; ?>";
+                        const response = await fetch(`fetch/fetch_production_cycle_temp.php?machine=${machine}&page=${currentPage}`);
+                        const data = await response.json();
+
+                        const labels = data.map(d => d.time);
+                        const cycleTime = data.map(d => d.cycle_time);
+                        const motor1 = data.map(d => d.temp1);
+                        const motor2 = data.map(d => d.temp2);
+
+                        // Disable/enable controls
+                        document.getElementById('prevButton').disabled = (currentPage === 1);
+                        document.getElementById('nextButton').disabled = (data.length === 0 || data.length < 10);
+
+                        const ctx = document.getElementById('cycleTempChart').getContext('2d');
+
+                        if (cycleTempChart) {
+                            cycleTempChart.data.labels = labels;
+                            cycleTempChart.data.datasets[0].data = cycleTime;
+                            cycleTempChart.data.datasets[1].data = motor1;
+                            cycleTempChart.data.datasets[2].data = motor2;
+                            cycleTempChart.update();
+                        } else {
+                            cycleTempChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [
+                                        { label: 'Cycle Time', type: 'bar', data: cycleTime, backgroundColor: 'rgba(65,118,48,0.7)', borderRadius: 6, yAxisID: 'y', order: 0 },
+                                        { label: 'Motor 1 Temp', type: 'line', data: motor1, borderColor: 'rgb(174,21,21)', backgroundColor: 'rgba(174,21,21,0.2)', borderWidth: 2, tension: 0.4, pointRadius: 2, pointHoverRadius: 4, pointBackgroundColor: 'rgb(174,21,21)', yAxisID: 'y1', order: 2 },
+                                        { label: 'Motor 2 Temp', type: 'line', data: motor2, borderColor: '#f59c2f', backgroundColor: 'rgba(245,156,47,0.2)', borderWidth: 2, tension: 0.4, pointRadius: 2, pointHoverRadius: 4, pointBackgroundColor: '#f59c2f', yAxisID: 'y1', order: 3 }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    interaction: { mode: 'index', intersect: false },
+                                    plugins: {
+                                        legend: { display: false },
+                                        tooltip: {
+                                            enabled: false,
+                                            external: function(context) {
+                                                const tooltipModel = context.tooltip;
+                                                let tooltipEl = document.getElementById('chartjs-tooltip');
+
+                                                // create tooltip element if not exists
+                                                if (!tooltipEl) {
+                                                    tooltipEl = document.createElement('div');
+                                                    tooltipEl.id = 'chartjs-tooltip';
+                                                    // base styles - adjust as needed
+                                                    Object.assign(tooltipEl.style, {
+                                                        position: 'absolute',
+                                                        zIndex: 9999,
+                                                        background: 'rgb(16,16,16)',
+                                                        border: '1px solid #417630',
+                                                        borderRadius: '6px',
+                                                        color: 'rgb(216,216,216)',
+                                                        padding: '6px 10px',
+                                                        pointerEvents: 'none',
+                                                        transition: 'all .08s ease',
+                                                        boxSizing: 'border-box',
+                                                        maxWidth: '40vw',
+                                                        minWidth: '90px',
+                                                        whiteSpace: 'normal',
+                                                        wordBreak: 'break-word',
+                                                    });
+                                                    document.body.appendChild(tooltipEl);
+                                                }
+
+                                                // hide
+                                                if (tooltipModel.opacity === 0) {
+                                                    tooltipEl.style.opacity = 0;
+                                                    return;
+                                                }
+
+                                                // build content
+                                                let time = (tooltipModel.title && tooltipModel.title[0]) ? tooltipModel.title[0] : '';
+                                                let innerHtml = `<div style="font-weight:bold; font-size:0.75rem; margin-bottom:6px;">${time}</div>`;
+
+                                                if (tooltipModel.dataPoints) {
+                                                    tooltipModel.dataPoints.forEach((item) => {
+                                                        const color = item.dataset && (item.dataset.borderColor || item.dataset.backgroundColor) ? (item.dataset.borderColor || item.dataset.backgroundColor) : '#fff';
+                                                        const label = item.dataset ? item.dataset.label : '';
+                                                        let value = item.formattedValue !== undefined ? item.formattedValue : (item.raw ?? '');
+                                                        if (label && label.toLowerCase().includes('cycle')) value = `${value}s`;
+                                                        else value = `${value}°C`;
+
+                                                        innerHtml += `
+                                                            <div style="font-size:0.75rem; display:flex; text-align: left; align-items: left; gap:8px; margin:2px 0;">
+                                                                <span style="display:inline-block; width:10px; height:10px; background:${color}; border-radius:50%;"></span>
+                                                                <div style="flex:1;">${label}: <span style="margin-left:4px; font-weight:600;">${value}</span></div>
+                                                            </div>`;
+                                                    });
+                                                }
+
+                                                tooltipEl.innerHTML = innerHtml;
+
+                                                // ensure element is in DOM so measurements work
+                                                if (!document.body.contains(tooltipEl)) document.body.appendChild(tooltipEl);
+
+                                                // measure
+                                                const canvasRect = context.chart.canvas.getBoundingClientRect();
+                                                const ttRect = tooltipEl.getBoundingClientRect();
+
+                                                // Get caret coordinates (fall back to first data point element if caret not available)
+                                                let caretX = tooltipModel.caretX;
+                                                let caretY = tooltipModel.caretY;
+                                                if ((caretX === undefined || caretY === undefined) && tooltipModel.dataPoints && tooltipModel.dataPoints.length > 0) {
+                                                    const el = tooltipModel.dataPoints[0].element;
+                                                    if (el) {
+                                                        if (caretX === undefined && el.x !== undefined) caretX = el.x;
+                                                        if (caretY === undefined && el.y !== undefined) caretY = el.y;
+                                                    }
+                                                }
+
+                                                // Default positions if still undefined
+                                                if (caretX === undefined) caretX = canvasRect.width / 2;
+                                                if (caretY === undefined) caretY = 10;
+
+                                                // compute absolute coords
+                                                let x = window.scrollX + canvasRect.left + caretX;
+                                                let y = window.scrollY + canvasRect.top + caretY;
+
+                                                const margin = 8;
+
+                                                // If tooltip would overflow right edge, shift it left
+                                                if (x + ttRect.width + margin > window.scrollX + window.innerWidth) {
+                                                    x = window.scrollX + canvasRect.left + canvasRect.width - ttRect.width - margin;
+                                                }
+                                                // prevent going off left edge
+                                                if (x < window.scrollX + margin) {
+                                                    x = window.scrollX + margin;
+                                                }
+
+                                                // If tooltip would overflow bottom edge, shift it up
+                                                if (y + ttRect.height + margin > window.scrollY + window.innerHeight) {
+                                                    y = window.scrollY + canvasRect.top + canvasRect.height - ttRect.height - margin;
+                                                }
+                                                // prevent going off top edge
+                                                if (y < window.scrollY + margin) {
+                                                    y = window.scrollY + margin;
+                                                }
+
+                                                tooltipEl.style.left = `${Math.round(x)}px`;
+                                                tooltipEl.style.top  = `${Math.round(y)}px`;
+                                                tooltipEl.style.opacity = 1;
+                                            }
+                                        }
+                                    },
+                                    layout: { padding: { top: 5, bottom: 5, left: 5, right: 5 } },
+                                    scales: {
+                                        x: { ticks: { color: '#adadad', font: { size: 11 } }, grid: { color: '#272727' } },
+                                        y: { type: 'linear', position: 'left', ticks: { color: '#adadad', font: { size: 11 } }, title: { display: true, text: 'Cycle Time (sec)', color: '#d8d8d8', font: { size: 12 } }, grid: { color: '#272727' } },
+                                        y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#adadad', font: { size: 11 } }, title: { display: true, text: 'Temperature (°C)', color: '#d8d8d8', font: { size: 12 } } }
+                                    }
+                                }
+                            });
+                        }
+                    }
+
+                    // Controls
+                    document.getElementById('prevButton').addEventListener('click', function () {
+                        if (currentPage > 1) {
+                            currentPage--;
+                            loadChartData();
+                        }
+                    });
+                    document.getElementById('nextButton').addEventListener('click', function () {
+                        currentPage++;
+                        loadChartData();
+                    });
+                    document.getElementById('refreshCycleTemp').addEventListener('click', loadChartData);
+                    document.addEventListener("DOMContentLoaded", loadChartData);
+                </script>
+            </div>
+        </div>
+
+        <!-- Production Cycle History -->
         <div class="section">
             <div class="content-header">
                 <h2>
-                    Cycle History
+                    Production Cycle History
                     <button id="refreshCycleHistory" style="background: none; border: none; cursor: pointer;">
                         <i class='bxr  bx-refresh-cw refresh'></i> 
                     </button>

@@ -179,6 +179,123 @@ h2 {
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
+/* Cycle Time and Motor Temperatures */
+button:disabled {
+    background-color: var(--black); /* black background */
+    box-shadow: inset 0 0 0 1px var(--light-gray); /* "border" inside */
+    color: var(--light-gray); /* dim text */
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.chart-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    gap: 18px;
+}
+
+.chart-fullwidth {
+    width: 80%;
+    max-width: 80%;
+    height: 300px; /* smaller height */
+}
+
+#cycleTempChart {
+    height: 100% !important;
+    max-height: 300px; /* make sure it doesn’t grow too tall */
+}
+
+.chartInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    font-family: Montserrat, sans-serif;
+    font-size: 0.8rem;
+    color: #adadad;
+    gap: 18px;
+}
+
+.legends {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-top: 12px;
+    gap: 6px;
+}
+
+.legend-box {
+    width: 22px;
+    height: 14px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.cycle-bar {
+    background-color: rgba(65, 118, 48, 0.7); /* same as bar color */
+}
+
+.legend-line {
+    width: 22px;
+    height: 3px;
+    display: inline-block;
+    border-radius: 2px;
+}
+
+.motor1 {
+    background-color: rgb(174, 21, 21); /* same as motor1 line */
+}
+
+.motor2 {
+    background-color: #f59c2f; /* same as motor2 line */
+}
+
+.remarks {
+    text-align: left;
+    font-family: inherit;
+}
+
+.chartInfo h2 {
+    font-weight: unset;
+    margin: 0;
+    font-size: 1rem;
+    color: var(--light-gray);
+}
+
+.remarks span {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--green);
+}
+
+.remarks p {
+    margin: 12px 0;
+    color: var(--white)
+}
+
+@media screen and (max-width: 720px) {
+    .chart-fullwidth {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .chart-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chart-info {
+        flex-direction: row;
+    }
+}
+
 /* Time Cards */
 .time-cards {
     display: flex;
