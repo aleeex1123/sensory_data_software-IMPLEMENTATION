@@ -11,6 +11,13 @@
     --orange: #f59c2f;
     --red: rgb(174, 21, 21);
     --font-main: 'Montserrat', sans-serif;
+
+    /* Light theme palette */
+    --pure-white:(#ffffff);
+    --light-bg: rgb(240, 240, 240);
+    --light-bg-alt: #f9f9f9;
+    --light-text: #000000;
+    --light-border: #cccccc;
 }
 
 body {
@@ -22,13 +29,12 @@ body {
     color: var(--white);
 }
 
-
 .main-content {
     display: block;
     margin: 72px 18px 18px 18px;
 }
 
-/* Section Controls */
+/* . Controls */
 .section {
     background-color:var(--black);
     padding: 18px;
@@ -189,6 +195,12 @@ select {
     cursor: pointer;
 }
 
+.navbar-right #userIcon {
+    font-size: 2rem;
+    color:#417630;
+    cursor:pointer;
+}
+
 /* Header styles */
 .header {
     display: flex;
@@ -241,12 +253,13 @@ select {
     right: 0;
     top: 36px;
     background: var(--black);
-    min-width: 140px;
+    min-width: 200px;
     border-radius: 8px;
     opacity: 0;
     pointer-events: none;
     transform: translateY(-10px);
     transition: opacity 0.25s, transform 0.25s;
+    text-align: left;
     z-index: 100;
 }
 
@@ -285,6 +298,12 @@ select {
     display: flex;
     align-items: center;
     gap: 18px;
+}
+
+#sidebarToggle i {
+    color: #417630;
+    font-size: 2rem;
+    cursor: pointer;
 }
 
 #sidebar .sidebar-link-group {
@@ -375,4 +394,69 @@ select {
     flex-direction: column;
     transition: 0.3s ease-out;
     position: fixed;
+}
+
+.sidebar-footer .loggedin_as {
+    font-size: 0.75rem;
+    color: #646464
+}
+
+/* ================================ LIGHT MODE OVERRIDES ================================ */
+body.light-mode {
+  background: var(--light-bg);
+  color: #000;
+}
+
+body.light-mode select {
+    background-color:var(--light-bg);
+    color: var(--black);
+}
+
+body.light-mode input {
+    background: var(--light-bg);
+    color: var(--black);
+}
+
+/* Navbar */
+body.light-mode .navbar {
+  background: var(--gray);
+  color: var(--light-text);
+}
+body.light-mode #userDropdown {
+    background: var(--gray);
+    color: var(--light-text);
+}
+body.light-mode .navbar-right #userIcon {
+    color: var(--green);
+}
+body.light-mode #sidebarToggle i {
+    color: var(--green);
+}
+
+/* Sidebar */
+body.light-mode #sidebar {
+    background: var(--gray);
+    color: var(--light-text);
+}
+body.light-mode .sidebar-footer {
+    background: var(--light-gray);
+    color: var(--light-text);
+}
+body.light-mode .sidebar-footer .loggedin_as{
+    color: var(--black);
+}
+body.light-mode .sidebar-footer .username{
+    color: var(--white);
+}
+body.light-mode #sidebar .sidebar-active, #sidebar .sidebar-link:hover {
+    background: var(--green);
+}
+
+/* Sections */
+body.light-mode .section {
+    background: white;
+    color: var(--light-text);
+}
+body.light-mode .content-header {
+    color: var(--black);
 }

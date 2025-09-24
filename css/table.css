@@ -10,6 +10,18 @@
     --dark-green: rgb(35, 68, 30);
     --orange: #f59c2f;
     --font-main: 'Montserrat', sans-serif;
+
+    /* Light theme palette */
+    --pure-white:(#ffffff);
+    --light-bg: rgb(240, 240, 240);
+    --light-bg-alt: #f9f9f9;
+    --light-bg-alt2: #f0f0f0;
+    --light-bg-hover: #fafafa;
+    --light-text: #000000;
+    --light-text-muted: #666666;
+    --light-text-alt: #555555;
+    --light-border: #cccccc;
+    --light-scrollbar-bg: #e6e6e6;
 }
 
 .table-responsive {
@@ -151,4 +163,58 @@
     min-width: unset;
     max-width: 100%;
     box-sizing: border-box;
+}
+
+/* ================================ LIGHT MODE OVERRIDES ================================ */
+body.light-mode .table-container{
+    scrollbar-color: var(--green) white;
+}
+
+body.light-mode .styled-table {
+  background: var(--light-bg);
+  color: var(--light-text);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+body.light-mode .styled-table thead tr {
+  background-color: var(--green); /* keep brand green */
+  color: white;
+}
+
+body.light-mode .styled-table tbody tr {
+  border-bottom: 1px solid var(--light-border);
+}
+
+body.light-mode .styled-table tbody tr:nth-child(even) {
+  background-color: white;
+}
+
+body.light-mode .styled-table tbody tr:hover {
+  background-color: var(--off-white);
+}
+
+/* Side table */
+body.light-mode .side-table {
+  background: white;
+  color: var(--light-text);
+  border-left: solid 2px var(--green);
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  scrollbar-color: var(--green) var(--light-scrollbar-bg);
+}
+
+body.light-mode .side-table h2 {
+  color: var(--light-text);
+}
+
+body.light-mode .side-table .styled-table {
+  background: var(--light-bg);
+}
+
+/* Toggle button */
+body.light-mode .side-table-toggle {
+  background-color: var(--light-bg);
+  color: var(--gray);
+  border-top: solid 2px var(--green);
+  border-left: solid 2px var(--green);
+  border-bottom: solid 2px var(--green);
 }

@@ -11,6 +11,18 @@
     --orange: #f59c2f;
     --red: rgb(174, 21, 21);
     --font-main: 'Montserrat', sans-serif;
+
+    /* Light theme palette */
+    --pure-white:(#ffffff);
+    --light-bg: rgb(240, 240, 240);
+    --light-bg-alt: #f9f9f9;
+    --light-bg-alt2: #f0f0f0;
+    --light-bg-hover: #fafafa;
+    --light-text: #000000;
+    --light-text-muted: #666666;
+    --light-text-alt: #555555;
+    --light-border: #cccccc;
+    --light-scrollbar-bg: #e6e6e6;
 }
 
 /* Active Machines */
@@ -144,3 +156,56 @@
         min-width: 758px;
     }
 }
+
+/* ================================ LIGHT MODE OVERRIDES ================================ */
+body.light-mode .status-text {
+  color: var(--gray); /* muted gray */
+}
+
+body.light-mode .card-container {
+  scrollbar-color: var(--green) white;
+}
+
+body.light-mode .card {
+  background-color: var(--light-bg);
+  color: var(--light-text);
+}
+
+body.light-mode .card h2 {
+  color: var(--light-text);
+}
+
+body.light-mode .current-product-label {
+  color: var(--light-text-alt);
+}
+
+body.light-mode .current-product-value {
+  color: var(--light-text);
+}
+
+/* Machine tabs */
+body.light-mode .machine-tab {
+  background: var(--light-bg-alt2);
+  color: var(--light-text-muted);
+}
+body.light-mode .machine-tab.active {
+  color: var(--green);
+  border-top: 2px solid var(--green);
+  background: white;
+}
+body.light-mode .machine-tab:not(.active):hover {
+  color: var(--dark-green);
+  background: var(--light-bg-hover);
+}
+
+/* Table borders */
+body.light-mode .styled-table td:nth-child(5),
+body.light-mode .styled-table th:nth-child(5) {
+  border-right: 2px solid white;
+}
+
+/* Chart scroll */
+body.light-mode .chart-scroll-wrapper {
+  scrollbar-color: var(--green) white;
+}
+

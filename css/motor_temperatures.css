@@ -10,6 +10,18 @@
     --dark-green: rgb(35, 68, 30);
     --orange: #f59c2f;
     --font-main: 'Montserrat', sans-serif;
+
+    /* Light theme palette */
+    --pure-white:(#ffffff);
+    --light-bg: rgb(240, 240, 240);
+    --light-bg-alt: #f9f9f9;
+    --light-bg-alt2: #f0f0f0;
+    --light-bg-hover: #fafafa;
+    --light-text: #000000;
+    --light-text-muted: #666666;
+    --light-text-alt: #555555;
+    --light-border: #cccccc;
+    --light-scrollbar-bg: #e6e6e6;
 }
 
 /* Machine Selection */
@@ -146,4 +158,43 @@
     .temperature1-card, .temperature2-card {
        min-width: auto;
     }
+}
+
+/* ================================ LIGHT MODE OVERRIDES ================================ */
+body.light-mode .machine-tab {
+  background: var(--light-bg);
+  color: var(--light-text-muted);
+}
+body.light-mode .machine-tab.active {
+  color: var(--green);
+  border-top: 2px solid var(--green);
+  background: var(--pure-white);
+}
+body.light-mode .machine-tab:not(.active):hover {
+  color: var(--dark-green);
+  background: var(--light-bg-hover);
+}
+
+/* Card Styles */
+body.light-mode .card {
+  background-color: var(--light-bg);
+  color: var(--black);
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+}
+body.light-mode .card h2 {
+  color: var(--light-text);
+}
+body.light-mode .card p {
+  color: var(--light-text-muted);
+}
+
+/* Remarks */
+body.light-mode .remarks h2 {
+  color: var(--light-text-alt);
+}
+body.light-mode .remarks span {
+  color: var(--green);
+}
+body.light-mode .remarks p {
+  color: var(--light-text);
 }

@@ -11,6 +11,18 @@
     --orange: #f59c2f;
     --red: rgb(174, 21, 21);
     --font-main: 'Montserrat', sans-serif;
+    
+    /* Light theme palette */
+    --pure-white:(#ffffff);
+    --light-bg: rgb(240, 240, 240);
+    --light-bg-alt: #f9f9f9;
+    --light-bg-alt2: #f0f0f0;
+    --light-bg-hover: #fafafa;
+    --light-text: #000000;
+    --light-text-muted: #666666;
+    --light-text-alt: #555555;
+    --light-border: #cccccc;
+    --light-scrollbar-bg: #e6e6e6;
 }
 
 /* Scale Controls */
@@ -100,4 +112,9 @@
 
 .scale-off:hover {
     background-color: rgb(122, 16, 16);
+}
+
+/* ===== Light theme overrides ===== */
+body.light-mode .scale p {
+    color: var(--black);
 }

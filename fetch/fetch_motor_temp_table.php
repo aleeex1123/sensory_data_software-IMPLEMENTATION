@@ -47,9 +47,9 @@ if ($result && $result->num_rows > 0) {
         }
 
         // Determine remarks for motor 02
-        if ($tempC2 > 80) {
+        if ($tempC2 > 90) {
             $remarks2 = "<span style='color: #dc3545;'>Overheat</span>";
-        } elseif ($tempC2 < 30) {
+        } elseif ($tempC2 < 40) {
             $remarks2 = "<span style='color: #17a2b8;'>Abnormally Low</span>";
         } else {
             $remarks2 = "<span style='color: #417630;'>Normal</span>";

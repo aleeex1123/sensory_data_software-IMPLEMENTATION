@@ -1,13 +1,31 @@
 <?php
 date_default_timezone_set('Asia/Manila'); // or your correct timezone
 
-// Include DB config
 require_once __DIR__ . '/fetch/db_config.php';
 
-$isAjax = isset($_GET['ajax']) && $_GET['ajax'] === '1';
+session_start();
 ob_start();
 
-session_start();
+// Always define $isAjax
+$isAjax = (isset($_GET['ajax']) && $_GET['ajax'] === '1') ? true : false;
+
+// Default to dark mode (1) if not set yet
+if (!isset($_SESSION['theme'])) {
+    $_SESSION['theme'] = 1;
+}
+$theme = $_SESSION['theme']; // 1 = dark, 0 = light
+
+if ($theme == 1) { // dark mode
+    $chartBg = "#101010";
+    $chartText = "#d8d8d8";
+    $chartGrid = "#646464";
+    $tooltipTheme = "dark";
+} else { // light mode
+    $chartBg = "#ffffff";
+    $chartText = "#000000";
+    $chartGrid = "#cccccc";
+    $tooltipTheme = "light";
+}
 ?>
 
 <!DOCTYPE html>
@@ -29,26 +47,91 @@ session_start();
     <link rel="stylesheet" href="css/table.css">
     
 </head>
-<body>
+<body class="<?php echo ($theme == 1) ? 'dark-mode' : 'light-mode'; ?>">
     <script src="script/navbar-sidebar.js"></script>
 
     <!-- Navbar -->
     <div class="navbar">
         <!-- Sidebar Toggle (Logo) -->
         <div id="sidebarToggle">
-            <i class="fa fa-bars" style="color: #417630; font-size: 2rem; cursor: pointer;"></i> 
+            <i class="fa fa-bars"></i> 
             <a href="#"><img src="images/logo-1.png" style="height: 36px"></a>
         </div>
         
 
-        <!-- Right Icon with Logout Dropdown -->
+        <!-- Right Icon with Dropdown -->
         <div class="navbar-right" style="position: relative;">
-            <i class="fa fa-user-circle" style="font-size: 2rem; color:#417630; cursor:pointer;" id="userIcon"></i>
+            <i class="fa fa-user-circle" id="userIcon"></i>
             <div id="userDropdown">
-                <a href="#">Settings</a>
-                <a href="#">Logout</a>
+                <a href="#"><i class='bxr  bx-cog'
+                style="margin-right: 6px; vertical-align: middle; font-size: smaller;"></i> Settings</a>
+
+                <a href="#" id="darkModeToggle">
+                    <i class="bxr <?php echo ($theme == 1) ? 'bx-moon' : 'bx-sun'; ?>" 
+                    style="margin-right: 6px; vertical-align: middle; font-size: smaller;"></i>
+                    <?php echo ($theme == 1) ? 'To Light Mode' : 'To Dark Mode'; ?>
+                </a>
+
+                <a href="#"><i class='bxr  bx-arrow-out-left-square-half'
+                style="margin-right: 6px; vertical-align: middle; font-size: smaller;"></i> Logout</a>
             </div>
         </div>
+
+        <script>
+            document.getElementById("darkModeToggle").addEventListener("click", function(e) {
+                e.preventDefault();
+
+                fetch("fetch/toggle_theme.php")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.theme == 1) {
+                        document.body.classList.add("dark-mode");
+                        document.body.classList.remove("light-mode");
+                        this.innerHTML = "<i class='bxr bx-moon' style='margin-right:6px; font-size: smaller;'></i>To Light Mode";
+
+                        applyChartTheme(true); // 🔥 update chart for dark mode
+                    } else {
+                        document.body.classList.add("light-mode");
+                        document.body.classList.remove("dark-mode");
+                        this.innerHTML = "<i class='bxr bx-sun' style='margin-right:6px; font-size: smaller;'></i>To Dark Mode";
+
+                        applyChartTheme(false); // 🔥 update chart for light mode
+                    }
+                });
+            });
+
+            // Function to re-theme ApexCharts dynamically
+            function applyChartTheme(isDark) {
+                if (typeof chart !== "undefined" && chart) {
+                    const newOptions = {
+                        chart: {
+                            background: isDark ? "#101010" : "white"
+                        },
+                        legend: {
+                            labels: {
+                                colors: isDark ? "#d8d8d8" : "#000"
+                            }
+                        },
+                        xaxis: {
+                            labels: { style: { colors: isDark ? "#d8d8d8" : "#000" } },
+                            axisBorder: { color: isDark ? "#646464" : "#1a1a1a" },
+                            axisTicks: { color: isDark ? "#646464" : "#1a1a1a" }
+                        },
+                        yaxis: {
+                            labels: { style: { colors: isDark ? "#d8d8d8" : "#000" } }
+                        },
+                        grid: {
+                            borderColor: isDark ? "#646464" : "#1a1a1a"
+                        },
+                        tooltip: {
+                            theme: isDark ? "dark" : "light"
+                        }
+                    };
+
+                    chart.updateOptions(newOptions, true, true);
+                }
+            }
+        </script>
     </div>
 
     <!-- Sidebar -->
@@ -97,8 +180,8 @@ session_start();
             </div>
         </div>
         <div id="sidebar-footer" class="sidebar-footer">
-            <span style="font-size: 0.75rem; color: #646464">Logged in as:</span>
-            <span>User123</span>
+            <span class="loggedin_as">Logged in as:</span>
+            <span class="username">User123</span>
         </div>
     </div>
 
@@ -539,7 +622,7 @@ session_start();
                             white: rootStyles.getPropertyValue('--white').trim() || '#d8d8d8',
                             gray: rootStyles.getPropertyValue('--gray').trim() || '#1a1a1a',
                             lightGray: rootStyles.getPropertyValue('--light-gray').trim() || '#646464',
-                            black: rootStyles.getPropertyValue('--black').trim() || '#101010'
+                            black: rootStyles.getPropertyValue('--black').trim() || 'rgb(16, 16, 16)'
                         };
 
                         // Chart instance
@@ -613,19 +696,10 @@ session_start();
                             });
 
                             const noDataMessage = document.getElementById('no-data-message');
-
                             if (chartData.length === 0) {
-                                if (chart) {
-                                    chart.updateSeries([
-                                        { name: 'Average', data: [] },
-                                        { name: 'Minimum', data: [] },
-                                        { name: 'Maximum', data: [] }
-                                    ]);
-                                }
                                 noDataMessage.textContent = "No data for this month.";
-                                return;
                             } else {
-                                noDataMessage.textContent = ""; // Clear the message when data exists
+                                noDataMessage.textContent = "";
                             }
 
                             const options = {
@@ -637,48 +711,48 @@ session_start();
                                 chart: {
                                     type: 'bar',
                                     height: 350,
-                                    background: palette.black,
+                                    background: "<?php echo $chartBg; ?>",
                                     toolbar: { show: false }
                                 },
                                 plotOptions: {
-                                bar: {
-                                    columnWidth: '55%',
-                                    borderRadius: 2,
-                                    borderRadiusApplication: 'end', // Apply only to top
-                                    dataLabels: { position: 'top' }
-                                }
+                                    bar: {
+                                        columnWidth: '55%',
+                                        borderRadius: 2,
+                                        borderRadiusApplication: 'end',
+                                        dataLabels: { position: 'top' }
+                                    }
                                 },
                                 colors: ['#417630', '#f59c2f', '#adadad'],
                                 dataLabels: { enabled: false },
                                 legend: {
-                                position: 'bottom',
-                                labels: { colors: [palette.white] }
+                                    position: 'bottom',
+                                    labels: { colors: ["<?php echo $chartText; ?>"] }
                                 },
                                 xaxis: {
                                     type: 'category',
                                     categories: categories,
                                     labels: {
                                         style: {
-                                            colors: palette.white,
+                                            colors: "<?php echo $chartText; ?>",
                                             fontFamily: 'Montserrat, sans-serif'
                                         }
                                     },
-                                    axisBorder: { color: palette.lightGray },
-                                    axisTicks: { color: palette.lightGray }
+                                    axisBorder: { color: "<?php echo $chartGrid; ?>" },
+                                    axisTicks: { color: "<?php echo $chartGrid; ?>" }
                                 },
                                 yaxis: {
                                     labels: {
                                         style: {
-                                            colors: palette.white,
+                                            colors: "<?php echo $chartText; ?>",
                                             fontFamily: 'Montserrat, sans-serif'
                                         }
                                     }
                                 },
                                 tooltip: {
-                                    theme: 'dark'
+                                    theme: "<?php echo $tooltipTheme; ?>"
                                 },
                                 grid: {
-                                    borderColor: palette.lightGray,
+                                    borderColor: "<?php echo $chartGrid; ?>",
                                     strokeDashArray: 4
                                 }
                             };
@@ -703,19 +777,6 @@ session_start();
                             updateChart(activeMachine);
                         });
                     </script>
-                    <style>
-                        /* ApexCharts custom tooltip and legend color overrides */
-                        .apexcharts-tooltip {
-                            background: var(--gray) !important;
-                            color: var(--white) !important;
-                            border: 1px solid var(--green) !important;
-                            font-family: var(--font-main), sans-serif !important;
-                        }
-                        .apexcharts-legend-text {
-                            color: var(--white) !important;
-                            font-family: var(--font-main), sans-serif !important;
-                        }
-                    </style>
                 </div>
             </div>
         </div>

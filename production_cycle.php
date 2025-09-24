@@ -1,8 +1,39 @@
 <?php
-date_default_timezone_set('Asia/Manila');
+date_default_timezone_set('Asia/Manila'); // or your correct timezone
 
-// Include DB config
 require_once __DIR__ . '/fetch/db_config.php';
+
+session_start();
+ob_start();
+
+// Always define $isAjax
+$isAjax = (isset($_GET['ajax']) && $_GET['ajax'] === '1') ? true : false;
+
+// Default to dark mode (1) if not set yet
+if (!isset($_SESSION['theme'])) {
+    $_SESSION['theme'] = 1;
+}
+$theme = $_SESSION['theme']; // 1 = dark, 0 = light
+
+$tempChartBg = ($theme == 1) ? "#222" : "#cccccc";
+$NAtableBg = ($theme == 1) ? "#272727" : "white";
+$NAtableText = ($theme == 1) ? "#aaa" : "black";
+
+if ($theme == 1) { // dark mode
+    $chartBg    = "rgb(16,16,16)";
+    $gridColor  = "#272727";
+    $labelColor = "#d8d8d8";
+    $titleColor = "#d8d8d8";
+    $tooltipBg  = "rgb(16,16,16)";
+    $tooltipText= "rgb(216,216,216)";
+} else { // light mode
+    $chartBg    = "#fff";
+    $gridColor  = "#ccc";
+    $labelColor = "#333";
+    $titleColor = "#000";
+    $tooltipBg  = "#fff";
+    $tooltipText= "#000";
+}
 
 // Get $machine from URL (GET parameter)
 $machine = isset($_GET['machine']) ? $_GET['machine'] : null;
@@ -28,26 +59,56 @@ $durationText = 'Loading...';
     <link rel="stylesheet" href="css/table.css">
     
 </head>
-<body>
+<body class="<?php echo ($theme == 1) ? 'dark-mode' : 'light-mode'; ?>">
     <script src="script/navbar-sidebar.js"></script>
 
     <!-- Navbar -->
     <div class="navbar">
         <!-- Sidebar Toggle (Logo) -->
         <div id="sidebarToggle">
-            <i class="fa fa-bars" style="color: #417630; font-size: 2rem; cursor: pointer;"></i> 
+            <i class="fa fa-bars"></i> 
             <a href="#"><img src="images/logo-1.png" style="height: 36px"></a>
         </div>
         
 
-        <!-- Right Icon with Logout Dropdown -->
+        <!-- Right Icon with Dropdown -->
         <div class="navbar-right" style="position: relative;">
-            <i class="fa fa-user-circle" style="font-size: 2rem; color:#417630; cursor:pointer;" id="userIcon"></i>
+            <i class="fa fa-user-circle" id="userIcon"></i>
             <div id="userDropdown">
-                <a href="#">Settings</a>
-                <a href="#">Logout</a>
+                <a href="#"><i class='bxr  bx-cog'
+                style="margin-right: 6px; vertical-align: middle; font-size: smaller;"></i> Settings</a>
+
+                <a href="#" id="darkModeToggle">
+                    <i class="bxr <?php echo ($theme == 1) ? 'bx-moon' : 'bx-sun'; ?>" 
+                    style="margin-right: 6px; vertical-align: middle; font-size: smaller;"></i>
+                    <?php echo ($theme == 1) ? 'To Light Mode' : 'To Dark Mode'; ?>
+                </a>
+
+                <a href="#"><i class='bxr  bx-arrow-out-left-square-half'
+                style="margin-right: 6px; vertical-align: middle; font-size: smaller;"></i> Logout</a>
             </div>
         </div>
+
+        <script>
+            document.getElementById("darkModeToggle").addEventListener("click", function(e) {
+                e.preventDefault();
+
+                fetch("fetch/toggle_theme.php")
+                .then(res => res.json())
+                .then(data => {
+                    if (data.theme == 1) {
+                        document.body.classList.add("dark-mode");
+                        document.body.classList.remove("light-mode");
+                        this.innerHTML = "<i class='bxr bx-moon' style='margin-right:6px; font-size: smaller;'></i>To Light Mode";
+                    } else {
+                        document.body.classList.add("light-mode");
+                        document.body.classList.remove("dark-mode");
+                        this.innerHTML = "<i class='bxr bx-sun' style='margin-right:6px; font-size: smaller;'></i>To Dark Mode";
+                    }
+                    location.reload();
+                });
+            });
+        </script>
     </div>
 
     <!-- Sidebar -->
@@ -90,8 +151,8 @@ $durationText = 'Loading...';
             </div>
         </div>
         <div id="sidebar-footer" class="sidebar-footer">
-            <span style="font-size: 0.75rem; color: #646464">Logged in as:</span>
-            <span>User123</span>
+            <span class="loggedin_as">Logged in as:</span>
+            <span class="username">User123</span>
         </div>
     </div>
 
@@ -130,7 +191,7 @@ $durationText = 'Loading...';
                     }
                     ?>
                     <tr class="no-results" style="display: none;">
-                        <td colspan="4" style="text-align: center; color: #aaa;">No molds found</td>
+                        <td colspan="4" style="background: <?php echo $NAtableBg; ?>; text-align: center; color: <?php echo $NAtableText; ?>;">No molds found</td>
                     </tr>
                 </tbody>
             </table>
@@ -200,7 +261,7 @@ $durationText = 'Loading...';
             </div>
             <div class="header-right">
                 <h2><?php echo htmlspecialchars($machine ? $machine : 'No Machine Selected'); ?></h2>
-                <span id="machine-status-duration" style="color: #adadad; text-align: right;">
+                <span id="machine-status-duration" style="text-align: right;">
                     <?php echo $durationText; ?>
                 </span>
             </div>
@@ -352,7 +413,7 @@ $durationText = 'Loading...';
                             data: {
                                 datasets: [{
                                     data: [value, maxValue - value],
-                                    backgroundColor: [color, '#222'],
+                                    backgroundColor: [color, "<?php echo $tempChartBg; ?>"],
                                     borderWidth: 0
                                 }]
                             },
@@ -521,7 +582,7 @@ $durationText = 'Loading...';
             </script>
         </div>
 
-        <!-- Time and Temperature -->
+        <!-- Time and Temperature
         <div class="section">
             <div class="content-header">
                 <h2 style="margin: 0;">
@@ -601,9 +662,9 @@ $durationText = 'Loading...';
                                 data: {
                                     labels: labels,
                                     datasets: [
-                                        { label: 'Cycle Time', type: 'bar', data: cycleTime, backgroundColor: 'rgba(65,118,48,0.7)', borderRadius: 6, yAxisID: 'y', order: 0 },
-                                        { label: 'Motor 1 Temp', type: 'line', data: motor1, borderColor: 'rgb(174,21,21)', backgroundColor: 'rgba(174,21,21,0.2)', borderWidth: 2, tension: 0.4, pointRadius: 2, pointHoverRadius: 4, pointBackgroundColor: 'rgb(174,21,21)', yAxisID: 'y1', order: 2 },
-                                        { label: 'Motor 2 Temp', type: 'line', data: motor2, borderColor: '#f59c2f', backgroundColor: 'rgba(245,156,47,0.2)', borderWidth: 2, tension: 0.4, pointRadius: 2, pointHoverRadius: 4, pointBackgroundColor: '#f59c2f', yAxisID: 'y1', order: 3 }
+                                        { label: 'Cycle Time', type: 'bar', data: cycleTime, backgroundColor: 'rgba(65,118,48,1)', borderRadius: 6, yAxisID: 'y', order: 2 },
+                                        { label: 'Motor 1 Temp', type: 'line', data: motor1, borderColor: 'rgb(174,21,21)', backgroundColor: 'rgba(174,21,21,0.2)', borderWidth: 2, tension: 0.4, pointRadius: 2, pointHoverRadius: 4, pointBackgroundColor: 'rgb(174,21,21)', yAxisID: 'y1', order: 0 },
+                                        { label: 'Motor 2 Temp', type: 'line', data: motor2, borderColor: '#f59c2f', backgroundColor: 'rgba(245,156,47,0.2)', borderWidth: 2, tension: 0.4, pointRadius: 2, pointHoverRadius: 4, pointBackgroundColor: '#f59c2f', yAxisID: 'y1', order: 1 }
                                     ]
                                 },
                                 options: {
@@ -626,10 +687,10 @@ $durationText = 'Loading...';
                                                     Object.assign(tooltipEl.style, {
                                                         position: 'absolute',
                                                         zIndex: 9999,
-                                                        background: 'rgb(16,16,16)',
+                                                        background: "<?php echo $tooltipBg; ?>",
                                                         border: '1px solid #417630',
                                                         borderRadius: '6px',
-                                                        color: 'rgb(216,216,216)',
+                                                        color: "<?php echo $tooltipText; ?>",
                                                         padding: '6px 10px',
                                                         pointerEvents: 'none',
                                                         transition: 'all .08s ease',
@@ -724,9 +785,24 @@ $durationText = 'Loading...';
                                     },
                                     layout: { padding: { top: 5, bottom: 5, left: 5, right: 5 } },
                                     scales: {
-                                        x: { ticks: { color: '#adadad', font: { size: 11 } }, grid: { color: '#272727' } },
-                                        y: { type: 'linear', position: 'left', ticks: { color: '#adadad', font: { size: 11 } }, title: { display: true, text: 'Cycle Time (sec)', color: '#d8d8d8', font: { size: 12 } }, grid: { color: '#272727' } },
-                                        y1: { type: 'linear', position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#adadad', font: { size: 11 } }, title: { display: true, text: 'Temperature (°C)', color: '#d8d8d8', font: { size: 12 } } }
+                                        x: { 
+                                            ticks: { color: "<?php echo $labelColor; ?>", font: { size: 11 } }, 
+                                            grid: { color: "<?php echo $gridColor; ?>" } 
+                                        },
+                                        y: { 
+                                            type: 'linear', 
+                                            position: 'left',
+                                            ticks: { color: "<?php echo $labelColor; ?>", font: { size: 11 } },
+                                            title: { display: true, text: 'Cycle Time (sec)', color: "<?php echo $titleColor; ?>", font: { size: 12 } },
+                                            grid: { color: "<?php echo $gridColor; ?>" }
+                                        },
+                                        y1: { 
+                                            type: 'linear', 
+                                            position: 'right', 
+                                            grid: { drawOnChartArea: false },
+                                            ticks: { color: "<?php echo $labelColor; ?>", font: { size: 11 } },
+                                            title: { display: true, text: 'Temperature (°C)', color: "<?php echo $titleColor; ?>", font: { size: 12 } }
+                                        }
                                     }
                                 }
                             });
@@ -748,7 +824,7 @@ $durationText = 'Loading...';
                     document.addEventListener("DOMContentLoaded", loadChartData);
                 </script>
             </div>
-        </div>
+        </div> -->
 
         <!-- Production Cycle History -->
         <div class="section">
@@ -820,6 +896,7 @@ $durationText = 'Loading...';
                 </div>
             </div>
 
+            <!-- Time Cards -->
             <div class="time-cards">
                 <?php
                 // Example: Fetch stats from DB (replace with your actual queries)
@@ -890,6 +967,40 @@ $durationText = 'Loading...';
                 <?php endforeach; ?>
             </div>
 
+            <!-- Histogram -->
+            <div class="histogram chart-section">
+                <div class="chart-container" style="min-width: 80%; height: 360px;"> <!-- Adjust width and height here -->
+                    <canvas id="histogramChart"></canvas>
+                </div>
+
+                <div class="chartInfo">
+                    <div class="legends">
+                        <h2>Legends</h2>
+                        <div class="legend-item">
+                            <span class="legend-box cycle-bar"></span>
+                            Cycle time peaks at...
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-line motor1"></span>
+                            Motor Temperature 1 is stable at...
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-line motor2"></span>
+                            Motor Temperature 2 is stable at...
+                        </div>
+                    </div>
+
+                    <div class="remarks">
+                        <h2>Remarks</h2>
+                        <span class="remarks-status">Stable</span>
+                        <p>Maintain current operation parameters</p>
+                        <h2>Recommendations</h2>
+                        <p>None</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
             <div class="table-responsive">
                 <table class="styled-table" id="sensorTable">
                     <thead>
@@ -912,7 +1023,105 @@ $durationText = 'Loading...';
             </div>
 
             <script>
-                // Pass PHP $machine_safe to JS
+                let histogramChart = null;
+
+                function fetchHistogram() {
+                    const machine = "<?php echo $machine_safe; ?>";
+
+                    fetch(`fetch/fetch_production_cycle_histogram.php?machine=${machine}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log("Histogram data:", data);
+
+                            const ctx = document.getElementById('histogramChart').getContext('2d');
+                            if (histogramChart) histogramChart.destroy();
+
+                            histogramChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: data.labels,
+                                    datasets: [
+                                        {
+                                            type: 'line',
+                                            label: 'Motor Temperature 1',
+                                            data: data.temp1Data,
+                                            borderColor: '#f59c2f',
+                                            backgroundColor: '#f59c2f',
+                                            borderWidth: 2,
+                                            fill: false,
+                                            tension: 0.3,
+                                            yAxisID: 'y1',
+                                            spanGaps: true  // connect across gaps
+                                        },
+                                        {
+                                            type: 'line',
+                                            label: 'Motor Temperature 2',
+                                            data: data.temp2Data,
+                                            borderColor: 'rgb(174, 21, 21)',
+                                            backgroundColor: 'rgb(174, 21, 21)',
+                                            borderWidth: 2,
+                                            fill: false,
+                                            tension: 0.3,
+                                            yAxisID: 'y1',
+                                            spanGaps: true   // connect across gaps
+                                        },
+                                        {
+                                            type: 'bar',
+                                            label: 'Cycle Time Histogram',
+                                            data: data.cycleTimeData,
+                                            backgroundColor: '#417630',
+                                            borderRadius: { topLeft: 4, topRight: 4 }
+                                        }
+                                    ]
+
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: { display: false }, // show legend now since we have 3 datasets
+                                        tooltip: {
+                                            backgroundColor: "<?php echo $tooltipBg; ?>",
+                                            titleColor: "<?php echo $titleColor; ?>",
+                                            bodyColor: "<?php echo $tooltipText; ?>"
+                                        }
+                                    },
+                                    scales: {
+                                        x: {
+                                            ticks: { color: "<?php echo $labelColor; ?>" },
+                                            grid: { color: "<?php echo $gridColor; ?>" }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: { color: "<?php echo $labelColor; ?>" },
+                                            grid: { color: "<?php echo $gridColor; ?>" },
+                                            title: {
+                                                display: true,
+                                                text: "Cycle Time",
+                                                color: "<?php echo $titleColor; ?>"
+                                            }
+                                        },
+                                        y1: {
+                                            position: 'right',
+                                            beginAtZero: true,
+                                            ticks: { color: "<?php echo $labelColor; ?>" },
+                                            grid: { drawOnChartArea: false, color: "<?php echo $gridColor; ?>" },
+                                            title: {
+                                                display: true,
+                                                text: "Temperature (°C)",
+                                                color: "<?php echo $titleColor; ?>"
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        })
+                        .catch(err => console.error("Histogram fetch failed:", err));
+                }
+
+                // Initial load
+                document.addEventListener("DOMContentLoaded", fetchHistogram);
+
                 const machineSafe = "<?php echo $machine_safe; ?>";
 
                 function fetchTableData() {
@@ -1028,7 +1237,6 @@ $durationText = 'Loading...';
                     return str.charAt(0).toUpperCase() + str.slice(1);
                 }
 
-
                 function updateTooltips(product, standardCycle = 120) {
                     const cards = ['standard', 'average', 'minimum', 'maximum'];
 
@@ -1118,6 +1326,8 @@ $durationText = 'Loading...';
                             card.querySelectorAll('.bar')[i].innerText = '0';
                         });
                     }
+                    
+                    fetchHistogram();
                 }
 
                 // Initial load

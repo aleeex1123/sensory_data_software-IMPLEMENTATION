@@ -11,6 +11,18 @@
     --orange: #f59c2f;
     --red: rgb(174, 21, 21);
     --font-main: 'Montserrat', sans-serif;
+
+    /* Light theme palette */
+    --pure-white:(#ffffff);
+    --light-bg: rgb(240, 240, 240);
+    --light-bg-alt: #f9f9f9;
+    --light-bg-alt2: #f0f0f0;
+    --light-bg-hover: #fafafa;
+    --light-text: #000000;
+    --light-text-muted: #666666;
+    --light-text-alt: #555555;
+    --light-border: #cccccc;
+    --light-scrollbar-bg: #e6e6e6;
 }
 
 /* Production Status */
@@ -74,7 +86,7 @@
     position: relative;
 }
 
-h2 {
+.card h2 {
     color: var(--white);
     margin: 0;
     font-size: 1rem;
@@ -194,6 +206,8 @@ button:disabled {
     align-items: center;
     width: 100%;
     gap: 18px;
+    margin-bottom: 18px;
+    justify-content: space-around;
 }
 
 .chart-fullwidth {
@@ -238,7 +252,7 @@ button:disabled {
 }
 
 .cycle-bar {
-    background-color: rgba(65, 118, 48, 0.7); /* same as bar color */
+    background-color: rgba(65, 118, 48, 1); /* same as bar color */
 }
 
 .legend-line {
@@ -293,6 +307,7 @@ button:disabled {
 
     .chart-info {
         flex-direction: row;
+        width: -webkit-fill-available;
     }
 }
 
@@ -319,6 +334,13 @@ button:disabled {
     width: inherit;
     text-align: left;
     position: relative;
+}
+
+.time-card h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: bold;
 }
 
 .time-card h3 {
@@ -413,4 +435,78 @@ button:disabled {
     transform: translateY(0);
     display: block;
     opacity: 1;
+}
+
+/* ================================ LIGHT MODE OVERRIDES ================================ */
+body.light-mode .card,
+body.light-mode .time-card {
+  background-color: var(--light-bg);
+  color: var(--black);
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+}
+
+body.light-mode .header h2 {
+    color: var(--gray);
+}
+body.light-mode .header span {
+    color: var(--light-gray);
+}
+
+body.light-mode .card h2 {
+    color: var(--black);
+}
+
+body.light-mode .time-card h3 {
+  color: var(--black);
+}
+
+body.light-mode .current-product-label {
+  color: var(--light-gray);
+}
+
+body.light-mode .current-product-value {
+  color: var(--black);
+}
+
+body.light-mode button:disabled {
+    background-color: white; /* white background */
+
+}
+
+/* Bars and charts */
+body.light-mode .bar-container {
+  background: white;
+}
+body.light-mode .bar {
+  color: var(--black);
+}
+body.light-mode .chartInfo {
+  color: var(--black);
+}
+body.light-mode .remarks p {
+  color: var(--black);
+}
+body.light-mode .remarks span {
+  color: var(--green); /* stays green */
+}
+
+/* Tooltips */
+body.light-mode .spanTooltip,
+body.light-mode .tooltip,
+body.light-mode .bar-tooltip {
+  background-color: white;
+  color: var(--black);
+  border: solid 1.5px var(--green);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Info icon */
+body.light-mode .info-icon {
+  color: var(--black);
+}
+
+/* Legends */
+body.light-mode .legend,
+body.light-mode .legends {
+  color: var(--black);
 }
