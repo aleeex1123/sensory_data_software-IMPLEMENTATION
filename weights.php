@@ -14,6 +14,22 @@ if (!isset($_SESSION['theme'])) {
     $_SESSION['theme'] = 1;
 }
 $theme = $_SESSION['theme']; // 1 = dark, 0 = light
+
+if ($theme == 1) { // dark mode
+    $chartBg    = "rgb(16,16,16)";
+    $gridColor  = "#272727";
+    $labelColor = "#d8d8d8";
+    $titleColor = "#d8d8d8";
+    $tooltipBg  = "rgb(16,16,16)";
+    $tooltipText= "rgb(216,216,216)";
+} else { // light mode
+    $chartBg    = "#fff";
+    $gridColor  = "#ccc";
+    $labelColor = "#333";
+    $titleColor = "#000";
+    $tooltipBg  = "#fff";
+    $tooltipText= "#000";
+}
 ?>
 
 <!DOCTYPE html>
@@ -33,6 +49,7 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
     <link rel="stylesheet" href="css/webpage_defaults.css">
     <link rel="stylesheet" href="css/weights.css">
     <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="css/histogram.css">
 </head>
 <body class="<?php echo ($theme == 1) ? 'dark-mode' : 'light-mode'; ?>">
     <script src="script/navbar-sidebar.js"></script>
@@ -287,72 +304,248 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
                         </select>
                     </div>
                 </div>
+            </div>
+
+            <!-- Histogram -->
+            <div class="chart-section">
+                <div class="scroll-wrapper">
+                    <div class="chart-container histogram" style="min-width: 80%; height: 360px;"> <!-- Adjust width and height here -->
+                        <canvas id="histogramChart"></canvas>
+                    </div>
+                    <style>
+                        @media screen and (max-width: 720px) { .histogram {width: 200%; height: 360px;} }
+                    </style>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="styled-table" id="sensorTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Machine</th>
-                                <th>Product</th>
-                                <th>Mold Number</th>
-                                <th>Gross Weight (g)</th>
-                                <th>Net Weight (g)</th>
-                                <th>Difference (g)</th>
-                                <th>Timestamp</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body">
-                            <!-- Table rows will be loaded here via AJAX -->
-                        </tbody>
-                    </table>
+                <div class="chartInfo">
+                    <div class="histogram-legends">
+                        <h2>Legends</h2>
+                        <div class="legend-item">
+                            <span class="legend-box gross"></span>
+                            Loading Gross Weight...
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-box net"></span>
+                            Loading Net Weight...
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-line diff"></span>
+                            Loading Difference...
+                        </div>
+                    </div>
+
+                    <div class="histogram-remarks">
+                        <h2>Remarks</h2>
+                        <span class="remarks-status">Loading...</span>
+                        <p>---</p>
+                        <h2>Recommendations</h2>
+                        <p>None</p>
+                    </div>
                 </div>
+            </div>
+            
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="styled-table" id="sensorTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Machine</th>
+                            <th>Product</th>
+                            <th>Mold Number</th>
+                            <th>Gross Weight (g)</th>
+                            <th>Net Weight (g)</th>
+                            <th>Difference (g)</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Table rows will be loaded here via AJAX -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                let weightChart = null;
+                            
+                function fetchWeightHistogram() {
+                    const filterMonth = document.getElementById('filter-month').value;
+                    const product = document.getElementById('show-product').value;
 
-                <script>
-                    function loadProductOptions() {
-                        const xhr = new XMLHttpRequest();
-                        xhr.open('GET', 'fetch/fetch_weights_products.php', true);
-                        xhr.onload = function() {
-                            if (xhr.status === 200) {
-                                document.getElementById('show-product').innerHTML = xhr.responseText;
+                    fetch(`fetch/fetch_weights_histogram.php?month=${filterMonth}&product=${encodeURIComponent(product)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log("Weight Histogram data:", data);
+
+                            const grossFreq = data.grossFreq || [];
+                            const netFreq = data.netFreq || [];
+                            const diffFreq = data.diffFreq || [];
+                            const labels = data.labels || [];
+
+                            const noData = (
+                                !labels.length ||
+                                (grossFreq.every(v => v === 0) &&
+                                netFreq.every(v => v === 0) &&
+                                diffFreq.every(v => v === 0))
+                            );
+
+                            // Update remarks
+                            const remarksStatus = document.querySelector(".histogram-remarks .remarks-status");
+                            const remarksText = document.querySelector(".histogram-remarks p");
+                            if (noData) {
+                                remarksStatus.innerText = "No Data Found";
+                                remarksStatus.style.color = "rgb(153, 153, 153)";
+                                remarksText.innerText = "No weight records found.";
+                            } else {
+                                remarksStatus.innerText = "Stable";
+                                remarksStatus.style.color = "#417630";
+                                remarksText.innerText = "Weights are within expected range.";
                             }
-                        };
-                        xhr.send();
-                    }
 
-                    function fetchTableData() {
-                        const showEntries = document.getElementById('show-entries').value;
-                        const filterMonth = document.getElementById('filter-month').value;
-                        const product = document.getElementById('show-product').value;
+                            // Update legends
+                            document.querySelector(".legend-item .gross").nextSibling.textContent =
+                                (grossFreq.every(v => v === 0)) ? "No gross weight data" : "Gross weight distribution...";
+                            document.querySelector(".legend-item .net").nextSibling.textContent =
+                                (netFreq.every(v => v === 0)) ? "No net weight data" : "Net weight distribution...";
+                            document.querySelector(".legend-item .diff").nextSibling.textContent =
+                                (diffFreq.every(v => v === 0)) ? "No difference data" : "Gross-Net difference trend...";
 
-                        const xhr = new XMLHttpRequest();
-                        xhr.open('GET', `fetch/fetch_weights_table.php?show=${showEntries}&month=${filterMonth}&product=${encodeURIComponent(product)}`, true);
-                        xhr.onload = function() {
-                            if (xhr.status === 200) {
-                                document.getElementById('table-body').innerHTML = xhr.responseText;
-                            }
-                        };
-                        xhr.send();
-                    }
+                            // Render chart
+                            const ctx = document.getElementById('histogramChart').getContext('2d');
+                            if (weightChart) weightChart.destroy();
 
-                    // Update table when controls change
-                    document.getElementById('show-product').addEventListener('change', fetchTableData);
-                    document.getElementById('show-entries').addEventListener('change', fetchTableData);
-                    document.getElementById('filter-month').addEventListener('change', fetchTableData);
+                            weightChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [
+                                        {
+                                            label: 'Gross Weight',
+                                            data: grossFreq,
+                                            backgroundColor: 'rgb(42, 101, 111)',
+                                            borderWidth: 1,
+                                            borderRadius: 4,
+                                            yAxisID: 'y',
+                                            order: 2
+                                        },
+                                        {
+                                            label: 'Net Weight',
+                                            data: netFreq,
+                                            backgroundColor: 'rgb(174, 21, 21)',
+                                            borderWidth: 1,
+                                            borderRadius: 4,
+                                            yAxisID: 'y',
+                                            order: 2
+                                        },
+                                        {
+                                            label: 'Difference',
+                                            data: diffFreq,
+                                            type: 'line',
+                                            borderColor: "<?php echo $labelColor; ?>",
+                                            backgroundColor: "<?php echo $labelColor; ?>",
+                                            borderWidth: 3,
+                                            pointRadius: 4,
+                                            pointHoverRadius: 6,
+                                            fill: false,
+                                            tension: 0.3,
+                                            spanGaps: true,
+                                            yAxisID: 'y',
+                                            order: 1
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    interaction: { mode: 'index', intersect: false },
+                                    plugins: {
+                                        legend: { display: false },
+                                        tooltip: {
+                                            backgroundColor: "<?php echo $tooltipBg; ?>",
+                                            titleColor: "<?php echo $tooltipText; ?>",
+                                            bodyColor: "<?php echo $tooltipText; ?>",
+                                            callbacks: {
+                                                title: (ctx) => `Weight bin: ${labels[ctx[0].dataIndex]} kg`,
+                                                label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}`
+                                            }
+                                        }
+                                    },
+                                    scales: {
+                                        x: {
+                                            ticks: { color: "<?php echo $labelColor; ?>" },
+                                            grid: { color: "<?php echo $gridColor; ?>" },
+                                            title: { display: true, text: 'Weight (kg)', color: "<?php echo $titleColor; ?>" }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: { color: "<?php echo $labelColor; ?>" },
+                                            grid: { color: "<?php echo $gridColor; ?>" },
+                                            title: { display: true, text: 'Frequency', color: "<?php echo $titleColor; ?>" }
+                                        }
+                                    }
+                                }
+                            });
+                        })
+                        .catch(err => console.error("Weight Histogram fetch failed:", err));
+                }
 
-                    // On page load
-                    document.addEventListener("DOMContentLoaded", function () {
-                        loadProductOptions();
-                        let currentMonth = new Date().getMonth() + 1;
-                        document.getElementById("filter-month").value = currentMonth;
+                // Product options
+                function loadProductOptions() {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', 'fetch/fetch_weights_products.php', true);
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            document.getElementById('show-product').innerHTML = xhr.responseText;
+                        }
+                    };
+                    xhr.send();
+                }
+
+                // Table data
+                function fetchTableData() {
+                    const showEntries = document.getElementById('show-entries').value;
+                    const filterMonth = document.getElementById('filter-month').value;
+                    const product     = document.getElementById('show-product').value;
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', `fetch/fetch_weights_table.php?show=${showEntries}&month=${filterMonth}&product=${encodeURIComponent(product)}`, true);
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            document.getElementById('table-body').innerHTML = xhr.responseText;
+                        }
+                    };
+                    xhr.send();
+                }
+
+                // Init
+                document.addEventListener("DOMContentLoaded", () => {
+                    let currentMonth = new Date().getMonth() + 1;
+                    document.getElementById("filter-month").value = currentMonth;
+
+                    fetchTableData();
+                    fetchWeightHistogram();
+                    loadProductOptions();
+
+                    // Filters
+                    document.getElementById('filter-month').addEventListener('change', () => {
+                        fetchWeightHistogram();
                         fetchTableData();
                     });
+                    document.getElementById('show-product').addEventListener('change', () => {
+                        fetchWeightHistogram();
+                        fetchTableData();
+                    });
+                    document.getElementById('show-entries').addEventListener('change', fetchTableData);
 
-                    // Refresh button click
-                    document.getElementById('refreshWeightData').addEventListener('click', fetchTableData);
-                </script>
-            
+                    // Refresh button
+                    document.getElementById('refreshWeightData').addEventListener('click', () => {
+                        fetchWeightHistogram();
+                        fetchTableData();
+                    });
+                });
+            </script>
+
             <div class="table-download">
                 <a href="#" class="btn-download">Download PDF</a>
                 <a href="#" class="btn-download">Download Excel</a>

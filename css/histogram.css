@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+:root {
+    --black: rgb(16, 16, 16);
+    --gray: #272727;
+    --light-gray: #646464;
+    --white: rgb(216, 216, 216);
+    --off-white: #adadad;
+    --green: #417630;
+    --dark-green: rgb(35, 68, 30);
+    --orange: #f59c2f;
+    --blue: rgb(42, 101, 111);
+    --red: rgb(174, 21, 21);
+    --font-main: 'Montserrat', sans-serif;
+
+    /* Light theme palette */
+    --pure-white:(#ffffff);
+    --light-bg: rgb(240, 240, 240);
+    --light-bg-alt: #f9f9f9;
+    --light-bg-alt2: #f0f0f0;
+    --light-bg-hover: #fafafa;
+    --light-text: #000000;
+    --light-text-muted: #666666;
+    --light-text-alt: #555555;
+    --light-border: #cccccc;
+    --light-scrollbar-bg: #e6e6e6;
+}
+
+.scroll-wrapper {
+    overflow-y: hidden;
+    overflow-x: auto;
+    width: 80%;
+    scrollbar-width: thin;
+    scrollbar-color: var(--dark-green) var(--black);
+}
+
+.chart-section {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    gap: 18px;
+    margin-bottom: 18px;
+    justify-content: space-around;
+}
+
+.chart-fullwidth {
+    width: 80%;
+    max-width: 80%;
+    height: 300px; /* smaller height */
+}
+
+#cycleTempChart {
+    height: 100% !important;
+    max-height: 300px; /* make sure it doesn’t grow too tall */
+}
+
+.chartInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    font-family: Montserrat, sans-serif;
+    font-size: 1rem;
+    color: #adadad;
+    gap: 18px;
+    text-align: left;
+}
+
+.histogram-legends {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-top: 12px;
+    gap: 6px;
+}
+
+.legend-box {
+    width: 22px;
+    height: 14px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.cycle-bar {
+    background-color: var(--green); /* same as bar color */
+}
+
+.gross {
+    background-color: var(--blue); /* same as bar color */
+}
+
+.net {
+    background-color: var(--red); /* same as bar color */
+}
+
+.legend-line {
+    width: 22px;
+    height: 3px;
+    display: inline-block;
+    border-radius: 2px;
+}
+
+.motor1 {
+    background-color: var(--orange);
+}
+
+.motor2 {
+    background-color: var(--red);
+}
+
+.diff {
+    background-color: var(--off-white);
+}
+
+.histogram-remarks {
+    text-align: left;
+    font-family: inherit;
+}
+
+.chartInfo h2 {
+    font-weight: unset;
+    margin: 0;
+    font-size: 1rem;
+    color: var(--light-gray);
+}
+
+.histogram-remarks span {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--green);
+}
+
+.histogram-remarks p {
+    margin: 12px 0;
+    color: var(--white)
+}
+
+@media screen and (max-width: 720px) {
+    .scroll-wrapper {
+        width: 100%;
+    }
+
+    .chart-fullwidth {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .chart-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chartInfo {
+        width: 100%;;
+    }
+
+    .chart-container .histogram {
+        min-width: 150%;
+        width: 200%;
+    }
+}
+
+/* ================================ LIGHT MODE OVERRIDES ================================ */
+body.light-mode .histogram-remarks p {
+  color: var(--black);
+}
+body.light-mode .legend,
+body.light-mode .histogram-legends {
+  color: var(--black);
+}

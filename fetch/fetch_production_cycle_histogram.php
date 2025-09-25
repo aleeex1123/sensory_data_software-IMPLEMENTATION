@@ -6,7 +6,8 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/db_config.php';
 
 $machine = $_GET['machine'] ?? '';
-$month = isset($_GET['month']) ? intval($_GET['month']) : 0;
+$month   = isset($_GET['month']) ? (int)$_GET['month'] : 0;
+$product = $_GET['product'] ?? '';
 
 if (!$machine) {
     http_response_code(400);
@@ -16,9 +17,18 @@ if (!$machine) {
 
 $table = "production_cycle_" . $conn->real_escape_string($machine);
 
-$sql = "SELECT cycle_time, tempC_01, tempC_02, timestamp FROM $table";
+// Build query
+$sql = "SELECT cycle_time, tempC_01, tempC_02, timestamp, product FROM $table WHERE 1=1";
+
 if ($month > 0) {
-    $sql .= " WHERE MONTH(timestamp) = $month";
+    $sql .= " AND MONTH(`timestamp`) = $month";
+}
+
+if (!empty($product) && $product !== "all") {
+    $safeProduct = $conn->real_escape_string($product);
+
+    // Allow exact match OR starts with product name regardless of spacing before/after "|"
+    $sql .= " AND (product = '$safeProduct' OR product LIKE '{$safeProduct}%' )";
 }
 
 $result = $conn->query($sql);

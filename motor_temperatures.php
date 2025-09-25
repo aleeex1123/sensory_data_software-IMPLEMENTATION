@@ -14,6 +14,22 @@ if (!isset($_SESSION['theme'])) {
     $_SESSION['theme'] = 1;
 }
 $theme = $_SESSION['theme']; // 1 = dark, 0 = light
+
+if ($theme == 1) { // dark mode
+    $chartBg    = "rgb(16,16,16)";
+    $gridColor  = "#272727";
+    $labelColor = "#d8d8d8";
+    $titleColor = "#d8d8d8";
+    $tooltipBg  = "rgb(16,16,16)";
+    $tooltipText= "rgb(216,216,216)";
+} else { // light mode
+    $chartBg    = "#fff";
+    $gridColor  = "#ccc";
+    $labelColor = "#333";
+    $titleColor = "#000";
+    $tooltipBg  = "#fff";
+    $tooltipText= "#000";
+}
 ?>
 
 <!DOCTYPE html>
@@ -33,6 +49,7 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
     <link rel="stylesheet" href="css/webpage_defaults.css">
     <link rel="stylesheet" href="css/motor_temperatures.css">
     <link rel="stylesheet" href="css/table.css">
+    <link rel="stylesheet" href="css/histogram.css">
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -188,7 +205,7 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
                 <div class="card-column"> 
                     <div class="card temperature1-card">
                         <h2 id="temp01-value">--°C</h2>
-                        <p>Motor 01</p>
+                        <p>Motor 1</p>
                         <div class="chart-container">
                             <!-- You can set width/height here via attributes or CSS -->
                             <canvas id="chartTemp01"></canvas>
@@ -198,7 +215,7 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
                     <div class="remarks">
                         <h2>Remarks</h2>
                         <span>Loading...</span>
-                        <p>Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.</p>
+                        <p>Motor Temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.</p>
                         <h2>Recommendations</h2>
                         <p>None</p>
                     </div>
@@ -207,7 +224,7 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
                 <div class="card-column">
                     <div class="card temperature2-card">
                         <h2 id="temp02-value">--°C</h2>
-                        <p>Motor 02</p>
+                        <p>Motor 2</p>
                         <div class="chart-container">
                             <canvas id="chartTemp02"></canvas>
                         </div>
@@ -216,7 +233,7 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
                     <div class="remarks">
                         <h2>Remarks</h2>
                         <span>Loading...</span>
-                        <p>Motor temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.</p>
+                        <p>Motor Temperatures are monitored in real-time to ensure optimal performance and prevent overheating. The data is updated every 5 seconds.</p>
                         <h2>Recommendations</h2>
                         <p>None</p>
                     </div>
@@ -271,7 +288,7 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
                             document.querySelectorAll(".remarks").forEach(remarks => {
                                 remarks.querySelector("span").innerText = "No data found";
                                 remarks.querySelector("span").style.color = "#999";
-                                remarks.querySelector("p").innerText = "No motor temperature data available for the selected machine.";
+                                remarks.querySelector("p").innerText = "No Motor Temperature data available for the selected machine.";
                                 remarks.querySelector("h2 + p").innerText = "Please check if the machine is active.";
                             });
                         }
@@ -302,80 +319,80 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
                 if (currentTemp > 90) {
                     status.innerText = "Overheat";
                     status.style.color = "#dc3545"; // red
-                    msg.innerText = `Motor 0${motorIndex + 1} temperature is too high: ${currentTemp}°C.`;
+                    msg.innerText = `Motor Temperature ${motorIndex + 1}  is too high: ${currentTemp}°C.`;
                     recommendation.innerText = "Check cooling system and machine load.";
                 } else if (currentTemp < 40) {
                     status.innerText = "Abnormally Low";
                     status.style.color = "#17a2b8"; // blue
-                    msg.innerText = `Motor 0${motorIndex + 1} temperature is unusually low: ${currentTemp}°C.`;
+                    msg.innerText = `Motor Temperature ${motorIndex + 1}  is unusually low: ${currentTemp}°C.`;
                     recommendation.innerText = "Verify if machine is running or sensor is connected.";
                 } else {
                     status.innerText = "Normal";
                     status.style.color = "";
-                    msg.innerText = "Motor temperature is within optimal range.";
+                    msg.innerText = "Motor Temperature is within optimal range.";
                     recommendation.innerText = "None";
                 }
                 }
 
-    const isDarkTheme = <?php echo ($theme == 1 ? 'true' : 'false'); ?>;
+                const isDarkTheme = <?php echo ($theme == 1 ? 'true' : 'false'); ?>;
 
-    function createChart(canvasId, color) {
-        return new Chart(document.getElementById(canvasId), {
-            type: "line",
-            data: {
-                labels: [],  // Set later with timestamps
-                datasets: [{
-                    label: "Temperature (°C)",
-                    data: [],
-                    borderColor: color,
-                    borderWidth: 2,
-                    pointRadius: 3,
-                    fill: false,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        display: true,
-                        title: {
-                            display: true,
-                            text: 'Timestamp',
-                            font: { size: 12, weight: 'bold' },
-                            color: isDarkTheme ? '#bbb' : '#333'
+                function createChart(canvasId, color) {
+                    return new Chart(document.getElementById(canvasId), {
+                        type: "line",
+                        data: {
+                            labels: [],  // Set later with timestamps
+                            datasets: [{
+                                label: "Temperature (°C)",
+                                data: [],
+                                borderColor: color,
+                                borderWidth: 2,
+                                pointRadius: 3,
+                                fill: false,
+                                tension: 0.3
+                            }]
                         },
-                        ticks: { color: isDarkTheme ? '#ccc' : '#000' },
-                        grid: { color: isDarkTheme ? 'rgba(255,255,255,0.1)' : '#ccc' }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Temperature (°C)',
-                            font: { size: 12, weight: 'bold' },
-                            color: isDarkTheme ? '#bbb' : '#333'
-                        },
-                        ticks: { color: isDarkTheme ? '#ccc' : '#000', beginAtZero: true },
-                        grid: { color: isDarkTheme ? 'rgba(255,255,255,0.1)' : '#ccc' }
-                    }
-                },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => `${ctx.parsed.y} °C`
-                        },
-                        backgroundColor: isDarkTheme ? "#101010" : "#fff",
-                        titleColor: isDarkTheme ? "#d8d8d8" : "#000",
-                        bodyColor: isDarkTheme ? "#d8d8d8" : "#000",
-                        borderColor: isDarkTheme ? "#417630" : "#ccc",
-                        borderWidth: 1
-                    }
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                x: {
+                                    display: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Timestamp',
+                                        font: { size: 12, weight: 'bold' },
+                                        color: isDarkTheme ? '#bbb' : '#333'
+                                    },
+                                    ticks: { color: isDarkTheme ? '#ccc' : '#000' },
+                                    grid: { color: isDarkTheme ? 'rgba(255,255,255,0.1)' : '#ccc' }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'Temperature (°C)',
+                                        font: { size: 12, weight: 'bold' },
+                                        color: isDarkTheme ? '#bbb' : '#333'
+                                    },
+                                    ticks: { color: isDarkTheme ? '#ccc' : '#000', beginAtZero: true },
+                                    grid: { color: isDarkTheme ? 'rgba(255,255,255,0.1)' : '#ccc' }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: ctx => `${ctx.parsed.y} °C`
+                                    },
+                                    backgroundColor: isDarkTheme ? "#101010" : "#fff",
+                                    titleColor: isDarkTheme ? "#d8d8d8" : "#000",
+                                    bodyColor: isDarkTheme ? "#d8d8d8" : "#000",
+                                    borderColor: isDarkTheme ? "#417630" : "#ccc",
+                                    borderWidth: 1
+                                }
+                            }
+                        }
+                    });
                 }
-            }
-        });
-    }
 
                 function updateChart(chart, newData) {
                     if (chart) {
@@ -455,6 +472,41 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
                 </div>
             </div>
 
+            <!-- Histogram -->
+            <div class="chart-section">
+                <div class="scroll-wrapper">
+                    <div class="chart-container histogram" style="min-width: 80%; height: 360px;"> <!-- Adjust width and height here -->
+                        <canvas id="histogramChart"></canvas>
+                    </div>
+                    <style>
+                        @media screen and (max-width: 720px) { .histogram {width: 200%; height: 360px;} }
+                    </style>
+                </div>
+
+                <div class="chartInfo">
+                    <div class="histogram-legends">
+                        <h2>Legends</h2>
+                        <div class="legend-item">
+                            <span class="legend-line motor1"></span>
+                            Loading Motor Temperature 1...
+                        </div>
+                        <div class="legend-item">
+                            <span class="legend-line motor2"></span>
+                            Loading Motor Temperature 2...
+                        </div>
+                    </div>
+
+                    <div class="histogram-remarks">
+                        <h2>Remarks</h2>
+                        <span class="remarks-status">Loading...</span>
+                        <p>---</p>
+                        <h2>Recommendations</h2>
+                        <p>None</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
             <div class="table-responsive">
                 <table class="styled-table" id="sensorTable">
                     <thead>
@@ -476,51 +528,158 @@ $theme = $_SESSION['theme']; // 1 = dark, 0 = light
             </div>
 
             <script>
-                function fetchTableData() {
+                let motorTempChart = null;
+                let selectedMachineHistory = "CLF 750A"; // default machine
+
+                function fetchMotorTempHistogram() {
+                    const month = document.getElementById("filter-month")?.value || 0;
+
+                    // Fetch chart data
+                    fetch(`fetch/fetch_motor_temp_histogram.php?machine=${encodeURIComponent(selectedMachineHistory)}&month=${month}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log("Motor Temp Histogram data:", data);
+
+                            const temp1Freq = data.temp1Freq || [];
+                            const temp2Freq = data.temp2Freq || [];
+                            const labels = data.labels || [];
+
+                            const noData = (!labels.length || (temp1Freq.every(v => v === 0) && temp2Freq.every(v => v === 0)));
+
+                            // Update Remarks
+                            const remarksStatus = document.querySelector(".histogram-remarks .remarks-status");
+                            const remarksText = document.querySelector(".histogram-remarks p");
+                            if (noData) {
+                                remarksStatus.innerText = "No data found";
+                                remarksStatus.style.color = "rgb(153, 153, 153)";
+                                remarksText.innerText = "No Motor Temperature records for the selected filters.";
+                            } else {
+                                remarksStatus.innerText = "Stable";
+                                remarksStatus.style.color = "#417630";
+                                remarksText.innerText = "Motor Temperatures are within expected range.";
+                            }
+
+                            // Update Legends
+                            const legendMotor1 = document.querySelector(".legend-item .motor1").nextSibling;
+                            const legendMotor2 = document.querySelector(".legend-item .motor2").nextSibling;
+
+                            legendMotor1.textContent = (temp1Freq.every(v => v === 0)) 
+                                ? "No Motor Temperature 1 data" 
+                                : "Motor Temperature 1 is stable at...";
+
+                            legendMotor2.textContent = (temp2Freq.every(v => v === 0)) 
+                                ? "No Motor Temperature 2 data" 
+                                : "Motor Temperature 2 is stable at...";
+
+                            // Render Chart
+                            const ctx = document.getElementById('histogramChart').getContext('2d');
+                            if (motorTempChart) motorTempChart.destroy();
+
+                            motorTempChart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: labels, // x-axis: temperature bins
+                                    datasets: [
+                                        {
+                                            label: 'Motor Temp 1 Frequency',
+                                            data: temp1Freq,
+                                            borderColor: '#f59c2f',
+                                            backgroundColor: '#f59c2f',
+                                            borderWidth: 2,
+                                            fill: false,
+                                            tension: 0.3,
+                                            spanGaps: true,
+                                            yAxisID: 'y'
+                                        },
+                                        {
+                                            label: 'Motor Temp 2 Frequency',
+                                            data: temp2Freq,
+                                            borderColor: 'rgb(174,21,21)',
+                                            backgroundColor: 'rgb(174,21,21)',
+                                            borderWidth: 2,
+                                            fill: false,
+                                            tension: 0.3,
+                                            spanGaps: true,
+                                            yAxisID: 'y'
+                                        }
+                                    ]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    interaction: {
+                                        mode: 'index',
+                                        intersect: false
+                                    },
+                                    plugins: {
+                                        legend: { display: false },
+                                        tooltip: {
+                                            backgroundColor: "<?php echo $tooltipBg; ?>",
+                                            titleColor: "<?php echo $tooltipText; ?>",
+                                            bodyColor: "<?php echo $tooltipText; ?>",
+                                            callbacks: {
+                                                title: (context) => `Temperature bin: ${labels[context[0].dataIndex]}°C`,
+                                                label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}`
+                                            }
+                                        }
+                                    },
+                                    scales: {
+                                        x: {
+                                            title: { display: true, text: 'Temperature (°C)', color: "<?php echo $titleColor; ?>" },
+                                            ticks: { color: "<?php echo $labelColor; ?>" },
+                                            grid: { color: "<?php echo $gridColor; ?>" }
+                                        },
+                                        y: {
+                                            beginAtZero: true,
+                                            title: { display: true, text: 'Frequency', color: "<?php echo $titleColor; ?>" },
+                                            ticks: { color: "<?php echo $labelColor; ?>" },
+                                            grid: { color: "<?php echo $gridColor; ?>" }
+                                        }
+                                    }
+                                }
+                            });
+                        })
+                        .catch(err => console.error("Motor Temp Histogram fetch failed:", err));
+
+                    // Fetch table data
+                    fetchMotorTempTable();
+                }
+
+                // Fetch table
+                function fetchMotorTempTable() {
                     const showEntries = document.getElementById('show-entries').value;
-                    const filterMonth = document.getElementById('filter-month').value;
-                    const selectedMachine = document.querySelector('#machine-tab-list-history .machine-tab.active').getAttribute('data-machine');
+                    const month = document.getElementById('filter-month').value;
                     
                     const xhr = new XMLHttpRequest();
-                    xhr.open('GET', `fetch/fetch_motor_temp_table.php?show=${showEntries}&month=${filterMonth}&machine=${encodeURIComponent(selectedMachine)}`, true);
+                    xhr.open('GET', `fetch/fetch_motor_temp_table.php?show=${showEntries}&month=${month}&machine=${encodeURIComponent(selectedMachineHistory)}`, true);
                     xhr.onload = function() {
-                    if (xhr.status === 200) {
-                        document.getElementById('table-body').innerHTML = xhr.responseText;
-                    }
+                        if (xhr.status === 200) {
+                            document.getElementById('table-body').innerHTML = xhr.responseText;
+                        }
                     };
                     xhr.send();
                 }
 
-                // Update table when controls change
-                document.getElementById('show-entries').addEventListener('change', fetchTableData);
-                document.getElementById('filter-month').addEventListener('change', fetchTableData);
-
-                // Handle machine tab switching for history section
+                // Machine tab selection
                 function selectMachineTabHistory(tab) {
                     document.querySelectorAll('#machine-tab-list-history .machine-tab').forEach(btn => btn.classList.remove('active'));
                     tab.classList.add('active');
-                    fetchTableData(); // refresh table when machine changes
+                    selectedMachineHistory = tab.getAttribute('data-machine');
+                    fetchMotorTempHistogram(); // fetch both chart and table
                 }
 
-                // Set default month to current month
-                document.addEventListener("DOMContentLoaded", function () {
-                    // Set default month to current
-                    let currentMonth = new Date().getMonth() + 1;
-                    document.getElementById("filter-month").value = currentMonth;
+                // Event listeners
+                document.getElementById('filter-month').addEventListener('change', fetchMotorTempHistogram);
+                document.getElementById('show-entries').addEventListener('change', fetchMotorTempTable);
 
-                    // Explicitly activate CLF 750A tab for history
-                    const defaultMachineTab = document.querySelector('#machine-tab-list-history .machine-tab[data-machine="CLF 750A"]');
-                    if (defaultMachineTab) {
-                    selectMachineTabHistory(defaultMachineTab); // this calls fetchTableData()
-                    } else {
-                    fetchTableData(); // fallback if something goes wrong
-                    }
+                // Initial load
+                document.addEventListener("DOMContentLoaded", () => {
+                    // Activate default machine tab
+                    const defaultTab = document.querySelector('#machine-tab-list-history .machine-tab[data-machine="CLF 750A"]');
+                    if (defaultTab) selectMachineTabHistory(defaultTab);
                 });
-                
-                // Refresh button click
-                document.getElementById('refreshTempHistory').addEventListener('click', fetchTableData);
             </script>
-            
+
             <div class="table-download">
                 <a href="#" class="btn-download">Download PDF</a>
                 <a href="#" class="btn-download">Download Excel</a>
