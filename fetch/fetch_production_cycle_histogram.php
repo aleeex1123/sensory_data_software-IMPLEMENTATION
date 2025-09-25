@@ -6,6 +6,8 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/db_config.php';
 
 $machine = $_GET['machine'] ?? '';
+$month = isset($_GET['month']) ? intval($_GET['month']) : 0;
+
 if (!$machine) {
     http_response_code(400);
     echo json_encode(["error" => "Missing machine parameter"]);
@@ -14,7 +16,11 @@ if (!$machine) {
 
 $table = "production_cycle_" . $conn->real_escape_string($machine);
 
-$sql = "SELECT cycle_time, tempC_01, tempC_02 FROM $table";
+$sql = "SELECT cycle_time, tempC_01, tempC_02, timestamp FROM $table";
+if ($month > 0) {
+    $sql .= " WHERE MONTH(timestamp) = $month";
+}
+
 $result = $conn->query($sql);
 
 if (!$result) {

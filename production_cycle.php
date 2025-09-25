@@ -1027,8 +1027,9 @@ $durationText = 'Loading...';
 
                 function fetchHistogram() {
                     const machine = "<?php echo $machine_safe; ?>";
+                    const month = document.getElementById('filter-month').value; // 👈 get selected month
 
-                    fetch(`fetch/fetch_production_cycle_histogram.php?machine=${machine}`)
+                    fetch(`fetch/fetch_production_cycle_histogram.php?machine=${machine}&month=${month}`)
                         .then(res => res.json())
                         .then(data => {
                             console.log("Histogram data:", data);
@@ -1051,7 +1052,7 @@ $durationText = 'Loading...';
                                             fill: false,
                                             tension: 0.3,
                                             yAxisID: 'y1',
-                                            spanGaps: true  // connect across gaps
+                                            spanGaps: true
                                         },
                                         {
                                             type: 'line',
@@ -1063,7 +1064,7 @@ $durationText = 'Loading...';
                                             fill: false,
                                             tension: 0.3,
                                             yAxisID: 'y1',
-                                            spanGaps: true   // connect across gaps
+                                            spanGaps: true
                                         },
                                         {
                                             type: 'bar',
@@ -1073,13 +1074,12 @@ $durationText = 'Loading...';
                                             borderRadius: { topLeft: 4, topRight: 4 }
                                         }
                                     ]
-
                                 },
                                 options: {
                                     responsive: true,
                                     maintainAspectRatio: false,
                                     plugins: {
-                                        legend: { display: false }, // show legend now since we have 3 datasets
+                                        legend: { display: false },
                                         tooltip: {
                                             backgroundColor: "<?php echo $tooltipBg; ?>",
                                             titleColor: "<?php echo $titleColor; ?>",
