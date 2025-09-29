@@ -73,7 +73,7 @@ if ($theme == 1) { // dark mode
                 style="margin-right: 6px; vertical-align: middle; font-size: smaller;"></i> Settings</a>
 
                 <a href="#" id="darkModeToggle">
-                    <i class="bxr <?php echo ($theme == 1) ? 'bx-moon' : 'bx-sun'; ?>" 
+                    <i class="bxr <?php echo ($theme == 1) ? 'bx-sun' : 'bx-moon'; ?>" 
                     style="margin-right: 6px; vertical-align: middle; font-size: smaller;"></i>
                     <?php echo ($theme == 1) ? 'To Light Mode' : 'To Dark Mode'; ?>
                 </a>
@@ -93,11 +93,11 @@ if ($theme == 1) { // dark mode
                     if (data.theme == 1) {
                         document.body.classList.add("dark-mode");
                         document.body.classList.remove("light-mode");
-                        this.innerHTML = "<i class='bxr bx-moon' style='margin-right:6px; font-size: smaller;'></i>To Light Mode";
+                        this.innerHTML = "<i class='bxr bx-sun' style='margin-right:6px; font-size: smaller;'></i>To Light Mode";
                     } else {
                         document.body.classList.add("light-mode");
                         document.body.classList.remove("dark-mode");
-                        this.innerHTML = "<i class='bxr bx-sun' style='margin-right:6px; font-size: smaller;'></i>To Dark Mode";
+                        this.innerHTML = "<i class='bxr bx-moon' style='margin-right:6px; font-size: smaller;'></i>To Dark Mode";
                     }
                     location.reload();
                 });
