@@ -162,7 +162,12 @@ $durationText = 'Loading...';
         <span class="side-table-toggle" id="sideTableToggle">&#x25C0;</span>
 
         <div class="content-header">
-            <h2 style="margin: 0;">Product Molds</h2>
+            <h2 style="margin: 0;">
+                Product Molds
+                <button id="addMoldButton" style="background: none; border: none; cursor: pointer;">
+                    <i class='bxr bx-plus add'></i> 
+                </button>
+            </h2>
             <input type="text" id="searchMold" placeholder="Search Molds..." onkeyup="filterMolds()">
         </div>
 
@@ -198,6 +203,26 @@ $durationText = 'Loading...';
             </table>
         </div>
 
+        <!-- Add Mold Modal -->
+        <div id="addMoldModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-button" id="closeModalButton">&times;</span>
+                <h4 style="text-align: left">Add new product mold</h4>
+                <form id="addMoldForm">
+                    <label for="moldName">Mold Name:</label>
+                    <input type="text" id="moldName" name="moldName" required>
+                    
+                    <label for="moldNumber">Mold Number:</label>
+                    <input type="text" id="moldNumber" name="moldNumber" required>
+                    
+                    <label for="thickness">Thickness (mm):</label>
+                    <input type="number" id="thickness" name="thickness" required>
+                    
+                    <button type="submit">Add Mold</button>
+                </form>
+            </div>
+        </div>
+
         <script>
             // Toggle side table visibility
             document.addEventListener("DOMContentLoaded", function () {
@@ -205,6 +230,56 @@ $durationText = 'Loading...';
                 const sideTableToggle = document.getElementById('sideTableToggle');
                 sideTableToggle.addEventListener('click', function () {
                     sideTable.classList.toggle('collapsed');
+                });
+
+                // Modal functionality
+                const addMoldButton = document.getElementById('addMoldButton');
+                const addMoldModal = document.getElementById('addMoldModal');
+                const closeModalButton = document.getElementById('closeModalButton');
+                const addMoldForm = document.getElementById('addMoldForm');
+
+                addMoldButton.addEventListener('click', function () {
+                    addMoldModal.style.display = 'block';
+                });
+
+                closeModalButton.addEventListener('click', function () {
+                    addMoldModal.style.display = 'none';
+                });
+
+                window.addEventListener('click', function (event) {
+                    if (event.target === addMoldModal) {
+                        addMoldModal.style.display = 'none';
+                    }
+                });
+
+                addMoldForm.addEventListener('submit', function (event) {
+                    event.preventDefault();
+
+                    const moldName = document.getElementById('moldName').value;
+                    const moldNumber = document.getElementById('moldNumber').value;
+                    const thickness = document.getElementById('thickness').value;
+
+                    // Send data to the server via AJAX
+                    fetch('fetch/fetch_production_cycle_add_mold.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ moldName, moldNumber, thickness })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Mold added successfully!');
+                            location.reload(); // Reload the page to update the table
+                        } else {
+                            alert('Failed to add mold: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while adding the mold.');
+                    });
+
+                    addMoldModal.style.display = 'none';
                 });
             });
 
@@ -238,18 +313,6 @@ $durationText = 'Loading...';
                 }
             }
         </script>
-        <style>
-            .side-table.collapsed {
-                transform: translateX(-100%);
-                transition: transform 0.3s;
-            }
-            .side-table {
-                transition: transform 0.3s;
-            }
-            .no-results td {
-                background-color: var(--gray);
-            }
-        </style>
     </div>
 
     <!-- Main -->

@@ -81,9 +81,9 @@ body {
     flex-wrap: wrap
 }
 
-.content-header .refresh {
+.content-header .refresh, .content-header .add{
     color: #adadad;
-    background: #417630;
+    background: var(--green);
     border-radius: 24px;
     padding: 6px;
     cursor: pointer; 
@@ -415,6 +415,13 @@ body.light-mode select {
 body.light-mode input {
     background: var(--light-bg);
     color: var(--black);
+}
+
+body.light-mode .content-header .refresh,
+body.light-mode .content-header .add
+{
+    background: var(--green);
+    color: white;
 }
 
 /* Navbar */

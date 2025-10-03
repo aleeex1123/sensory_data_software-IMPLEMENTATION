@@ -10,6 +10,9 @@ $machine = isset($_GET['machine']) ? trim($_GET['machine']) : null;
 $temp1   = isset($_GET['temp1']) ? floatval($_GET['temp1']) : null;
 $temp2   = isset($_GET['temp2']) ? floatval($_GET['temp2']) : null;
 
+// Adjust temp1 by adding 25
+$temp1 = $temp1 + 25; 
+
 // Only proceed if all required params are provided
 if (!$machine || $temp1 === null || $temp2 === null) {
     echo json_encode(["status" => "error", "message" => "Missing required parameters"]);

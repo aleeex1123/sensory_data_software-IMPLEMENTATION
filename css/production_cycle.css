@@ -25,6 +25,100 @@
     --light-scrollbar-bg: #e6e6e6;
 }
 
+/* Product Molds */
+.side-table.collapsed {
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+}
+
+.side-table {
+    transition: transform 0.3s;
+}
+
+.no-results td {
+    background-color: var(--gray);
+}
+
+.modal {
+    font-size: 0.8rem;
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: var(--black);
+    margin: 15% auto;
+    padding: 18px;
+    border: solid 1px var(--green);
+    border-radius: 8px;
+    width: 50%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.3s;
+}
+
+.close-button {
+    color: var(--off-white);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+form label {
+    display: block;
+    margin: 10px 0 5px;
+}
+
+form input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 18px;
+    border-radius: 4px;
+}
+
+form button {
+    background-color: #417630;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #356a27;
+}
+
+@media (max-width: 720px) {
+    .modal {
+        overflow: visible;
+    }
+    
+    .modal-content {
+        margin: 50% -5%;
+        width: 100%;
+    }
+}
+
 /* Production Status */
 .status-container {
     display: flex;
@@ -351,6 +445,11 @@ body.light-mode .current-product-value {
 body.light-mode button:disabled {
     background-color: white; /* white background */
 
+}
+
+/* Product Molds */
+body.light-mode .modal-content {
+    background: white;
 }
 
 /* Bars and charts */

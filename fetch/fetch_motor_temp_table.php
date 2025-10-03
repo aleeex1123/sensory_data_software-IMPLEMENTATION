@@ -9,19 +9,25 @@ $show = isset($_GET['show']) ? $_GET['show'] : '10';
 $month = isset($_GET['month']) ? intval($_GET['month']) : 0;
 $machine = isset($_GET['machine']) ? $conn->real_escape_string($_GET['machine']) : '';
 
-$sql = "SELECT id, motor_tempC_01, motor_tempF_01, motor_tempC_02, motor_tempF_02, timestamp 
-        FROM motor_temperatures 
+// Get current month number (1–12)
+$currentMonth = intval(date('n'));
+
+// Decide which table to use
+$table = ($month > 0 && $month !== $currentMonth) ? "motor_temperatures_archive" : "motor_temperatures";
+
+$sql = "SELECT id, motor_tempC_01, motor_tempF_01, motor_tempC_02, motor_tempF_02, `timestamp` 
+        FROM $table 
         WHERE 1";
 
 if ($month > 0) {
-    $sql .= " AND MONTH(timestamp) = $month";
+    $sql .= " AND MONTH(`timestamp`) = $month";
 }
 
 if (!empty($machine)) {
     $sql .= " AND machine = '$machine'";
 }
 
-$sql .= " ORDER BY timestamp DESC";
+$sql .= " ORDER BY `timestamp` DESC";
 
 if ($show !== "all") {
     $showInt = intval($show);

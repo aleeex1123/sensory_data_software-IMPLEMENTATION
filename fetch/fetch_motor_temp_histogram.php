@@ -14,11 +14,36 @@ if (!$machine) {
 }
 
 $safeMachine = $conn->real_escape_string($machine);
+$currentMonth = (int)date('n'); // 1-12
 
-// Build query with optional month filter
-$sql = "SELECT motor_tempC_01, motor_tempC_02 FROM motor_temperatures WHERE machine='$safeMachine'";
-if ($month > 0) {
-    $sql .= " AND MONTH(timestamp) = $month";
+// Decide which table(s) to use
+if ($month === 0) {
+    // Fetch from both tables
+    $sql = "
+        SELECT motor_tempC_01, motor_tempC_02 
+        FROM motor_temperatures 
+        WHERE machine='$safeMachine'
+        UNION ALL
+        SELECT motor_tempC_01, motor_tempC_02 
+        FROM motor_temperatures_archive 
+        WHERE machine='$safeMachine'
+    ";
+} elseif ($month === $currentMonth) {
+    // Current month → live table
+    $sql = "
+        SELECT motor_tempC_01, motor_tempC_02 
+        FROM motor_temperatures 
+        WHERE machine='$safeMachine' 
+          AND MONTH(`timestamp`) = $month
+    ";
+} else {
+    // Past month → archive table
+    $sql = "
+        SELECT motor_tempC_01, motor_tempC_02 
+        FROM motor_temperatures_archive 
+        WHERE machine='$safeMachine' 
+          AND MONTH(`timestamp`) = $month
+    ";
 }
 
 $result = $conn->query($sql);
@@ -36,7 +61,7 @@ while ($row = $result->fetch_assoc()) {
     if ($row['motor_tempC_02'] !== null) $temp2[] = (float)$row['motor_tempC_02'];
 }
 
-// Check if there's data
+// If no data
 if (empty($temp1) && empty($temp2)) {
     echo json_encode([
         "labels" => [],
@@ -46,16 +71,15 @@ if (empty($temp1) && empty($temp2)) {
     exit;
 }
 
-// Combine all temperatures to determine global min/max
+// Combine for global min/max
 $allTemps = array_merge($temp1, $temp2);
 $minTemp = floor(min($allTemps));
 $maxTemp = ceil(max($allTemps));
 
-// Determine number of bins dynamically (roughly 1°C per bin or max 20 bins)
+// Bin count (max 20)
 $binCount = min(20, max(1, $maxTemp - $minTemp + 1));
 $binSize = ($maxTemp - $minTemp) / $binCount;
 
-// Initialize bins
 $labels = [];
 $temp1Freq = array_fill(0, $binCount, 0);
 $temp2Freq = array_fill(0, $binCount, 0);
@@ -63,19 +87,16 @@ $temp2Freq = array_fill(0, $binCount, 0);
 for ($i = 0; $i < $binCount; $i++) {
     $start = $minTemp + $i * $binSize;
     $end = $start + $binSize;
-    // Use midpoint for label
-    $mid = ($start + $end) / 2;
-    $labels[] = round($mid, 1);
+    $labels[] = round(($start + $end) / 2, 1); // midpoint label
 }
 
-// Populate frequency for Motor Temp 1
+// Fill bins
 foreach ($temp1 as $t) {
     $index = floor(($t - $minTemp) / $binSize);
     if ($index >= $binCount) $index = $binCount - 1;
     $temp1Freq[$index]++;
 }
 
-// Populate frequency for Motor Temp 2
 foreach ($temp2 as $t) {
     $index = floor(($t - $minTemp) / $binSize);
     if ($index >= $binCount) $index = $binCount - 1;
@@ -87,3 +108,4 @@ echo json_encode([
     "temp1Freq" => $temp1Freq,
     "temp2Freq" => $temp2Freq
 ]);
+?>

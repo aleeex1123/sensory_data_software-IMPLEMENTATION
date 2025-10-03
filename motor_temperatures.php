@@ -660,6 +660,12 @@ if ($theme == 1) { // dark mode
                     xhr.send();
                 }
 
+                // Set default filter month to current month
+                document.addEventListener("DOMContentLoaded", () => {
+                    const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-based
+                    document.getElementById('filter-month').value = currentMonth;
+                });
+
                 // Machine tab selection
                 function selectMachineTabHistory(tab) {
                     document.querySelectorAll('#machine-tab-list-history .machine-tab').forEach(btn => btn.classList.remove('active'));

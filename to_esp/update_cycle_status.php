@@ -62,6 +62,7 @@ if (isset($_GET['cycle_status']) && isset($_GET['machine'])) {
 
             $temps = getLatestTemps($conn, $_GET['machine']);
 
+            $recycle_time = max(0, $recycle_time - 5); // Ensure recycle_time doesn't go below 0
             $stmt = $conn->prepare("UPDATE `$targetTable` 
                                     SET cycle_status = 1, recycle_time = ?, 
                                         tempC_01 = ?, tempC_02 = ?, 
