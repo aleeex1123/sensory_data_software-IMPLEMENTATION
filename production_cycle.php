@@ -175,10 +175,11 @@ $durationText = 'Loading...';
             <table class="styled-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Mold Name</th>
-                        <th>Mold Number</th>
-                        <th>Thickness</th>
+                    <th>ID</th>
+                    <th>Mold Name</th>
+                    <th>Mold Number</th>
+                    <th>Thickness</th>
+                    <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="moldTableBody">
@@ -188,22 +189,32 @@ $durationText = 'Loading...';
                     if ($mold_result && $mold_result->num_rows > 0) {
                         while ($row = $mold_result->fetch_assoc()) {
                             echo "<tr>
-                                    <td>{$row['id']}</td>
-                                    <td>{$row['mold_name']}</td>
-                                    <td>{$row['mold_number']}</td>
-                                    <td>{$row['thickness']} mm</td>
-                                </tr>";
+                            <td>{$row['id']}</td>
+                            <td>{$row['mold_name']}</td>
+                            <td>{$row['mold_number']}</td>
+                            <td>{$row['thickness']} mm</td>
+                            <td style='text-align: center;'>
+                            <div style='display: flex; flex-direction: row; align-items: center; gap: 8px;'>
+                                <button class='edit-btn' data-id='{$row['id']}' title='Edit'>
+                                    <i class='bx bx-edit'></i>
+                                </button>
+                                <button class='delete-btn' data-id='{$row['id']}' title='Delete'>
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                            </td>
+                            </tr>";
                         }
                     }
                     ?>
                     <tr class="no-results" style="display: none;">
-                        <td colspan="4" style="background: <?php echo $NAtableBg; ?>; text-align: center; color: <?php echo $NAtableText; ?>;">No molds found</td>
+                        <td colspan="5" style="background: <?php echo $NAtableBg; ?>; text-align: center; color: <?php echo $NAtableText; ?>;">No molds found</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Add Mold Modal -->
+        <!-- Mold Modal -->
         <div id="addMoldModal" class="modal" style="display: none;">
             <div class="modal-content">
                 <span class="close-button" id="closeModalButton">&times;</span>
@@ -228,20 +239,33 @@ $durationText = 'Loading...';
             document.addEventListener("DOMContentLoaded", function () {
                 const sideTable = document.getElementById('sideTable');
                 const sideTableToggle = document.getElementById('sideTableToggle');
-                sideTableToggle.addEventListener('click', function () {
-                    sideTable.classList.toggle('collapsed');
-                });
-
-                // Modal functionality
                 const addMoldButton = document.getElementById('addMoldButton');
                 const addMoldModal = document.getElementById('addMoldModal');
                 const closeModalButton = document.getElementById('closeModalButton');
                 const addMoldForm = document.getElementById('addMoldForm');
 
+                const modalTitle = addMoldModal.querySelector('h4');
+                const submitButton = addMoldForm.querySelector('button[type="submit"]');
+
+                let editMode = false;
+                let editId = null;
+
+                // Toggle side table
+                sideTableToggle.addEventListener('click', function () {
+                    sideTable.classList.toggle('collapsed');
+                });
+
+                // Open modal for ADD
                 addMoldButton.addEventListener('click', function () {
+                    editMode = false;
+                    editId = null;
+                    modalTitle.textContent = 'Add new product mold';
+                    submitButton.textContent = 'Add Mold';
+                    addMoldForm.reset();
                     addMoldModal.style.display = 'block';
                 });
 
+                // Close modal
                 closeModalButton.addEventListener('click', function () {
                     addMoldModal.style.display = 'none';
                 });
@@ -252,6 +276,7 @@ $durationText = 'Loading...';
                     }
                 });
 
+                // Handle form submit for both add and edit
                 addMoldForm.addEventListener('submit', function (event) {
                     event.preventDefault();
 
@@ -259,27 +284,87 @@ $durationText = 'Loading...';
                     const moldNumber = document.getElementById('moldNumber').value;
                     const thickness = document.getElementById('thickness').value;
 
-                    // Send data to the server via AJAX
-                    fetch('fetch/fetch_production_cycle_add_mold.php', {
+                    let url = 'fetch/fetch_production_cycle_add_mold.php';
+                    let body = { moldName, moldNumber, thickness };
+
+                    if (editMode) {
+                        url = 'fetch/fetch_production_cycle_edit_mold.php';
+                        body.id = editId;
+                    }
+
+                    fetch(url, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ moldName, moldNumber, thickness })
+                        body: JSON.stringify(body)
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            alert('Mold added successfully!');
-                            location.reload(); // Reload the page to update the table
+                            alert(editMode ? 'Mold updated successfully!' : 'Mold added successfully!');
+                            location.reload();
                         } else {
-                            alert('Failed to add mold: ' + data.error);
+                            alert('Failed: ' + data.error);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('An error occurred while adding the mold.');
+                        alert('An error occurred.');
                     });
 
                     addMoldModal.style.display = 'none';
+                });
+
+                // Handle edit button
+                document.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const row = this.closest('tr');
+                        const id = this.getAttribute('data-id');
+                        const moldName = row.children[1].textContent;
+                        const moldNumber = row.children[2].textContent;
+                        const thickness = row.children[3].textContent.replace(' mm', '');
+
+                        editMode = true;
+                        editId = id;
+
+                        document.getElementById('moldName').value = moldName;
+                        document.getElementById('moldNumber').value = moldNumber;
+                        document.getElementById('thickness').value = thickness;
+
+                        modalTitle.textContent = 'Edit product mold';
+                        submitButton.textContent = 'Save Changes';
+
+                        addMoldModal.style.display = 'block';
+                    });
+                });
+                
+                // Handle delete button
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const id = this.getAttribute('data-id');
+                        const row = this.closest('tr');
+                        const moldName = row.children[1].textContent;
+
+                        if (confirm(`Are you sure you want to delete mold "${moldName}"?`)) {
+                            fetch('fetch/fetch_production_cycle_delete_mold.php', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert('Mold deleted successfully!');
+                                    location.reload();
+                                } else {
+                                    alert('Failed to delete: ' + data.error);
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('An error occurred.');
+                            });
+                        }
+                    });
                 });
             });
 

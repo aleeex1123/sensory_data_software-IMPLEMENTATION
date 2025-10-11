@@ -26,6 +26,28 @@
 }
 
 /* Product Molds */
+.edit-btn {
+    background-color: var(--green);
+    font-weight: lighter;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.delete-btn {
+    background-color: var(--red);
+    font-weight: lighter;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
 .side-table.collapsed {
     transform: translateX(-100%);
     transition: transform 0.3s;
